@@ -81,6 +81,12 @@
     "egulias/email-validator": {
         "version": "2.1.18"
     },
+    "laminas/laminas-code": {
+        "version": "3.4.1"
+    },
+    "laminas/laminas-eventmanager": {
+        "version": "3.2.1"
+    },
     "laminas/laminas-zendframework-bridge": {
         "version": "1.0.4"
     },
@@ -167,6 +173,9 @@
     },
     "symfony/css-selector": {
         "version": "v5.1.2"
+    },
+    "symfony/debug": {
+        "version": "v4.4.10"
     },
     "symfony/debug-bundle": {
         "version": "4.1",
