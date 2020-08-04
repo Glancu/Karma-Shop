@@ -4,12 +4,12 @@ namespace App\Entity;
 
 use App\Repository\ShopColorRepository;
 use Doctrine\ORM\Mapping as ORM;
+use DateTime;
 
 /**
  * @ORM\Entity(repositoryClass=ShopColorRepository::class)
  */
-class ShopColor
-{
+class ShopColor {
     /**
      * @ORM\Id()
      * @ORM\GeneratedValue()
@@ -32,42 +32,49 @@ class ShopColor
      */
     private $enable;
 
-    public function getId(): ?int
-    {
-        return $this->id;
+    /**
+     * ShopColor constructor.
+     */
+    public function __construct() {
+        $this->createdAt = new DateTime('now');
     }
 
-    public function getName(): ?string
-    {
+    /**
+     * @return string
+     */
+    public function __toString(): string {
         return $this->name;
     }
 
-    public function setName(string $name): self
-    {
+    public function getId(): ?int {
+        return $this->id;
+    }
+
+    public function getName(): ?string {
+        return $this->name;
+    }
+
+    public function setName(string $name): self {
         $this->name = $name;
 
         return $this;
     }
 
-    public function getCreatedAt(): ?\DateTimeInterface
-    {
+    public function getCreatedAt(): ?\DateTimeInterface {
         return $this->createdAt;
     }
 
-    public function setCreatedAt(\DateTimeInterface $createdAt): self
-    {
+    public function setCreatedAt(\DateTimeInterface $createdAt): self {
         $this->createdAt = $createdAt;
 
         return $this;
     }
 
-    public function getEnable(): ?bool
-    {
+    public function getEnable(): ?bool {
         return $this->enable;
     }
 
-    public function setEnable(?bool $enable): self
-    {
+    public function setEnable(?bool $enable): self {
         $this->enable = $enable;
 
         return $this;

@@ -4,12 +4,13 @@ namespace App\Entity;
 
 use App\Repository\ShopCategoryRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Gedmo\Mapping\Annotation as Gedmo;
+use DateTime;
 
 /**
  * @ORM\Entity(repositoryClass=ShopCategoryRepository::class)
  */
-class ShopCategory
-{
+class ShopCategory {
     /**
      * @ORM\Id()
      * @ORM\GeneratedValue()
@@ -23,7 +24,9 @@ class ShopCategory
     private $title;
 
     /**
-     * @ORM\Column(type="string", length=255)
+     * @Gedmo\Slug(fields={"title"}, updatable=true, separator="-", unique=true)
+     *
+     * @ORM\Column(type="string", length=255, unique=true)
      */
     private $slug;
 
@@ -37,54 +40,59 @@ class ShopCategory
      */
     private $enable;
 
-    public function getId(): ?int
-    {
-        return $this->id;
+    /**
+     * ShopCategory constructor.
+     */
+    public function __construct() {
+        $this->createdAt = new DateTime('now');
     }
 
-    public function getTitle(): ?string
-    {
+    /**
+     * @return string
+     */
+    public function __toString(): string {
         return $this->title;
     }
 
-    public function setTitle(string $title): self
-    {
+    public function getId(): ?int {
+        return $this->id;
+    }
+
+    public function getTitle(): ?string {
+        return $this->title;
+    }
+
+    public function setTitle(string $title): self {
         $this->title = $title;
 
         return $this;
     }
 
-    public function getSlug(): ?string
-    {
+    public function getSlug(): ?string {
         return $this->slug;
     }
 
-    public function setSlug(string $slug): self
-    {
+    public function setSlug(string $slug): self {
         $this->slug = $slug;
 
         return $this;
     }
 
-    public function getCreatedAt(): ?\DateTimeInterface
-    {
+    public function getCreatedAt(): ?\DateTimeInterface {
         return $this->createdAt;
     }
 
-    public function setCreatedAt(\DateTimeInterface $createdAt): self
-    {
+    public function setCreatedAt(\DateTimeInterface $createdAt): self {
         $this->createdAt = $createdAt;
 
         return $this;
     }
 
-    public function getEnable(): ?bool
-    {
+    public function getEnable(): ?bool {
         return $this->enable;
     }
 
-    public function setEnable(?bool $enable): self
-    {
+    public function setEnable(?bool $enable): self {
         $this->enable = $enable;
 
         return $this;

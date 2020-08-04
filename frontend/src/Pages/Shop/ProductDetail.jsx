@@ -67,8 +67,8 @@ class ProductDetail extends Component {
                                              autoplayTimeout={5000}
                                              loop={true}
                                              nav={false}
-                                             dots={true}>
-                                {/*<div className="s_Product_carousel">*/}
+                                             dots={true}
+                                >
                                     <div className="single-prd-item">
                                         <img className="img-fluid" src={imgCategorySP1} alt=""/>
                                     </div>
@@ -78,7 +78,6 @@ class ProductDetail extends Component {
                                     <div className="single-prd-item">
                                         <img className="img-fluid" src={imgCategorySP1} alt=""/>
                                     </div>
-                                {/*</div>*/}
                                 </OwlCarousel>
                             </div>
                             <div className="col-lg-5 offset-lg-1">

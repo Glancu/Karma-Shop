@@ -1,0 +1,19 @@
+services:
+  admin.shop.brand:
+    class: App\Admin\ShopBrandAdmin
+    arguments: [~, App\Entity\ShopBrand, ~]
+    tags:
+      - { name: sonata.admin, manager_type: orm, group: Shop, label: Brand }
+
+  admin.shop.category:
+    class: App\Admin\ShopCategoryAdmin
+    arguments: [~, App\Entity\ShopCategory, ~]
+    tags:
+      - { name: sonata.admin, manager_type: orm, group: Shop, label: Category }
+
+  admin.shop.color:
+    class: App\Admin\ShopColorAdmin
+    arguments: [~, App\Entity\ShopColor, ~]
+    tags:
+      - { name: sonata.admin, manager_type: orm, group: Shop, label: Color }
+
