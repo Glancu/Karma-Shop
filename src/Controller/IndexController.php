@@ -1,8 +1,11 @@
 <?php
+declare(strict_types=1);
 
 namespace App\Controller;
 
+use JsonException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -12,16 +15,22 @@ use Symfony\Component\Routing\Annotation\Route;
  * @package App\Controller
  */
 class IndexController extends AbstractController {
-    public function index() {
+    /**
+     * @Route("/{reactRouting}", name="homepage", defaults={"reactRouting"=".+"})
+     *
+     * @return Response
+     */
+    public function index(): Response {
         return $this->render('Index/index.html.twig');
     }
 
     /**
      * @Route("/api/users", name="users")
-     * @return \Symfony\Component\HttpFoundation\JsonResponse
+     *
+     * @return JsonResponse
+     * @throws JsonException
      */
-    public function getUsers()
-    {
+    public function getUsers(): Response {
         $users = [
             [
                 'id' => 1,
@@ -60,7 +69,7 @@ class IndexController extends AbstractController {
         $response->headers->set('Content-Type', 'application/json');
         $response->headers->set('Access-Control-Allow-Origin', '*');
 
-        $response->setContent(json_encode($users));
+        $response->setContent(json_encode($users, JSON_THROW_ON_ERROR));
 
         return $response;
     }

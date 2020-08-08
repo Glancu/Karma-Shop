@@ -3,8 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\ShopBrandRepository;
-use Doctrine\ORM\Mapping as ORM;
 use DateTime;
+use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
 /**

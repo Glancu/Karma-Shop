@@ -1,5 +1,0 @@
-homepage:
-    path: /{reactRouting}
-    controller: App\Controller\IndexController::index
-    defaults:
-        reactRouting: ".+"
