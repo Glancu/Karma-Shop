@@ -5,6 +5,9 @@ sonata_admin:
             - { type: sonata.admin.block.admin_list, position: left }
     options:
         legacy_twig_text_extension: false
+    templates:
+        # Override default template
+        layout: Admin/standard_layout.html.twig
 
 sonata_block:
     blocks:
