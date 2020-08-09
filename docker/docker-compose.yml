@@ -3,11 +3,13 @@ services:
   mysql:
     image: mysql:8.0
     container_name: karma-shop-mysql
+    volumes:
+      - ./karma-shop.sql:/docker-entrypoint-initdb.d/karma-shop.sql
     environment:
       - MYSQL_ROOT_PASSWORD=root
       - MYSQL_DATABASE=karma-shop
-      - MYSQL_USER=root
       - MYSQL_PASSWORD=root
+      - MYSQL_HOST=mysql
     restart: always
     networks:
       - app-network
