@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Repository\ShopColorRepository;
+use App\Traits\EnableTrait;
 use DateTime;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -10,6 +11,8 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Entity(repositoryClass=ShopColorRepository::class)
  */
 class ShopColor {
+    use EnableTrait;
+
     /**
      * @ORM\Id()
      * @ORM\GeneratedValue()
@@ -28,16 +31,10 @@ class ShopColor {
     private $createdAt;
 
     /**
-     * @ORM\Column(type="boolean", nullable=true)
-     */
-    private $enable;
-
-    /**
      * ShopColor constructor.
      */
     public function __construct() {
         $this->createdAt = new DateTime('now');
-        $this->enable = true;
     }
 
     /**
@@ -67,16 +64,6 @@ class ShopColor {
 
     public function setCreatedAt(\DateTimeInterface $createdAt): self {
         $this->createdAt = $createdAt;
-
-        return $this;
-    }
-
-    public function getEnable(): ?bool {
-        return $this->enable;
-    }
-
-    public function setEnable(?bool $enable): self {
-        $this->enable = $enable;
 
         return $this;
     }

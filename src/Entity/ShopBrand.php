@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Repository\ShopBrandRepository;
+use App\Traits\EnableTrait;
 use DateTime;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
@@ -12,6 +13,8 @@ use Gedmo\Mapping\Annotation as Gedmo;
  * @ORM\HasLifecycleCallbacks()
  */
 class ShopBrand {
+    use EnableTrait;
+
     /**
      * @ORM\Id()
      * @ORM\GeneratedValue()
@@ -35,11 +38,6 @@ class ShopBrand {
      * @ORM\Column(type="datetime")
      */
     private $createdAt;
-
-    /**
-     * @ORM\Column(type="boolean", nullable=true)
-     */
-    private $enable;
 
     /**
      * ShopBrand constructor.
@@ -76,15 +74,5 @@ class ShopBrand {
 
     public function getCreatedAt(): ?\DateTimeInterface {
         return $this->createdAt;
-    }
-
-    public function getEnable(): ?bool {
-        return $this->enable;
-    }
-
-    public function setEnable(?bool $enable): self {
-        $this->enable = $enable;
-
-        return $this;
     }
 }

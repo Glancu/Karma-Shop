@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Repository\ShopCategoryRepository;
+use App\Traits\EnableTrait;
 use DateTime;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
@@ -11,6 +12,8 @@ use Gedmo\Mapping\Annotation as Gedmo;
  * @ORM\Entity(repositoryClass=ShopCategoryRepository::class)
  */
 class ShopCategory {
+    use EnableTrait;
+
     /**
      * @ORM\Id()
      * @ORM\GeneratedValue()
@@ -36,16 +39,10 @@ class ShopCategory {
     private $createdAt;
 
     /**
-     * @ORM\Column(type="boolean", nullable=true)
-     */
-    private $enable;
-
-    /**
      * ShopCategory constructor.
      */
     public function __construct() {
         $this->createdAt = new DateTime('now');
-        $this->enable = true;
     }
 
     /**
@@ -85,16 +82,6 @@ class ShopCategory {
 
     public function setCreatedAt(\DateTimeInterface $createdAt): self {
         $this->createdAt = $createdAt;
-
-        return $this;
-    }
-
-    public function getEnable(): ?bool {
-        return $this->enable;
-    }
-
-    public function setEnable(?bool $enable): self {
-        $this->enable = $enable;
 
         return $this;
     }
