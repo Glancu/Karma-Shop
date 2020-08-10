@@ -12,7 +12,9 @@ use Gedmo\Mapping\Annotation as Gedmo;
  * @ORM\Entity(repositoryClass=ShopCategoryRepository::class)
  */
 class ShopCategory {
-    use EnableTrait;
+    use EnableTrait {
+        EnableTrait::__construct as private __EnableTraitConstructor;
+    }
 
     /**
      * @ORM\Id()
@@ -43,6 +45,7 @@ class ShopCategory {
      */
     public function __construct() {
         $this->createdAt = new DateTime('now');
+        $this->__EnableTraitConstructor();
     }
 
     /**

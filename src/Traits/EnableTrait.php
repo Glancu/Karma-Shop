@@ -13,6 +13,13 @@ trait EnableTrait {
     private $enable;
 
     /**
+     * EnableTrait constructor.
+     */
+    public function __construct() {
+        $this->enable = true;
+    }
+
+    /**
      * @return null|bool
      */
     public function isEnable(): ?bool {
@@ -29,8 +36,7 @@ trait EnableTrait {
     /**
      * @ORM\PrePersist
      */
-    public function onPrePersist()
-    {
-        $this->enable = false;
+    public function onPrePersist() {
+        $this->enable = true;
     }
 }

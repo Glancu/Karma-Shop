@@ -13,7 +13,9 @@ use Gedmo\Mapping\Annotation as Gedmo;
  * @ORM\HasLifecycleCallbacks()
  */
 class ShopBrand {
-    use EnableTrait;
+    use EnableTrait {
+        EnableTrait::__construct as private __EnableTraitConstructor;
+    }
 
     /**
      * @ORM\Id()
@@ -44,7 +46,7 @@ class ShopBrand {
      */
     public function __construct() {
         $this->createdAt = new DateTime('now');
-        $this->enable = true;
+        $this->__EnableTraitConstructor();
     }
 
     /**

@@ -11,7 +11,9 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Entity(repositoryClass=ShopColorRepository::class)
  */
 class ShopColor {
-    use EnableTrait;
+    use EnableTrait {
+        EnableTrait::__construct as private __EnableTraitConstructor;
+    }
 
     /**
      * @ORM\Id()
@@ -35,6 +37,7 @@ class ShopColor {
      */
     public function __construct() {
         $this->createdAt = new DateTime('now');
+        $this->__EnableTraitConstructor();
     }
 
     /**
