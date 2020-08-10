@@ -46,6 +46,7 @@ class ShopBrand {
      */
     public function __construct() {
         $this->createdAt = new DateTime('now');
+        $this->enable = true;
     }
 
     /**
