@@ -44,6 +44,7 @@ final class ContactController {
      *
      * @param Request $request
      * @param SerializerInterface $serializer
+     * @param ValidatorInterface $validator
      *
      * @return JsonResponse
      */

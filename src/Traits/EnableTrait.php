@@ -10,7 +10,7 @@ trait EnableTrait {
      *
      * @ORM\Column(type="boolean")
      */
-    private $enable;
+    private bool $enable;
 
     /**
      * EnableTrait constructor.
@@ -31,12 +31,5 @@ trait EnableTrait {
      */
     public function setEnable(bool $enable): void {
         $this->enable = $enable;
-    }
-
-    /**
-     * @ORM\PrePersist
-     */
-    public function onPrePersist() {
-        $this->enable = true;
     }
 }

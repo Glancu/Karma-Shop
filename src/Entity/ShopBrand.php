@@ -23,19 +23,19 @@ class ShopBrand {
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
      */
-    private $id;
+    private int $id;
 
     /**
      * @ORM\Column(name="title", type="string", length=255)
      */
-    private $title;
+    private string $title;
 
     /**
      * @Gedmo\Slug(fields={"title"}, updatable=true, separator="-", unique=true)
      *
      * @ORM\Column(type="string", length=255, unique=true)
      */
-    private $slug;
+    private string $slug;
 
     /**
      * ShopBrand constructor.
