@@ -11,20 +11,19 @@ trait CreatedAtTrait {
      *
      * @ORM\Column(name="created_at", type="datetime")
      */
-    private $createdAt;
+    private DateTime $createdAt;
+
+    /**
+     * CreatedAtTrait constructor.
+     */
+    public function __construct() {
+        $this->createdAt = new DateTime('now');
+    }
 
     /**
      * @return null|DateTime
      */
     public function getCreatedAt(): ?DateTime {
         return $this->createdAt;
-    }
-
-    /**
-     * @ORM\PrePersist
-     */
-    public function onPrePersist()
-    {
-        $this->createdAt = new DateTime();
     }
 }

@@ -3,8 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\ShopBrandRepository;
+use App\Traits\CreatedAtTrait;
 use App\Traits\EnableTrait;
-use DateTime;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
@@ -13,8 +13,9 @@ use Gedmo\Mapping\Annotation as Gedmo;
  * @ORM\HasLifecycleCallbacks()
  */
 class ShopBrand {
-    use EnableTrait {
+    use EnableTrait, CreatedAtTrait {
         EnableTrait::__construct as private __EnableTraitConstructor;
+        CreatedAtTrait::__construct as private __CreatedAtTraitConstructor;
     }
 
     /**
@@ -37,16 +38,11 @@ class ShopBrand {
     private $slug;
 
     /**
-     * @ORM\Column(type="datetime")
-     */
-    private $createdAt;
-
-    /**
      * ShopBrand constructor.
      */
     public function __construct() {
-        $this->createdAt = new DateTime('now');
         $this->__EnableTraitConstructor();
+        $this->__CreatedAtTraitConstructor();
     }
 
     /**
@@ -72,9 +68,5 @@ class ShopBrand {
 
     public function getSlug(): ?string {
         return $this->slug;
-    }
-
-    public function getCreatedAt(): ?\DateTimeInterface {
-        return $this->createdAt;
     }
 }
