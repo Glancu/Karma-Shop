@@ -1,0 +1,54 @@
+.skin-black .wrapper, .skin-black .main-sidebar, .skin-black .left-side {
+    background-color: white;
+}
+
+.skin-black .sidebar-form input[type="text"], .skin-black .sidebar-form .btn {
+    background-color: #fff;
+}
+
+.skin-black .sidebar-form {
+    border-color: #ffba00;
+}
+
+.skin-black .sidebar-form .btn {
+    color: #ffba00;
+}
+
+.skin-black .sidebar-menu>li {
+    color: #fff;
+}
+
+.skin-black .sidebar-menu>li>a, .skin-black .sidebar-menu>li.active>a {
+    background: #ffba00;
+    border-left-color: #fff;
+}
+
+.skin-black .sidebar-menu>li:hover>a {
+    background: #ffc62b;
+}
+
+.text-center.small {
+    border-color: #fff !important;
+}
+
+.skin-black .sidebar a {
+    color: #fff;
+}
+
+.skin-black .sidebar-menu>li>.treeview-menu {
+    background: #fff;
+}
+
+.skin-black .treeview-menu>li>a {
+    color: #ffba00;
+}
+
+.skin-black .treeview-menu>li.active>a {
+    font-weight: bold;
+    color: #575757;
+    /*color: #ffda75;*/
+}
+
+.skin-black .treeview-menu>li>a:hover {
+    color: #575757;
+}

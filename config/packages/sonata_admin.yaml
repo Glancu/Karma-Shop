@@ -1,5 +1,6 @@
 sonata_admin:
-    title: 'Sonata Admin'
+    title: 'Karma Shop'
+    title_logo: assets/img/fav.png
     dashboard:
         blocks:
             - { type: sonata.admin.block.admin_list, position: left }
@@ -8,6 +9,9 @@ sonata_admin:
     templates:
         # Override default template
         layout: Admin/standard_layout.html.twig
+    assets:
+        extra_stylesheets:
+            - assets/css/sonata-admin-overwrite.css # your css-file to add
 
 sonata_block:
     blocks:
