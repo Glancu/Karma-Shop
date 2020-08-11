@@ -9,7 +9,7 @@ final class IndexControllerTest extends WebTestCase {
     /**
      * @test
      */
-    public function is_homepage_200_status_code() {
+    public function is_homepage_200_status_code(): void {
         $client = static::createClient();
 
         $client->request('GET', '/');
