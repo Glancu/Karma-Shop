@@ -22,7 +22,8 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
  *
  * @Route("/api")
  */
-final class IndexApiController {
+final class IndexApiController
+{
     private EntityManagerInterface $entityManager;
 
     private FormFactoryInterface $form;
@@ -33,7 +34,8 @@ final class IndexApiController {
      * @param EntityManagerInterface $entityManager
      * @param FormFactoryInterface $formFactory
      */
-    public function __construct(EntityManagerInterface $entityManager, FormFactoryInterface $formFactory) {
+    public function __construct(EntityManagerInterface $entityManager, FormFactoryInterface $formFactory)
+    {
         $this->entityManager = $entityManager;
         $this->form = $formFactory;
     }
@@ -47,7 +49,11 @@ final class IndexApiController {
      *
      * @return JsonResponse
      */
-    public function createContact(Request $request, SerializerInterface $serializer, ValidatorInterface $validator): JsonResponse {
+    public function createContact(
+        Request $request,
+        SerializerInterface $serializer,
+        ValidatorInterface $validator
+    ): JsonResponse {
         $em = $this->entityManager;
         $form = $this->form;
         $contact = new Contact();
@@ -68,7 +74,7 @@ final class IndexApiController {
 
         $errors = $validator->validate($contact);
 
-        if($contactForm->isSubmitted() && $contactForm->isValid()) {
+        if ($contactForm->isSubmitted() && $contactForm->isValid()) {
             $contact->setEmail($email);
             $contact->setSubject($subject);
             $contact->setMessage($message);
@@ -93,7 +99,11 @@ final class IndexApiController {
      *
      * @return JsonResponse
      */
-    public function createNewsletter(Request $request, SerializerInterface $serializer, ValidatorInterface $validator): JsonResponse {
+    public function createNewsletter(
+        Request $request,
+        SerializerInterface $serializer,
+        ValidatorInterface $validator
+    ): JsonResponse {
         $em = $this->entityManager;
         $form = $this->form;
         $newsletter = new Newsletter();
@@ -114,7 +124,7 @@ final class IndexApiController {
 
         $errors = $validator->validate($newsletter);
 
-        if($newsletterForm->isSubmitted() && $newsletterForm->isValid()) {
+        if ($newsletterForm->isSubmitted() && $newsletterForm->isValid()) {
             $newsletter->setName($name);
             $newsletter->setEmail($email);
             $newsletter->setDataProcessingAgreement($dataProcessingAgreement);
@@ -122,9 +132,9 @@ final class IndexApiController {
             $em->persist($newsletter);
             $em->flush();
 
-            $return = $serializer->serialize($newsletter, 'json');
+            $createdObjectJson = $serializer->serialize($newsletter, 'json');
 
-            return new JsonResponse($return);
+            return new JsonResponse($createdObjectJson);
         }
 
         return new JsonResponse((string)$errors);

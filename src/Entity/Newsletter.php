@@ -13,7 +13,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 /**
  * @ORM\Entity(repositoryClass=NewsletterRepository::class)
  */
-class Newsletter {
+class Newsletter
+{
     use EnableTrait, CreatedAtTrait, DataProcessingAgreement {
         EnableTrait::__construct as private __EnableTraitConstructor;
         CreatedAtTrait::__construct as private __CreatedAtTraitConstructor;
@@ -49,7 +50,8 @@ class Newsletter {
     /**
      * Newsletter constructor.
      */
-    public function __construct() {
+    public function __construct()
+    {
         $this->__EnableTraitConstructor();
         $this->__CreatedAtTraitConstructor();
         $this->__DPAConstructor();
@@ -58,42 +60,48 @@ class Newsletter {
     /**
      * @return string
      */
-    public function __toString(): string {
+    public function __toString(): string
+    {
         return $this->email;
     }
 
     /**
      * @return int
      */
-    public function getId(): int {
+    public function getId(): int
+    {
         return $this->id;
     }
 
     /**
      * @return string|null
      */
-    public function getName(): ?string {
+    public function getName(): ?string
+    {
         return $this->name;
     }
 
     /**
      * @param string|null $name
      */
-    public function setName(?string $name): void {
+    public function setName(?string $name): void
+    {
         $this->name = $name;
     }
 
     /**
      * @return string
      */
-    public function getEmail(): string {
+    public function getEmail(): string
+    {
         return $this->email;
     }
 
     /**
      * @param string $email
      */
-    public function setEmail(string $email): void {
+    public function setEmail(string $email): void
+    {
         $this->email = $email;
     }
 }

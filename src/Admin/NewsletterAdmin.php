@@ -8,49 +8,49 @@ use Sonata\AdminBundle\Datagrid\ListMapper;
 use Sonata\AdminBundle\Route\RouteCollection;
 use Sonata\AdminBundle\Show\ShowMapper;
 
-final class NewsletterAdmin extends AbstractAdmin {
+final class NewsletterAdmin extends AbstractAdmin
+{
     protected $datagridValues = [
         '_page' => 1,            // display the first page (default = 1)
         '_sort_order' => 'DESC', // reverse order (default = 'ASC')
         '_sort_by' => 'id'  // name of the ordered field
     ];
 
-    protected function configureDatagridFilters(DatagridMapper $datagridMapper): void {
-        $datagridMapper
-            ->add('name', null, ['label' => 'Name'])
-            ->add('email', null, ['label' => 'E-mail']);
+    protected function configureDatagridFilters(DatagridMapper $datagridMapper): void
+    {
+        $datagridMapper->add('name', null, ['label' => 'Name'])
+                       ->add('email', null, ['label' => 'E-mail']);
     }
 
-    protected function configureListFields(ListMapper $listMapper): void {
-        $listMapper
-            ->add('id', null, ['label' => 'ID'])
-            ->add('name', null, ['label' => 'Name'])
-            ->add('email', null, ['label' => 'E-mail'])
-            ->add('dataProcessingAgreement', null, ['label' => 'Data Processing Agreement'])
-            ->add('_action', null, [
-                'actions' => [
-                    'show' => [],
-                    'edit' => [],
-                    'delete' => [],
-                ]
-            ]);
+    protected function configureListFields(ListMapper $listMapper): void
+    {
+        $listMapper->add('id', null, ['label' => 'ID'])
+                   ->add('name', null, ['label' => 'Name'])
+                   ->add('email', null, ['label' => 'E-mail'])
+                   ->add('dataProcessingAgreement', null, ['label' => 'Data Processing Agreement'])
+                   ->add('_action', null, [
+                       'actions' => [
+                           'show' => [],
+                           'edit' => [],
+                           'delete' => [],
+                       ]
+                   ]);
     }
 
-    protected function configureShowFields(ShowMapper $showMapper): void {
-        $showMapper
-            ->add('id', null, ['label' => 'ID'])
-            ->add('createdAt', null, ['label' => 'Created'])
-            ->add('name', null, ['label' => 'Name'])
-            ->add('email', null, ['label' => 'E-mail'])
-            ->add('dataProcessingAgreement', null, [
-                'label' => 'Data Processing Agreement',
-                'template' => '@SonataAdmin/CRUD/show_boolean.html.twig'
-            ])
-        ;
+    protected function configureShowFields(ShowMapper $showMapper): void
+    {
+        $showMapper->add('id', null, ['label' => 'ID'])
+                   ->add('createdAt', null, ['label' => 'Created'])
+                   ->add('name', null, ['label' => 'Name'])
+                   ->add('email', null, ['label' => 'E-mail'])
+                   ->add('dataProcessingAgreement', null, [
+                       'label' => 'Data Processing Agreement',
+                       'template' => '@SonataAdmin/CRUD/show_boolean.html.twig'
+                   ]);
     }
 
-    protected function configureRoutes(RouteCollection $collection): void {
-        $collection
-            ->remove('create');
+    protected function configureRoutes(RouteCollection $collection): void
+    {
+        $collection->remove('create');
     }
 }
