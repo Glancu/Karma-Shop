@@ -15,8 +15,7 @@ final class ContactControllerTest extends WebTestCase
     {
         $kernel = self::bootKernel();
 
-        $this->validator = $kernel->getContainer()
-                                  ->get('validator');
+        $this->validator = $kernel->getContainer()->get('validator');
 
         self::ensureKernelShutdown();
     }
