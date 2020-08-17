@@ -5,7 +5,8 @@ namespace App\Traits;
 use DateTime;
 use Doctrine\ORM\Mapping as ORM;
 
-trait CreatedAtTrait {
+trait CreatedAtTrait
+{
     /**
      * @var DateTime
      *
@@ -16,14 +17,16 @@ trait CreatedAtTrait {
     /**
      * CreatedAtTrait constructor.
      */
-    public function __construct() {
+    public function __construct()
+    {
         $this->createdAt = new DateTime('now');
     }
 
     /**
      * @return null|DateTime
      */
-    public function getCreatedAt(): ?DateTime {
+    public function getCreatedAt(): ?DateTime
+    {
         return $this->createdAt;
     }
 }

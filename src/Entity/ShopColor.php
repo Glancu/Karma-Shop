@@ -10,7 +10,8 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * @ORM\Entity(repositoryClass=ShopColorRepository::class)
  */
-class ShopColor {
+class ShopColor
+{
     use EnableTrait, CreatedAtTrait {
         EnableTrait::__construct as private __EnableTraitConstructor;
         CreatedAtTrait::__construct as private __CreatedAtTraitConstructor;
@@ -31,7 +32,8 @@ class ShopColor {
     /**
      * ShopColor constructor.
      */
-    public function __construct() {
+    public function __construct()
+    {
         $this->__EnableTraitConstructor();
         $this->__CreatedAtTraitConstructor();
     }
@@ -39,21 +41,29 @@ class ShopColor {
     /**
      * @return string
      */
-    public function __toString(): string {
+    public function __toString(): string
+    {
         return $this->name;
     }
 
-    public function getId(): ?int {
+    public function getId(): ?int
+    {
         return $this->id;
     }
 
-    public function getName(): ?string {
+    /**
+     * @return string
+     */
+    public function getName(): string
+    {
         return $this->name;
     }
 
-    public function setName(string $name): self {
+    /**
+     * @param string $name
+     */
+    public function setName(string $name): void
+    {
         $this->name = $name;
-
-        return $this;
     }
 }

@@ -12,7 +12,8 @@ use Gedmo\Mapping\Annotation as Gedmo;
  * @ORM\Entity(repositoryClass=ShopBrandRepository::class)
  * @ORM\HasLifecycleCallbacks()
  */
-class ShopBrand {
+class ShopBrand
+{
     use EnableTrait, CreatedAtTrait {
         EnableTrait::__construct as private __EnableTraitConstructor;
         CreatedAtTrait::__construct as private __CreatedAtTraitConstructor;
@@ -40,7 +41,8 @@ class ShopBrand {
     /**
      * ShopBrand constructor.
      */
-    public function __construct() {
+    public function __construct()
+    {
         $this->__EnableTraitConstructor();
         $this->__CreatedAtTraitConstructor();
     }
@@ -48,25 +50,45 @@ class ShopBrand {
     /**
      * @return string
      */
-    public function __toString(): string {
+    public function __toString(): string
+    {
         return $this->title;
     }
 
-    public function getId(): ?int {
+    public function getId(): ?int
+    {
         return $this->id;
     }
 
-    public function getTitle(): ?string {
+    /**
+     * @return string
+     */
+    public function getTitle(): string
+    {
         return $this->title;
     }
 
-    public function setTitle(string $title): self {
+    /**
+     * @param string $title
+     */
+    public function setTitle(string $title): void
+    {
         $this->title = $title;
-
-        return $this;
     }
 
-    public function getSlug(): ?string {
+    /**
+     * @return string
+     */
+    public function getSlug(): string
+    {
         return $this->slug;
+    }
+
+    /**
+     * @param string $slug
+     */
+    public function setSlug(string $slug): void
+    {
+        $this->slug = $slug;
     }
 }

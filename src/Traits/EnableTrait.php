@@ -4,7 +4,8 @@ namespace App\Traits;
 
 use Doctrine\ORM\Mapping as ORM;
 
-trait EnableTrait {
+trait EnableTrait
+{
     /**
      * @var bool
      *
@@ -15,21 +16,24 @@ trait EnableTrait {
     /**
      * EnableTrait constructor.
      */
-    public function __construct() {
+    public function __construct()
+    {
         $this->enable = true;
     }
 
     /**
      * @return null|bool
      */
-    public function isEnable(): ?bool {
+    public function isEnable(): ?bool
+    {
         return $this->enable;
     }
 
     /**
      * @param bool $enable
      */
-    public function setEnable(bool $enable): void {
+    public function setEnable(bool $enable): void
+    {
         $this->enable = $enable;
     }
 }

@@ -12,7 +12,8 @@ use Symfony\Component\Validator\Constraints as Assert;
  * @ORM\Entity(repositoryClass=ContactRepository::class)
  * @ORM\HasLifecycleCallbacks()
  */
-class Contact {
+class Contact
+{
     use CreatedAtTrait;
 
     /**
@@ -59,56 +60,64 @@ class Contact {
     /**
      * @return string
      */
-    public function __toString(): string {
+    public function __toString(): string
+    {
         return $this->email;
     }
 
     /**
      * @return null|int
      */
-    public function getId(): ?int {
+    public function getId(): ?int
+    {
         return $this->id;
     }
 
     /**
      * @return null|string
      */
-    public function getEmail(): ?string {
+    public function getEmail(): ?string
+    {
         return $this->email;
     }
 
     /**
      * @param string $email
      */
-    public function setEmail(string $email): void {
+    public function setEmail(string $email): void
+    {
         $this->email = $email;
     }
 
     /**
      * @return null|string
      */
-    public function getSubject(): ?string {
+    public function getSubject(): ?string
+    {
         return $this->subject;
     }
 
     /**
      * @param string $subject
      */
-    public function setSubject(string $subject): void {
+    public function setSubject(string $subject): void
+    {
         $this->subject = $subject;
     }
 
     /**
      * @return null|string
      */
-    public function getMessage(): ?string {
+    public function getMessage(): ?string
+    {
         return $this->message;
     }
 
     /**
      * @param string $message
      */
-    public function setMessage(string $message): void {
+    public function setMessage(string $message): void
+    {
         $this->message = $message;
     }
 }

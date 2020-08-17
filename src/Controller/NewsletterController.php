@@ -3,8 +3,8 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
-use App\Entity\Contact;
-use App\Form\Type\ContactType;
+use App\Entity\Newsletter;
+use App\Form\Type\NewsletterType;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -14,13 +14,13 @@ use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
- * Class ContactController
+ * Class NewsletterController
  *
  * @package App\Controller
  *
- * @Route("/api/contact")
+ * @Route("/api/newsletter")
  */
-class ContactController
+class NewsletterController
 {
     private EntityManagerInterface $entityManager;
 
@@ -39,7 +39,7 @@ class ContactController
     }
 
     /**
-     * @Route("/create", name="add_contact", methods={"POST"})
+     * @Route("/create", name="add_newsletter", methods={"POST"})
      *
      * @param Request $request
      * @param SerializerInterface $serializer
@@ -47,42 +47,42 @@ class ContactController
      *
      * @return JsonResponse
      */
-    public function createContact(
+    public function createNewsletter(
         Request $request,
         SerializerInterface $serializer,
         ValidatorInterface $validator
     ): JsonResponse {
         $em = $this->entityManager;
         $form = $this->form;
-        $contact = new Contact();
+        $newsletter = new Newsletter();
 
+        $name = $request->get('name') ?? '';
         $email = $request->get('email');
-        $subject = $request->get('subject');
-        $message = $request->get('message');
+        $dataProcessingAgreement = (bool)$request->get('dataProcessingAgreement');
 
         $data = [
+            'name' => $name,
             'email' => $email,
-            'subject' => $subject,
-            'message' => $message
+            'dataProcessingAgreement' => $dataProcessingAgreement
         ];
 
-        $contactForm = $form->create(ContactType::class, $contact);
-        $contactForm->handleRequest($request);
-        $contactForm->submit($data);
+        $newsletterForm = $form->create(NewsletterType::class, $newsletter);
+        $newsletterForm->handleRequest($request);
+        $newsletterForm->submit($data);
 
-        $errors = $validator->validate($contact);
+        $errors = $validator->validate($newsletter);
 
-        if ($contactForm->isSubmitted() && $contactForm->isValid()) {
-            $contact->setEmail($email);
-            $contact->setSubject($subject);
-            $contact->setMessage($message);
+        if ($newsletterForm->isSubmitted() && $newsletterForm->isValid()) {
+            $newsletter->setName($name);
+            $newsletter->setEmail($email);
+            $newsletter->setDataProcessingAgreement($dataProcessingAgreement);
 
-            $em->persist($contact);
+            $em->persist($newsletter);
             $em->flush();
 
-            $return = $serializer->serialize($contact, 'json');
+            $createdObjectJson = $serializer->serialize($newsletter, 'json');
 
-            return new JsonResponse($return);
+            return new JsonResponse($createdObjectJson);
         }
 
         return new JsonResponse((string)$errors);

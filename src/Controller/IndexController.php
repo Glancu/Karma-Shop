@@ -12,15 +12,16 @@ use Symfony\Component\Routing\Annotation\Route;
 /**
  * Class IndexController
  *
- * @package App\Controller
  */
-class IndexController extends AbstractController {
+class IndexController extends AbstractController
+{
     /**
      * @Route("/{reactRouting}", name="homepage", defaults={"reactRouting"=".+"})
      *
      * @return Response
      */
-    public function index(): Response {
+    public function index(): Response
+    {
         return $this->render('Index/index.html.twig');
     }
 
@@ -30,7 +31,8 @@ class IndexController extends AbstractController {
      * @return JsonResponse
      * @throws JsonException
      */
-    public function getUsers(): Response {
+    public function getUsers(): Response
+    {
         $users = [
             [
                 'id' => 1,
