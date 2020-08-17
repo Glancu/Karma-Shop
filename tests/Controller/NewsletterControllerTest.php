@@ -3,21 +3,22 @@ declare(strict_types=1);
 
 namespace App\Tests\Controller;
 
-use App\Entity\Newsletter;
+use JsonException;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 final class NewsletterControllerTest extends WebTestCase
 {
-    private ?ValidatorInterface $validator;
+    public const CREATE_API_URL = '/api/newsletter/create';
+
+    private array $defaultData;
 
     protected function setUp(): void
     {
-        $kernel = self::bootKernel();
-
-        $this->validator = $kernel->getContainer()->get('validator');
-
-        self::ensureKernelShutdown();
+        $this->defaultData = [
+            'name' => 'John',
+            'email' => 'email@email.com',
+            'dataProcessingAgreement' => true
+        ];
     }
 
     /**
@@ -25,20 +26,13 @@ final class NewsletterControllerTest extends WebTestCase
      */
     public function it_allow_to_complete_newsletter_with_full_data(): void
     {
-        $validator = $this->validator;
+        $client = static::createClient();
 
-        if ($validator) {
-            $newsletter = new Newsletter();
-            $newsletter->setName('John');
-            $newsletter->setEmail('email@email.com');
-            $newsletter->setDataProcessingAgreement(true);
+        $data = $this->defaultData;
 
-            $errors = $validator->validate($newsletter);
+        $client->request('POST', self::CREATE_API_URL, $data);
 
-            self::assertEquals(0, $errors->count());
-        } else {
-            self::fail('Validator not set');
-        }
+        self::assertSame(strpos($client->getResponse()->getContent(), '"{'), 0);
     }
 
     /**
@@ -46,19 +40,17 @@ final class NewsletterControllerTest extends WebTestCase
      */
     public function it_allow_to_complete_newsletter_without_name(): void
     {
-        $validator = $this->validator;
+        $client = static::createClient();
 
-        if ($validator) {
-            $newsletter = new Newsletter();
-            $newsletter->setEmail('email@email.com');
-            $newsletter->setDataProcessingAgreement(true);
+        $defaultData = $this->defaultData;
+        $data = [
+            'email' => $defaultData['email'],
+            'dataProcessingAgreement' => $defaultData['dataProcessingAgreement']
+        ];
 
-            $errors = $validator->validate($newsletter);
+        $client->request('POST', self::CREATE_API_URL, $data);
 
-            self::assertEquals(0, $errors->count());
-        } else {
-            self::fail('Validator not set');
-        }
+        self::assertSame(strpos($client->getResponse()->getContent(), '"{'), 0);
     }
 
     /**
@@ -66,80 +58,79 @@ final class NewsletterControllerTest extends WebTestCase
      */
     public function it_does_not_allow_to_complete_newsletter_without_email(): void
     {
-        $validator = $this->validator;
+        $client = static::createClient();
 
-        if ($validator) {
-            $newsletter = new Newsletter();
-            $newsletter->setName('John');
-            $newsletter->setDataProcessingAgreement(true);
+        $defaultData = $this->defaultData;
+        $data = [
+            'name' => $defaultData['name'],
+            'dataProcessingAgreement' => $defaultData['dataProcessingAgreement']
+        ];
 
-            $errors = $validator->validate($newsletter);
+        $client->request('POST', self::CREATE_API_URL, $data);
 
-            self::assertEquals(1, $errors->count());
-        } else {
-            self::fail('Validator not set');
-        }
+        self::assertNotSame(strpos($client->getResponse()->getContent(), '"{'), 0);
     }
 
     /**
      * @test
+     * @throws JsonException
      */
     public function it_does_not_allow_to_complete_newsletter_wit_bad_email(): void
     {
-        $validator = $this->validator;
+        $client = static::createClient();
 
-        if ($validator) {
-            $newsletter = new Newsletter();
-            $newsletter->setName('John');
-            $newsletter->setEmail('bad_email');
-            $newsletter->setDataProcessingAgreement(true);
+        $defaultData = $this->defaultData;
+        $data = [
+            'name' => $defaultData['name'],
+            'email' => 'bad_email',
+            'dataProcessingAgreement' => $defaultData['dataProcessingAgreement']
+        ];
 
-            $errors = $validator->validate($newsletter);
+        $client->request('POST', self::CREATE_API_URL, $data);
 
-            self::assertEquals(1, $errors->count());
-        } else {
-            self::fail('Validator not set');
-        }
+        self::assertNotFalse(strpos(json_decode($client->getResponse()->getContent(), true, 512, JSON_THROW_ON_ERROR),
+            'Object(App\\Entity\\Newsletter).email'));
     }
 
     /**
      * @test
+     * @throws JsonException
      */
     public function it_does_not_allow_to_complete_newsletter_without_data_processing_agreement(): void
     {
-        $validator = $this->validator;
+        $client = static::createClient();
 
-        if ($validator) {
-            $newsletter = new Newsletter();
-            $newsletter->setName('John');
-            $newsletter->setEmail('email@email.com');
+        $defaultData = $this->defaultData;
+        $data = [
+            'name' => $defaultData['name'],
+            'email' => $defaultData['email']
+        ];
 
-            $errors = $validator->validate($newsletter);
+        $client->request('POST', self::CREATE_API_URL, $data);
 
-            self::assertEquals(1, $errors->count());
-        } else {
-            self::fail('Validator not set');
-        }
+        self::assertNotFalse(strpos(json_decode($client->getResponse()->getContent(), true, 512, JSON_THROW_ON_ERROR),
+            'Object(App\\Entity\\Newsletter).dataProcessingAgreement'));
     }
 
     /**
      * @test
+     *
+     * @throws JsonException
      */
     public function it_does_not_allow_to_complete_newsletter_with_false_data_processing_agreement(): void
     {
-        $validator = $this->validator;
+        $client = static::createClient();
 
-        if ($validator) {
-            $newsletter = new Newsletter();
-            $newsletter->setName('John');
-            $newsletter->setEmail('email@email.com');
-            $newsletter->setDataProcessingAgreement(false);
+        $defaultData = $this->defaultData;
+        $data = [
+            'name' => $defaultData['name'],
+            'email' => $defaultData['email'],
+            'dataProcessingAgreement' => false
+        ];
 
-            $errors = $validator->validate($newsletter);
+        $client->request('POST', self::CREATE_API_URL, $data);
 
-            self::assertEquals(1, $errors->count());
-        } else {
-            self::fail('Validator not set');
-        }
+        self::assertNotFalse(strpos(json_decode($client->getResponse()->getContent(), true, 512, JSON_THROW_ON_ERROR),
+            'Object(App\\Entity\\Newsletter).dataProcessingAgreement'));
     }
 }
