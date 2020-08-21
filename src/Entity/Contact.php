@@ -5,6 +5,7 @@ namespace App\Entity;
 
 use App\Repository\ContactRepository;
 use App\Traits\CreatedAtTrait;
+use App\Traits\DataProcessingAgreement;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -14,7 +15,10 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 class Contact
 {
-    use CreatedAtTrait;
+    use CreatedAtTrait, DataProcessingAgreement {
+        CreatedAtTrait::__construct as private __CreatedAtTraitConstructor;
+        DataProcessingAgreement::__construct as private __DPAConstructor;
+    }
 
     /**
      * @var int
@@ -56,6 +60,14 @@ class Contact
      * @ORM\Column(type="text")
      */
     private string $message;
+
+    /**
+     * Contact constructor.
+     */
+    public function __construct() {
+        $this->__CreatedAtTraitConstructor();
+        $this->__DPAConstructor();
+    }
 
     /**
      * @return string

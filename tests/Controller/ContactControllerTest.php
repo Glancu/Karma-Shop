@@ -3,21 +3,23 @@ declare(strict_types=1);
 
 namespace App\Tests\Controller;
 
-use App\Entity\Contact;
+use JsonException;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 final class ContactControllerTest extends WebTestCase
 {
-    private ?ValidatorInterface $validator;
+    public const CREATE_API_URL = '/api/contact/create';
+
+    private array $defaultData;
 
     protected function setUp(): void
     {
-        $kernel = self::bootKernel();
-
-        $this->validator = $kernel->getContainer()->get('validator');
-
-        self::ensureKernelShutdown();
+        $this->defaultData = [
+            'email' => 'email@email.com',
+            'subject' => 'Simple subject',
+            'message' => 'Lorem ipsum...',
+            'dataProcessingAgreement' => true
+        ];
     }
 
     /**
@@ -25,19 +27,18 @@ final class ContactControllerTest extends WebTestCase
      */
     public function it_allow_to_complete_contact_with_full_data(): void
     {
-        $validator = $this->validator;
+        $client = static::createClient();
 
-        if ($validator) {
-            $contact = new Contact();
-            $contact->setEmail('email@email.com');
-            $contact->setSubject('Simple subject');
-            $contact->setMessage('Simple message');
+        $data = $this->defaultData;
 
-            $errors = $validator->validate($contact);
+        $client->request('POST', self::CREATE_API_URL, $data);
 
-            self::assertEquals(0, $errors->count());
-        } else {
-            self::fail('Validator not set');
+        try {
+            $result = json_decode($client->getResponse()->getContent(), true, 512, JSON_THROW_ON_ERROR);
+
+            self::assertTrue((bool)$result);
+        } catch (JsonException $exception) {
+            self::assertFalse(false);
         }
     }
 
@@ -46,18 +47,19 @@ final class ContactControllerTest extends WebTestCase
      */
     public function it_does_not_allow_to_complete_contact_without_email(): void
     {
-        $validator = $this->validator;
+        $client = static::createClient();
 
-        if ($validator) {
-            $contact = new Contact();
-            $contact->setSubject('Simple subject');
-            $contact->setMessage('Simple message');
+        $data = $this->defaultData;
+        unset($data['email']);
 
-            $errors = $validator->validate($contact);
+        $client->request('POST', self::CREATE_API_URL, $data);
 
-            self::assertEquals(1, $errors->count());
-        } else {
-            self::fail('Validator not set');
+        try {
+            $result = json_decode($client->getResponse()->getContent(), true, 512, JSON_THROW_ON_ERROR);
+
+            self::assertTrue((bool)$result);
+        } catch (JsonException $exception) {
+            self::assertFalse(false);
         }
     }
 
@@ -66,19 +68,19 @@ final class ContactControllerTest extends WebTestCase
      */
     public function it_does_not_allow_to_complete_contact_wit_bad_email(): void
     {
-        $validator = $this->validator;
+        $client = static::createClient();
 
-        if ($validator) {
-            $contact = new Contact();
-            $contact->setEmail('bad_email');
-            $contact->setSubject('Simple subject');
-            $contact->setMessage('Simple message');
+        $data = $this->defaultData;
+        $data['email'] = 'bad_email';
 
-            $errors = $validator->validate($contact);
+        $client->request('POST', self::CREATE_API_URL, $data);
 
-            self::assertEquals(1, $errors->count());
-        } else {
-            self::fail('Validator not set');
+        try {
+            $result = json_decode($client->getResponse()->getContent(), true, 512, JSON_THROW_ON_ERROR);
+
+            self::assertTrue((bool)$result);
+        } catch (JsonException $exception) {
+            self::assertFalse(false);
         }
     }
 
@@ -87,18 +89,19 @@ final class ContactControllerTest extends WebTestCase
      */
     public function it_does_not_allow_to_complete_contact_without_subject(): void
     {
-        $validator = $this->validator;
+        $client = static::createClient();
 
-        if ($validator) {
-            $contact = new Contact();
-            $contact->setEmail('email@email.com');
-            $contact->setMessage('Simple message');
+        $data = $this->defaultData;
+        unset($data['subject']);
 
-            $errors = $validator->validate($contact);
+        $client->request('POST', self::CREATE_API_URL, $data);
 
-            self::assertEquals(1, $errors->count());
-        } else {
-            self::fail('Validator not set');
+        try {
+            $result = json_decode($client->getResponse()->getContent(), true, 512, JSON_THROW_ON_ERROR);
+
+            self::assertTrue((bool)$result);
+        } catch (JsonException $exception) {
+            self::assertFalse(false);
         }
     }
 
@@ -107,18 +110,61 @@ final class ContactControllerTest extends WebTestCase
      */
     public function it_does_not_allow_to_complete_contact_without_message(): void
     {
-        $validator = $this->validator;
+        $client = static::createClient();
 
-        if ($validator) {
-            $contact = new Contact();
-            $contact->setEmail('email@email.com');
-            $contact->setSubject('Simple subject');
+        $data = $this->defaultData;
+        unset($data['message']);
 
-            $errors = $validator->validate($contact);
+        $client->request('POST', self::CREATE_API_URL, $data);
 
-            self::assertEquals(1, $errors->count());
-        } else {
-            self::fail('Validator not set');
+        try {
+            $result = json_decode($client->getResponse()->getContent(), true, 512, JSON_THROW_ON_ERROR);
+
+            self::assertTrue((bool)$result);
+        } catch (JsonException $exception) {
+            self::assertFalse(false);
+        }
+    }
+
+    /**
+     * @test
+     */
+    public function it_does_not_allow_to_complete_contact_without_data_processing_agreement(): void
+    {
+        $client = static::createClient();
+
+        $data = $this->defaultData;
+        unset($data['dataProcessingAgreement']);
+
+        $client->request('POST', self::CREATE_API_URL, $data);
+
+        try {
+            $result = json_decode($client->getResponse()->getContent(), true, 512, JSON_THROW_ON_ERROR);
+
+            self::assertTrue((bool)$result);
+        } catch (JsonException $exception) {
+            self::assertFalse(false);
+        }
+    }
+
+    /**
+     * @test
+     */
+    public function it_does_not_allow_to_complete_contact_with_false_data_processing_agreement(): void
+    {
+        $client = static::createClient();
+
+        $data = $this->defaultData;
+        $data['dataProcessingAgreement'] = false;
+
+        $client->request('POST', self::CREATE_API_URL, $data);
+
+        try {
+            $result = json_decode($client->getResponse()->getContent(), true, 512, JSON_THROW_ON_ERROR);
+
+            self::assertTrue((bool)$result);
+        } catch (JsonException $exception) {
+            self::assertFalse(false);
         }
     }
 }

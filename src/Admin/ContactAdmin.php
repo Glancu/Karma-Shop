@@ -20,6 +20,9 @@ final class ContactAdmin extends AbstractAdmin
         $listMapper->add('id', null, ['label' => 'ID'])
                    ->add('email', null, ['label' => 'E-mail'])
                    ->add('subject', null, ['label' => 'Subject'])
+                   ->add('dataProcessingAgreement', null, [
+                       'label' => 'Data Processing Agreement'
+                   ])
                    ->add('_action', null, [
                        'actions' => [
                            'show' => [],
@@ -35,7 +38,11 @@ final class ContactAdmin extends AbstractAdmin
                    ->add('createdAt', null, ['label' => 'Created'])
                    ->add('email', null, ['label' => 'E-mail'])
                    ->add('subject', null, ['label' => 'Subject'])
-                   ->add('message', null, ['label' => 'Message']);
+                   ->add('message', null, ['label' => 'Message'])
+                   ->add('dataProcessingAgreement', null, [
+                       'label' => 'Data Processing Agreement',
+                       'template' => '@SonataAdmin/CRUD/show_boolean.html.twig'
+                   ]);
     }
 
     protected function configureRoutes(RouteCollection $collection): void

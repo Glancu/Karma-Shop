@@ -5,6 +5,7 @@ namespace App\Form\Type;
 
 use App\Entity\Contact;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -18,6 +19,7 @@ class ContactType extends AbstractType
         $builder->add('email', EmailType::class)
                 ->add('subject', TextType::class)
                 ->add('message', TextType::class)
+                ->add('dataProcessingAgreement', CheckboxType::class)
                 ->add('save', SubmitType::class);
     }
 

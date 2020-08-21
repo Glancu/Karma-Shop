@@ -7,8 +7,8 @@ use App\Entity\Contact;
 use App\Form\Type\ContactType;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Form\FormFactoryInterface;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -45,13 +45,13 @@ class ContactController
      * @param SerializerInterface $serializer
      * @param ValidatorInterface $validator
      *
-     * @return JsonResponse
+     * @return Response
      */
     public function createContact(
         Request $request,
         SerializerInterface $serializer,
         ValidatorInterface $validator
-    ): JsonResponse {
+    ): Response {
         $em = $this->entityManager;
         $form = $this->form;
         $contact = new Contact();
@@ -59,11 +59,13 @@ class ContactController
         $email = $request->get('email');
         $subject = $request->get('subject');
         $message = $request->get('message');
+        $dataProcessingAgreement = (bool)$request->get('dataProcessingAgreement');
 
         $data = [
             'email' => $email,
             'subject' => $subject,
-            'message' => $message
+            'message' => $message,
+            'dataProcessingAgreement' => $dataProcessingAgreement
         ];
 
         $contactForm = $form->create(ContactType::class, $contact);
@@ -82,9 +84,9 @@ class ContactController
 
             $return = $serializer->serialize($contact, 'json');
 
-            return new JsonResponse($return);
+            return new Response($return);
         }
 
-        return new JsonResponse((string)$errors);
+        return new Response((string)$errors);
     }
 }
