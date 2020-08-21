@@ -7,8 +7,8 @@ use App\Entity\Newsletter;
 use App\Form\Type\NewsletterType;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Form\FormFactoryInterface;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -45,13 +45,13 @@ class NewsletterController
      * @param SerializerInterface $serializer
      * @param ValidatorInterface $validator
      *
-     * @return JsonResponse
+     * @return Response
      */
     public function createNewsletter(
         Request $request,
         SerializerInterface $serializer,
         ValidatorInterface $validator
-    ): JsonResponse {
+    ): Response {
         $em = $this->entityManager;
         $form = $this->form;
         $newsletter = new Newsletter();
@@ -82,9 +82,9 @@ class NewsletterController
 
             $createdObjectJson = $serializer->serialize($newsletter, 'json');
 
-            return new JsonResponse($createdObjectJson);
+            return new Response($createdObjectJson);
         }
 
-        return new JsonResponse((string)$errors);
+        return new Response((string)$errors);
     }
 }
