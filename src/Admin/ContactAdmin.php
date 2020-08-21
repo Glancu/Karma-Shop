@@ -10,6 +10,12 @@ use Sonata\AdminBundle\Show\ShowMapper;
 
 final class ContactAdmin extends AbstractAdmin
 {
+    protected $datagridValues = [
+        '_page' => 1,            // display the first page (default = 1)
+        '_sort_order' => 'DESC', // reverse order (default = 'ASC')
+        '_sort_by' => 'id'  // name of the ordered field
+    ];
+
     protected function configureDatagridFilters(DatagridMapper $datagridMapper): void
     {
         $datagridMapper->add('email', null, ['label' => 'E-mail']);

@@ -12,6 +12,12 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 
 final class ShopColorAdmin extends AbstractAdmin
 {
+    protected $datagridValues = [
+        '_page' => 1,            // display the first page (default = 1)
+        '_sort_order' => 'DESC', // reverse order (default = 'ASC')
+        '_sort_by' => 'id'  // name of the ordered field
+    ];
+
     protected function configureFormFields(FormMapper $formMapper): void
     {
         $formMapper->add('name', TextType::class, ['label' => 'Name'])
