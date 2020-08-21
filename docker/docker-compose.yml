@@ -5,12 +5,29 @@ services:
     container_name: karma-shop-mysql
     volumes:
       - ./karma-shop.sql:/docker-entrypoint-initdb.d/karma-shop.sql
+    command: ['--default-authentication-plugin=mysql_native_password']
     environment:
       - MYSQL_ROOT_PASSWORD=root
       - MYSQL_DATABASE=karma-shop
       - MYSQL_PASSWORD=root
       - MYSQL_HOST=mysql
     restart: always
+    networks:
+      - app-network
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: karma-shop-phpmyadmin
+    restart: always
+    links:
+      - mysql:db
+    ports:
+      - "8501:80"
+    environment:
+      - PMA_ARBITRARY=0
+      - PMA_HOST=mysql
+      - PMA_PASSWORD=root
+      - MYSQL_ROOT_PASSWORD=root
     networks:
       - app-network
 
