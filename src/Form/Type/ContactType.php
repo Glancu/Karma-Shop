@@ -27,7 +27,7 @@ class ContactType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => Contact::class,
-            'csrf_protection' => false, // @TODO Remove this and implement JWT
+            'csrf_protection' => false
         ]);
     }
 

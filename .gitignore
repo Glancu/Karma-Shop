@@ -29,3 +29,7 @@ yarn-error.log
 ###> CUSTOM ###
 /docker/karma-shop.sql
 ###< CUSTOM ###
+
+###> lexik/jwt-authentication-bundle ###
+/config/jwt/*.pem
+###< lexik/jwt-authentication-bundle ###
