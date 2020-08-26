@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Repository\AdminUserRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass=AdminUserRepository::class)
@@ -19,11 +20,18 @@ class AdminUser implements UserInterface
     private int $id;
 
     /**
+     * @Assert\NotBlank()
+     * @Assert\Email(
+     *     message = "The email '{{ value }}' is not a valid email."
+     * )
+     *
      * @ORM\Column(type="string", length=180, unique=true)
      */
     private string $email;
 
     /**
+     * @Assert\NotBlank()
+     *
      * @ORM\Column(type="string", length=255, unique=true)
      */
     private string $username;
@@ -34,6 +42,10 @@ class AdminUser implements UserInterface
     private array $roles = [];
 
     /**
+     * @Assert\NotBlank(
+     *     message = "The password cannot be empty."
+     * )
+     *
      * @ORM\Column(type="string", length=255)
      */
     private $password;
