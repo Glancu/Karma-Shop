@@ -16,7 +16,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class IndexController extends AbstractController
 {
     /**
-     * @Route("/{reactRouting}", name="homepage", defaults={"reactRouting"=".+"})
+     * @Route("/", name="homepage", defaults={"reactRouting"=".+"})
      *
      * @return Response
      */
