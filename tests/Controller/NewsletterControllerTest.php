@@ -100,7 +100,7 @@ final class NewsletterControllerTest extends WebTestCase
 
             self::assertTrue((bool)$result);
         } catch (JsonException $exception) {
-            self::assertFalse(false);
+            self::assertTrue(false);
         }
     }
 }

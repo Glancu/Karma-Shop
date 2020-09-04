@@ -38,7 +38,7 @@ final class ContactControllerTest extends WebTestCase
 
             self::assertTrue((bool)$result);
         } catch (JsonException $exception) {
-            self::assertFalse(false);
+            self::assertTrue(false);
         }
     }
 
@@ -59,7 +59,7 @@ final class ContactControllerTest extends WebTestCase
 
             self::assertTrue((bool)$result);
         } catch (JsonException $exception) {
-            self::assertFalse(false);
+            self::assertTrue(false);
         }
     }
 
@@ -80,7 +80,7 @@ final class ContactControllerTest extends WebTestCase
 
             self::assertTrue((bool)$result);
         } catch (JsonException $exception) {
-            self::assertFalse(false);
+            self::assertTrue(false);
         }
     }
 
@@ -101,7 +101,7 @@ final class ContactControllerTest extends WebTestCase
 
             self::assertTrue((bool)$result);
         } catch (JsonException $exception) {
-            self::assertFalse(false);
+            self::assertTrue(false);
         }
     }
 
@@ -122,7 +122,7 @@ final class ContactControllerTest extends WebTestCase
 
             self::assertTrue((bool)$result);
         } catch (JsonException $exception) {
-            self::assertFalse(false);
+            self::assertTrue(false);
         }
     }
 
@@ -143,7 +143,7 @@ final class ContactControllerTest extends WebTestCase
 
             self::assertTrue((bool)$result);
         } catch (JsonException $exception) {
-            self::assertFalse(false);
+            self::assertTrue(false);
         }
     }
 
@@ -164,7 +164,7 @@ final class ContactControllerTest extends WebTestCase
 
             self::assertTrue((bool)$result);
         } catch (JsonException $exception) {
-            self::assertFalse(false);
+            self::assertTrue(false);
         }
     }
 }
