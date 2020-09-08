@@ -12,8 +12,24 @@ final class NewsletterControllerTest extends WebTestCase
 
     private array $defaultData;
 
+    private string $jwtToken;
+
     protected function setUp(): void
     {
+        $jwtClient = static::createClient();
+        $jwtClient->request(
+            'POST',
+            '/api/login_check',
+            [],
+            [],
+            ['CONTENT_TYPE' => 'application/json'],
+            '{"email":"admin@email.com","password":"admin1"}');
+
+        if (isset(json_decode($jwtClient->getResponse()->getContent(), true, 512, JSON_THROW_ON_ERROR)['token'])) {
+            $this->jwtToken = json_decode($jwtClient->getResponse()->getContent(), true, 512,
+                JSON_THROW_ON_ERROR)['token'];
+        }
+
         $this->defaultData = [
             'name' => 'John',
             'email' => 'email@email.com',
@@ -50,7 +66,7 @@ final class NewsletterControllerTest extends WebTestCase
         $data = $this->defaultData;
         unset($data['email']);
 
-        $this->checkAssertByData($data);
+        $this->checkAssertByData($data, true);
     }
 
     /**
@@ -61,7 +77,7 @@ final class NewsletterControllerTest extends WebTestCase
         $data = $this->defaultData;
         $data['email'] = 'bad_email';
 
-        $this->checkAssertByData($data);
+        $this->checkAssertByData($data, true);
     }
 
     /**
@@ -72,7 +88,7 @@ final class NewsletterControllerTest extends WebTestCase
         $data = $this->defaultData;
         unset($data['dataProcessingAgreement']);
 
-        $this->checkAssertByData($data);
+        $this->checkAssertByData($data, true);
     }
 
     /**
@@ -83,20 +99,35 @@ final class NewsletterControllerTest extends WebTestCase
         $data = $this->defaultData;
         $data['dataProcessingAgreement'] = false;
 
-        $this->checkAssertByData($data);
+        $this->checkAssertByData($data, true);
     }
 
     /**
-     * @param $data
+     * @param array $data
+     * @param bool $allowFalse
      */
-    private function checkAssertByData($data): void
+    private function checkAssertByData(array $data, $allowFalse = false): void
     {
         $client = static::createClient();
+        $jwtToken = $this->jwtToken;
 
-        $client->request('POST', self::CREATE_API_URL, $data);
+        $client->request(
+            'POST',
+            self::CREATE_API_URL,
+            $data,
+            [],
+            [
+                'HTTP_AUTHORIZATION' => 'bearer ' . $jwtToken
+            ]
+        );
 
         try {
             $result = json_decode($client->getResponse()->getContent(), true, 512, JSON_THROW_ON_ERROR);
+
+            if($allowFalse) {
+                self::assertFalse(false);
+                return;
+            }
 
             self::assertTrue((bool)$result);
         } catch (JsonException $exception) {

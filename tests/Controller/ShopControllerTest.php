@@ -71,10 +71,10 @@ final class ShopControllerTest extends WebTestCase
     }
 
     /**
-     * @param $data
+     * @param array$data
      * @param bool $allowFalse
      */
-    private function sendDataProductReview($data, $allowFalse = false): void
+    private function sendDataProductReview(array $data, $allowFalse = false): void
     {
         $client = static::createClient();
         $jwtToken = $this->jwtToken;

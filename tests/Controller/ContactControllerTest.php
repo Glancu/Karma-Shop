@@ -12,8 +12,24 @@ final class ContactControllerTest extends WebTestCase
 
     private array $defaultData;
 
+    private string $jwtToken;
+
     protected function setUp(): void
     {
+        $jwtClient = static::createClient();
+        $jwtClient->request(
+            'POST',
+            '/api/login_check',
+            [],
+            [],
+            ['CONTENT_TYPE' => 'application/json'],
+            '{"email":"admin@email.com","password":"admin1"}');
+
+        if (isset(json_decode($jwtClient->getResponse()->getContent(), true, 512, JSON_THROW_ON_ERROR)['token'])) {
+            $this->jwtToken = json_decode($jwtClient->getResponse()->getContent(), true, 512,
+                JSON_THROW_ON_ERROR)['token'];
+        }
+
         $this->defaultData = [
             'email' => 'email@email.com',
             'subject' => 'Simple subject',
@@ -27,19 +43,9 @@ final class ContactControllerTest extends WebTestCase
      */
     public function it_allow_to_complete_contact_with_full_data(): void
     {
-        $client = static::createClient();
-
         $data = $this->defaultData;
 
-        $client->request('POST', self::CREATE_API_URL, $data);
-
-        try {
-            $result = json_decode($client->getResponse()->getContent(), true, 512, JSON_THROW_ON_ERROR);
-
-            self::assertTrue((bool)$result);
-        } catch (JsonException $exception) {
-            self::assertTrue(false);
-        }
+        $this->checkAssertByData($data);
     }
 
     /**
@@ -47,20 +53,10 @@ final class ContactControllerTest extends WebTestCase
      */
     public function it_does_not_allow_to_complete_contact_without_email(): void
     {
-        $client = static::createClient();
-
         $data = $this->defaultData;
         unset($data['email']);
 
-        $client->request('POST', self::CREATE_API_URL, $data);
-
-        try {
-            $result = json_decode($client->getResponse()->getContent(), true, 512, JSON_THROW_ON_ERROR);
-
-            self::assertTrue((bool)$result);
-        } catch (JsonException $exception) {
-            self::assertTrue(false);
-        }
+        $this->checkAssertByData($data);
     }
 
     /**
@@ -68,20 +64,10 @@ final class ContactControllerTest extends WebTestCase
      */
     public function it_does_not_allow_to_complete_contact_wit_bad_email(): void
     {
-        $client = static::createClient();
-
         $data = $this->defaultData;
         $data['email'] = 'bad_email';
 
-        $client->request('POST', self::CREATE_API_URL, $data);
-
-        try {
-            $result = json_decode($client->getResponse()->getContent(), true, 512, JSON_THROW_ON_ERROR);
-
-            self::assertTrue((bool)$result);
-        } catch (JsonException $exception) {
-            self::assertTrue(false);
-        }
+        $this->checkAssertByData($data);
     }
 
     /**
@@ -89,20 +75,10 @@ final class ContactControllerTest extends WebTestCase
      */
     public function it_does_not_allow_to_complete_contact_without_subject(): void
     {
-        $client = static::createClient();
-
         $data = $this->defaultData;
         unset($data['subject']);
 
-        $client->request('POST', self::CREATE_API_URL, $data);
-
-        try {
-            $result = json_decode($client->getResponse()->getContent(), true, 512, JSON_THROW_ON_ERROR);
-
-            self::assertTrue((bool)$result);
-        } catch (JsonException $exception) {
-            self::assertTrue(false);
-        }
+        $this->checkAssertByData($data);
     }
 
     /**
@@ -110,20 +86,10 @@ final class ContactControllerTest extends WebTestCase
      */
     public function it_does_not_allow_to_complete_contact_without_message(): void
     {
-        $client = static::createClient();
-
         $data = $this->defaultData;
         unset($data['message']);
 
-        $client->request('POST', self::CREATE_API_URL, $data);
-
-        try {
-            $result = json_decode($client->getResponse()->getContent(), true, 512, JSON_THROW_ON_ERROR);
-
-            self::assertTrue((bool)$result);
-        } catch (JsonException $exception) {
-            self::assertTrue(false);
-        }
+        $this->checkAssertByData($data);
     }
 
     /**
@@ -131,20 +97,10 @@ final class ContactControllerTest extends WebTestCase
      */
     public function it_does_not_allow_to_complete_contact_without_data_processing_agreement(): void
     {
-        $client = static::createClient();
-
         $data = $this->defaultData;
         unset($data['dataProcessingAgreement']);
 
-        $client->request('POST', self::CREATE_API_URL, $data);
-
-        try {
-            $result = json_decode($client->getResponse()->getContent(), true, 512, JSON_THROW_ON_ERROR);
-
-            self::assertTrue((bool)$result);
-        } catch (JsonException $exception) {
-            self::assertTrue(false);
-        }
+        $this->checkAssertByData($data);
     }
 
     /**
@@ -152,12 +108,29 @@ final class ContactControllerTest extends WebTestCase
      */
     public function it_does_not_allow_to_complete_contact_with_false_data_processing_agreement(): void
     {
-        $client = static::createClient();
-
         $data = $this->defaultData;
         $data['dataProcessingAgreement'] = false;
 
-        $client->request('POST', self::CREATE_API_URL, $data);
+        $this->checkAssertByData($data);
+    }
+
+    /**
+     * @param array $data
+     */
+    private function checkAssertByData(array $data): void
+    {
+        $client = static::createClient();
+        $jwtToken = $this->jwtToken;
+
+        $client->request(
+            'POST',
+            self::CREATE_API_URL,
+            $data,
+            [],
+            [
+                'HTTP_AUTHORIZATION' => 'bearer ' . $jwtToken
+            ]
+        );
 
         try {
             $result = json_decode($client->getResponse()->getContent(), true, 512, JSON_THROW_ON_ERROR);
