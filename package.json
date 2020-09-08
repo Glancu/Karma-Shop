@@ -6,8 +6,8 @@
         "core-js": "^3.0.0",
         "prop-types": "^15.7.2",
         "regenerator-runtime": "^0.13.2",
-        "webpack-notifier": "^1.6.0",
-        "webpack": "4.42.0"
+        "webpack": "4.42.0",
+        "webpack-notifier": "^1.6.0"
     },
     "license": "UNLICENSED",
     "private": true,
@@ -19,6 +19,8 @@
     },
     "dependencies": {
         "@babel/plugin-proposal-class-properties": "^7.10.4",
-        "@babel/plugin-transform-runtime": "^7.10.4"
+        "@babel/plugin-transform-runtime": "^7.10.4",
+        "@popperjs/core": "^2.4.4",
+        "popper.js": "^1.16.1"
     }
 }
