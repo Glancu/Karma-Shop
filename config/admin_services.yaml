@@ -17,6 +17,12 @@ services:
     tags:
       - { name: sonata.admin, manager_type: orm, group: Shop, label: Color }
 
+  admin.shop.product_review:
+    class: App\Admin\ProductReviewAdmin
+    arguments: [~, App\Entity\ProductReview, ~]
+    tags:
+      - { name: sonata.admin, manager_type: orm, group: Shop, label: Product review }
+
   admin.shop.contact:
     class: App\Admin\ContactAdmin
     arguments: [~, App\Entity\Contact, ~]
