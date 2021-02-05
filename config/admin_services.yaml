@@ -40,3 +40,9 @@ services:
     arguments: [~, App\Entity\AdminUser, ~]
     tags:
       - { name: sonata.admin, manager_type: orm, group: Users, label: Admin users, icon: "<i class=\"fa fa-users\"></i>" }
+
+  admin.client_user:
+    class: App\Admin\ClientUserAdmin
+    arguments: [ ~, App\Entity\ClientUser, ~ ]
+    tags:
+      - { name: sonata.admin, manager_type: orm, group: Users, label: Clients }

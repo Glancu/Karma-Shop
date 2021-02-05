@@ -4,11 +4,18 @@ security:
         App\Entity\AdminUser:
             algorithm: auto
 
+        App\Entity\ClientUser:
+            algorithm: auto
     providers:
         # used to reload user from session & other features (e.g. switch_user)
         app_admin_user_provider:
             entity:
                 class: App\Entity\AdminUser
+                property: email
+
+        app_client_user_provider:
+            entity:
+                class: App\Entity\ClientUser
                 property: email
     firewalls:
         dev:
@@ -27,7 +34,6 @@ security:
                 authenticators:
                     - App\Security\AdminLoginFormAuthenticator
             provider: app_admin_user_provider
-
             form_login:
                 login_path: /admin/login
                 check_path: /admin/login_check
@@ -39,18 +45,24 @@ security:
             pattern:  ^/api/login
             stateless: true
             anonymous: true
+            provider: app_client_user_provider
             json_login:
-                check_path:               /api/login_check
-                success_handler:          lexik_jwt_authentication.handler.authentication_success
-                failure_handler:          lexik_jwt_authentication.handler.authentication_failure
+                check_path: /api/login_check
+                success_handler: lexik_jwt_authentication.handler.authentication_success
+                failure_handler: lexik_jwt_authentication.handler.authentication_failure
                 username_path: email
 
         api:
             pattern:   ^/api
             stateless: true
+            anonymous: true
+            provider: app_client_user_provider
             guard:
                 authenticators:
                     - lexik_jwt_authentication.jwt_token_authenticator
+
+        main:
+            anonymous: ~
 
     access_control:
         - { path: ^/api/login, roles: IS_AUTHENTICATED_ANONYMOUSLY }

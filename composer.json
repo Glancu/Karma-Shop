@@ -32,6 +32,7 @@
     "symfony/mime": "4.4.*",
     "symfony/monolog-bundle": "^3.1",
     "symfony/options-resolver": "^4.4",
+    "symfony/polyfill-uuid": "^1.22",
     "symfony/process": "4.4.*",
     "symfony/property-access": "^4.4",
     "symfony/security-bundle": "4.4.*",
