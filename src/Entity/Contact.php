@@ -33,6 +33,15 @@ class Contact
      * @var string
      *
      * @Assert\NotBlank()
+     *
+     * @ORM\Column()
+     */
+    private string $name;
+
+    /**
+     * @var string
+     *
+     * @Assert\NotBlank()
      * @Assert\Email(
      *     message = "The email '{{ value }}' is not a valid email."
      * )
@@ -83,6 +92,22 @@ class Contact
     public function getId(): ?int
     {
         return $this->id;
+    }
+
+    /**
+     * @return string
+     */
+    public function getName(): string
+    {
+        return $this->name;
+    }
+
+    /**
+     * @param string $name
+     */
+    public function setName(string $name): void
+    {
+        $this->name = $name;
     }
 
     /**

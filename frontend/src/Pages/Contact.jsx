@@ -1,15 +1,40 @@
-import React, { Component } from "react";
-import { Link } from "react-router-dom";
-import BaseTemplate from "../Components/BaseTemplate";
+import React, { Component } from 'react';
+import { Link } from 'react-router-dom';
+import BaseTemplate from '../Components/BaseTemplate';
 import GMaps from '../../public/assets/js/gmaps.min';
+import axios from 'axios';
+import ValidateEmail from '../Components/ValidateEmail';
 
 class Contact extends Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            name: '',
+            email: '',
+            subject: '',
+            message: '',
+            dataProcessingAgreement: false,
+            errors: {
+                name: '',
+                email: '',
+                subject: '',
+                message: '',
+                dataProcessingAgreement: ''
+            },
+            noticeMessage: '',
+            errorMessage: ''
+        };
+
+        this.handleChange = this.handleChange.bind(this);
+        this.handleSubmit = this.handleSubmit.bind(this);
+    }
+
     componentDidMount() {
         const mapBox = document.getElementById('mapBox');
 
-        var $lat = mapBox.getAttribute('data-lat');
-        var $lon = mapBox.getAttribute('data-lon');
-        var $zoom = parseInt(mapBox.getAttribute('data-zoom'));
+        const $lat = mapBox.getAttribute('data-lat');
+        const $lon = mapBox.getAttribute('data-lon');
+        const $zoom = parseInt(mapBox.getAttribute('data-zoom'));
 
         new GMaps({
             el: '#mapBox',
@@ -210,7 +235,94 @@ class Contact extends Component {
         });
     }
 
+    handleChange(event) {
+        const {name, value, checked} = event.target;
+        this.setState({
+            [name]: name !== 'dataProcessingAgreement' ? value : checked
+        });
+
+        const errors = this.state.errors;
+
+        errors[name] = '';
+
+        if(name === 'dataProcessingAgreement' && !checked) {
+            errors.dataProcessingAgreement = 'You need to approve the regulations before submit.';
+        }
+
+        this.setState({errors, errorsMessage: ''});
+    }
+
+    handleSubmit(event) {
+        event.preventDefault();
+
+        const {name, email, subject, message, dataProcessingAgreement} = this.state;
+        let errors = this.state.errors;
+
+        // Clear error message while send form
+        this.setState({errorMessage: ''});
+
+        errors.name = name.length < 3 ?
+            'Name must be 3 characters long!' :
+            '';
+
+        errors.email = ValidateEmail(email) ?
+            '' :
+            'Email is not valid!';
+
+        errors.subject = subject.length < 3 ?
+            'Subject must be 3 characters long!' :
+            '';
+
+        errors.message = message.length < 3 ?
+            'Message must be 3 characters long!' :
+            '';
+
+        errors.dataProcessingAgreement = dataProcessingAgreement ?
+            '' :
+            'You need to approve the regulations before submit.';
+
+        this.setState({errors});
+
+        if(!errors.name && !errors.email && !errors.subject && !errors.message && !errors.dataProcessingAgreement) {
+            const errorMessageCustom = 'Something went wrong. Try again.';
+
+            const formData = new FormData();
+            formData.append('name', name);
+            formData.append('email', email);
+            formData.append('subject', subject);
+            formData.append('message', message);
+            formData.append('dataProcessingAgreement', dataProcessingAgreement);
+
+            axios.post('/api/contact/create', formData)
+                .then(result => {
+                    if(result.status === 200) {
+                        const data = result.data;
+                        if(!data.error) {
+                            this.setState({
+                                name: '',
+                                email: '',
+                                subject: '',
+                                message: '',
+                                dataProcessingAgreement: false,
+                                noticeMessage: 'Your message was sent to administration.'
+                            });
+                        } else if(data.error && data.message) {
+                            this.setState({errorMessage: data.message, noticeMessage: ''});
+                        } else {
+                            this.setState({errorMessage: errorMessageCustom, noticeMessage: ''});
+                        }
+                    } else {
+                        this.setState({errorMessage: errorMessageCustom, noticeMessage: ''});
+                    }
+                }).catch(() => {
+                this.setState({errorMessage: errorMessageCustom, noticeMessage: ''});
+            });
+        }
+    }
+
     render() {
+        const {errors, errorMessage, noticeMessage} = this.state;
+
         return (
             <BaseTemplate>
                 <section className="banner-area organic-breadcrumb">
@@ -220,7 +332,7 @@ class Contact extends Component {
                                 <h1>Contact Us</h1>
                                 <nav className="d-flex align-items-center">
                                     <Link to={'/'}>Home<span className="lnr lnr-arrow-right"/></Link>
-                                    <a href="category.html">Contact</a>
+                                    <Link to={'/contact'}>Contact</Link>
                                 </nav>
                             </div>
                         </div>
@@ -254,56 +366,116 @@ class Contact extends Component {
                                 </div>
                             </div>
                             <div className="col-lg-9">
-                                <form className="row contact_form" method="post"
-                                      id="contactForm">
-                                    {/* <form className="row contact_form" action="contact_process.php" method="post" */}
+                                {errorMessage ?
+                                    <span className="form-error-message">{errorMessage}</span> :
+                                    null
+                                }
 
+                                {noticeMessage ?
+                                    <span className="form-notice-message">{noticeMessage}</span> :
+                                    null
+                                }
+
+                                <form className="row contact_form"
+                                      method="post"
+                                      id="contactForm"
+                                      onSubmit={this.handleSubmit}
+                                >
                                     <div className="col-md-6">
                                         <div className="form-group">
+                                            {errors.name ?
+                                                <span className='error-message-input'>{errors.name}</span> :
+                                                null
+                                            }
+
                                             <input type="text"
                                                    className="form-control"
                                                    id="name"
                                                    name="name"
                                                    placeholder="Enter your name"
-                                                // onfocus="this.placeholder = ''"
-                                                // onblur="this.placeholder = 'Enter your name'"
+                                                   onChange={this.handleChange}
+                                                   required={true}
+                                                   value={this.state.name}
                                             />
                                         </div>
                                         <div className="form-group">
+                                            {errors.email ?
+                                                <span className='error-message-input'>{errors.email}</span> :
+                                                null
+                                            }
+
                                             <input type="email"
                                                    className="form-control"
                                                    id="email"
                                                    name="email"
                                                    placeholder="Enter email address"
-                                                // onfocus="this.placeholder = ''"
-                                                // onblur="this.placeholder = 'Enter email address'"
+                                                   onChange={this.handleChange}
+                                                   required={true}
+                                                   value={this.state.email}
                                             />
                                         </div>
                                         <div className="form-group">
+                                            {errors.subject ?
+                                                <span className='error-message-input'>{errors.subject}</span> :
+                                                null
+                                            }
+
                                             <input type="text"
                                                    className="form-control"
                                                    id="subject"
                                                    name="subject"
                                                    placeholder="Enter Subject"
-                                                // onfocus="this.placeholder = ''"
-                                                // onblur="this.placeholder = 'Enter Subject'"
+                                                   onChange={this.handleChange}
+                                                   required={true}
+                                                   value={this.state.subject}
                                             />
                                         </div>
                                     </div>
                                     <div className="col-md-6">
                                         <div className="form-group">
+                                            {errors.message ?
+                                                <span className='error-message-input'>{errors.message}</span> :
+                                                null
+                                            }
+
                                             <textarea className="form-control"
                                                       name="message"
                                                       id="message"
                                                       rows="1"
                                                       placeholder="Enter Message"
-                                                // onfocus="this.placeholder = ''"
-                                                // onblur="this.placeholder = 'Enter Message'"
+                                                      onChange={this.handleChange}
+                                                      required={true}
+                                                      value={this.state.message}
                                             />
                                         </div>
                                     </div>
+
+                                    <div className="col-md-6 form-group"/>
+
+                                    <div className="col-md-6 form-group">
+                                        {errors.dataProcessingAgreement ?
+                                            <span className='error-message-input'>
+                                                {errors.dataProcessingAgreement}
+                                            </span> :
+                                            null
+                                        }
+
+                                        <input type="checkbox"
+                                               id="dataProcessingAgreement"
+                                               name="dataProcessingAgreement"
+                                               className="form-control"
+                                               onChange={this.handleChange}
+                                               required={true}
+                                               checked={this.state.dataProcessingAgreement}
+                                        />
+                                        <label htmlFor="dataProcessingAgreement">
+                                            I accept sales regulations and confirm acquaintance with Privacy Policy
+                                        </label>
+                                    </div>
+
                                     <div className="col-md-12 text-right">
-                                        <button type="submit" value="submit" className="primary-btn">Send Message
+                                        <button type="submit" value="submit" className="primary-btn">
+                                            Send Message
                                         </button>
                                     </div>
                                 </form>

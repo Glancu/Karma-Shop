@@ -33,7 +33,7 @@ class Newsletter
      *
      * @ORM\Column(nullable=true)
      */
-    private ?string $name;
+    private ?string $name = null;
 
     /**
      * @var string

@@ -57,16 +57,12 @@ class ContactController
         $form = $this->form;
         $contact = new Contact();
 
-        $email = $request->get('email');
-        $subject = $request->get('subject');
-        $message = $request->get('message');
-        $dataProcessingAgreement = (bool)$request->get('dataProcessingAgreement');
-
         $data = [
-            'email' => $email,
-            'subject' => $subject,
-            'message' => $message,
-            'dataProcessingAgreement' => $dataProcessingAgreement
+            'name' => $request->request->get('name'),
+            'email' => $request->request->get('email'),
+            'subject' => $request->request->get('subject'),
+            'message' => $request->request->get('message'),
+            'dataProcessingAgreement' => $request->request->get('dataProcessingAgreement')
         ];
 
         $contactForm = $form->create(ContactType::class, $contact);
@@ -76,10 +72,6 @@ class ContactController
         $errors = $validator->validate($contact);
 
         if ($contactForm->isSubmitted() && $contactForm->isValid()) {
-            $contact->setEmail($email);
-            $contact->setSubject($subject);
-            $contact->setMessage($message);
-
             $em->persist($contact);
             $em->flush();
 

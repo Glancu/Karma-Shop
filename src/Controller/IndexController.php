@@ -5,7 +5,6 @@ namespace App\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * Class IndexController
@@ -14,7 +13,6 @@ use Symfony\Component\Routing\Annotation\Route;
 class IndexController extends AbstractController
 {
     /**
-     * @Route("/{reactRouting}", name="homepage", defaults={"reactRouting"=".+"}, requirements={"reactRouting"=".+"})
      *
      * @return Response
      */

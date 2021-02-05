@@ -27,7 +27,8 @@ yarn-error.log
 ###< symfony/web-server-bundle ###
 
 ###> CUSTOM ###
-/docker/karma-shop.sql
+/docker/karma-shop.sql/
+frontend/.sass-cache
 ###< CUSTOM ###
 
 ###> lexik/jwt-authentication-bundle ###

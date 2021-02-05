@@ -11,7 +11,9 @@ import Confirmation from './Pages/Shop/Confirmation';
 import Tracking from './Pages/Shop/Tracking';
 import List from './Pages/Blog/List';
 import Show from './Pages/Blog/Show';
-import Login from './Pages/Login';
+import Login from './Pages/User/Login';
+import Logout from './Pages/User/Logout';
+import Register from './Pages/User/Register';
 import Elements from './Pages/Elements';
 import ScrollToTop from './Components/ScrollToTop';
 
@@ -34,6 +36,8 @@ const App = () => (
             <Route path='/blog' component={List} />
 
             <Route path='/login' component={Login} />
+            <Route path='/logout' component={Logout} />
+            <Route path='/register' component={Register} />
 
             <Route path='/elements' component={Elements} />
 

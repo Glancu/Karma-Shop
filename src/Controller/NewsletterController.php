@@ -57,14 +57,10 @@ class NewsletterController
         $form = $this->form;
         $newsletter = new Newsletter();
 
-        $name = $request->get('name') ?? '';
-        $email = $request->get('email');
-        $dataProcessingAgreement = (bool)$request->get('dataProcessingAgreement');
-
         $data = [
-            'name' => $name,
-            'email' => $email,
-            'dataProcessingAgreement' => $dataProcessingAgreement
+            'name' => $request->request->get('name'),
+            'email' => $request->request->get('email'),
+            'dataProcessingAgreement' => $request->request->get('dataProcessingAgreement'),
         ];
 
         $newsletterForm = $form->create(NewsletterType::class, $newsletter);
@@ -72,12 +68,20 @@ class NewsletterController
         $newsletterForm->submit($data);
 
         $errors = $validator->validate($newsletter);
+        if($errors->count() === 0) {
+            $newsletterObj = $em->getRepository('App:Newsletter')->findOneBy([
+                'email' => $data['email']
+            ]);
+            if($newsletterObj) {
+                $errorsList = ['error' => true, 'message' => 'User is saved with this email.'];
+
+                $return = $serializer->serialize($errorsList, 'json');
+
+                return new Response($return);
+            }
+        }
 
         if ($newsletterForm->isSubmitted() && $newsletterForm->isValid()) {
-            $newsletter->setName($name);
-            $newsletter->setEmail($email);
-            $newsletter->setDataProcessingAgreement($dataProcessingAgreement);
-
             $em->persist($newsletter);
             $em->flush();
 

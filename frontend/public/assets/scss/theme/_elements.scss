@@ -155,7 +155,7 @@ h1, h2, h3, h4, h5, h6 {
 		color: $success;
 		border: 1px solid $success;
 		background: $white;
-		
+
 		&:hover {
 			color: $white;
 			background: $success;
@@ -176,7 +176,7 @@ h1, h2, h3, h4, h5, h6 {
 		color: $info;
 		border: 1px solid $info;
 		background: $white;
-		
+
 		&:hover {
 			color: $white;
 			background: $info;
@@ -1005,4 +1005,37 @@ h1, h2, h3, h4, h5, h6 {
 	.nice-select::after {
 		right: 20px;
 	}
+}
+
+
+.error-message-input, .form-error-message {
+	display: block;
+	color: red;
+}
+
+.form-notice-message {
+	color: #ffba00;
+}
+
+.red-star {
+	color: red;
+}
+
+.col-md-12.form-group, .col-md-6.form-group {
+	input[type=checkbox][name=dataProcessingAgreement] {
+		display: inline-block;
+		width: auto;
+		margin-right: 10px;
+		height: 20px;
+	}
+
+	label[for=dataProcessingAgreement], label[for=dataProcessingAgreement_newsletter] {
+		display: inline;
+		vertical-align: super;
+	}
+}
+
+.button-without-background {
+	background: none;
+	border: none;
 }

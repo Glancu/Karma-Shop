@@ -16,11 +16,11 @@ class ContactType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
-        $builder->add('email', EmailType::class)
+        $builder->add('name', TextType::class)
+                ->add('email', EmailType::class)
                 ->add('subject', TextType::class)
                 ->add('message', TextType::class)
-                ->add('dataProcessingAgreement', CheckboxType::class)
-                ->add('save', SubmitType::class);
+                ->add('dataProcessingAgreement', CheckboxType::class);
     }
 
     public function configureOptions(OptionsResolver $resolver): void
