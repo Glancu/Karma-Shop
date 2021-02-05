@@ -12,8 +12,11 @@ final class ShopControllerTest extends WebTestCase
 
     private array $defaultData;
 
-    private string $jwtToken;
+    private string $jwtToken = '';
 
+    /**
+     * @throws JsonException
+     */
     protected function setUp(): void
     {
         $jwtClient = static::createClient();
@@ -41,7 +44,7 @@ final class ShopControllerTest extends WebTestCase
     /**
      * @test
      */
-    public function it_allow_to_complete_newsletter_with_full_data(): void
+    public function it_allow_to_create_product_review_with_full_data(): void
     {
         $data = $this->defaultData;
 
@@ -51,7 +54,7 @@ final class ShopControllerTest extends WebTestCase
     /**
      * @test
      */
-    public function it_allow_to_complete_product_review_without_phone_number(): void
+    public function it_allow_to_create_product_review_without_phone_number(): void
     {
         $data = $this->defaultData;
         unset($data['phoneNumber']);
@@ -62,7 +65,7 @@ final class ShopControllerTest extends WebTestCase
     /**
      * @test
      */
-    public function it_does_not_allow_to_complete_contact_wit_bad_email(): void
+    public function it_does_not_allow_to_create_product_review_wit_bad_email(): void
     {
         $data = $this->defaultData;
         $data['email'] = 'bad_email';

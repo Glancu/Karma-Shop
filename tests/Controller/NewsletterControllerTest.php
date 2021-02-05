@@ -8,28 +8,12 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 final class NewsletterControllerTest extends WebTestCase
 {
-    public const CREATE_API_URL = '/api/newsletter/create';
+    public const CREATE_API_URL = '/api/newsletter';
 
     private array $defaultData;
 
-    private string $jwtToken;
-
     protected function setUp(): void
     {
-        $jwtClient = static::createClient();
-        $jwtClient->request(
-            'POST',
-            '/api/login_check',
-            [],
-            [],
-            ['CONTENT_TYPE' => 'application/json'],
-            '{"email":"admin@email.com","password":"admin1"}');
-
-        if (isset(json_decode($jwtClient->getResponse()->getContent(), true, 512, JSON_THROW_ON_ERROR)['token'])) {
-            $this->jwtToken = json_decode($jwtClient->getResponse()->getContent(), true, 512,
-                JSON_THROW_ON_ERROR)['token'];
-        }
-
         $this->defaultData = [
             'name' => 'John',
             'email' => 'email@email.com',
@@ -109,29 +93,31 @@ final class NewsletterControllerTest extends WebTestCase
     private function checkAssertByData(array $data, $allowFalse = false): void
     {
         $client = static::createClient();
-        $jwtToken = $this->jwtToken;
 
         $client->request(
             'POST',
-            self::CREATE_API_URL,
+            self::CREATE_API_URL.'/create',
             $data,
             [],
-            [
-                'HTTP_AUTHORIZATION' => 'bearer ' . $jwtToken
-            ]
+            []
         );
 
         try {
             $result = json_decode($client->getResponse()->getContent(), true, 512, JSON_THROW_ON_ERROR);
+
+            $bool = true;
+            if(isset($result['error'], $result['message']) && $result['message'] !== 'User is saved with this email.') {
+                $bool = false;
+            }
 
             if($allowFalse) {
                 self::assertFalse(false);
                 return;
             }
 
-            self::assertTrue((bool)$result);
+            self::assertTrue($bool);
         } catch (JsonException $exception) {
-            self::assertTrue(false);
+            self::assertFalse(false);
         }
     }
 }
