@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
 import BaseTemplate from '../../Components/BaseTemplate';
+import ValidateEmail from '../../Components/ValidateEmail';
 
 class Register extends Component {
     constructor(props) {
@@ -65,7 +66,6 @@ class Register extends Component {
     handleSubmit(event) {
         event.preventDefault();
         const { email, firstName, lastName, phoneNumber, street, postalCode, city, country, password } = this.state;
-        const validEmailRegex = RegExp(/^(([^<>()\[\]\.,;:\s@\"]+(\.[^<>()\[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i);
         let errors = this.state.errors;
 
         // Clear error message while send form
@@ -80,7 +80,7 @@ class Register extends Component {
             'Last name must be 3 characters long!' :
             '';
 
-        errors.email = validEmailRegex.test(email) ?
+        errors.email = ValidateEmail(email) ?
             '' :
             'Email is not valid!';
 

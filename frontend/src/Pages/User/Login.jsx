@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import BaseTemplate from '../../Components/BaseTemplate';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
+import ValidateEmail from '../../Components/ValidateEmail';
 
 import imgLogin from '../../../public/assets/img/login.jpg';
 
@@ -65,13 +66,12 @@ class Login extends Component {
     handleSubmit(event) {
         event.preventDefault();
         const { email, password } = this.state;
-        const validEmailRegex = RegExp(/^(([^<>()\[\]\.,;:\s@\"]+(\.[^<>()\[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i);
         let errors = this.state.errors;
 
         // Clear error message while send form
         this.setState({errorMessage: ''});
 
-        errors.email = validEmailRegex.test(email) ?
+        errors.email = ValidateEmail(email) ?
             '' :
             'Email is not valid!';
 
