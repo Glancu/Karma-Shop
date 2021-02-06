@@ -1460,39 +1460,39 @@ h1, h2, h3, h4, h5, h6 {
 .active-product-area {
   padding-top: 70px;
   padding-bottom: 50px; }
-  .active-product-area .owl-nav div {
+  .active-product-area .owl-nav button {
     position: absolute;
     left: 35%;
-    top: 7%;
+    top: 1%;
     opacity: .3; }
     @media (max-width: 1440px) {
-      .active-product-area .owl-nav div {
+      .active-product-area .owl-nav button {
         left: 30%; } }
     @media (max-width: 1200px) {
-      .active-product-area .owl-nav div {
+      .active-product-area .owl-nav button {
         left: 28%; } }
     @media (max-width: 991px) {
-      .active-product-area .owl-nav div {
+      .active-product-area .owl-nav button {
         top: 3%;
         left: 25%; } }
     @media (max-width: 870px) {
-      .active-product-area .owl-nav div {
+      .active-product-area .owl-nav button {
         left: 15%; } }
     @media (max-width: 767px) {
-      .active-product-area .owl-nav div {
+      .active-product-area .owl-nav button {
         left: 10%;
         top: 2%;
         margin-top: -25px; } }
     @media (max-width: 570px) {
-      .active-product-area .owl-nav div {
+      .active-product-area .owl-nav button {
         left: 37%;
         top: 1%;
         margin-top: -25px; } }
     @media (max-width: 480px) {
-      .active-product-area .owl-nav div {
+      .active-product-area .owl-nav button {
         margin-top: -20px;
         left: 28%; } }
-    .active-product-area .owl-nav div:hover {
+    .active-product-area .owl-nav button:hover {
       opacity: 1; }
   .active-product-area .owl-nav .owl-next {
     left: auto;
@@ -1693,7 +1693,7 @@ h1, h2, h3, h4, h5, h6 {
       @media (max-width: 767px) {
         .exclusive-deal-area .exclusive-right .active-exclusive-product-slider .owl-nav {
           display: none; } }
-      .exclusive-deal-area .exclusive-right .active-exclusive-product-slider .owl-nav div {
+      .exclusive-deal-area .exclusive-right .active-exclusive-product-slider .owl-nav button {
         position: absolute;
         left: 5%;
         top: 50%;
@@ -1703,7 +1703,7 @@ h1, h2, h3, h4, h5, h6 {
         -ms-transform: translateY(-50%);
         -o-transform: translateY(-50%);
         transform: translateY(-50%); }
-        .exclusive-deal-area .exclusive-right .active-exclusive-product-slider .owl-nav div:hover {
+        .exclusive-deal-area .exclusive-right .active-exclusive-product-slider .owl-nav button:hover {
           opacity: 1; }
       .exclusive-deal-area .exclusive-right .active-exclusive-product-slider .owl-nav .owl-next {
         left: auto;
