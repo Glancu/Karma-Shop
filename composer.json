@@ -1,6 +1,8 @@
 {
   "type": "project",
   "license": "proprietary",
+  "name": "glancu/karma-shop",
+  "description": "Simple shop with SF and Reaact.",
   "require": {
     "php": "^7.4",
     "ext-ctype": "*",
