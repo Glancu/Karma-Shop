@@ -5,6 +5,7 @@ import $ from 'jquery';
 import OwlCarousel from 'react-owl-carousel';
 import '../../public/assets/js/jquery.magnific-popup.min';
 import '../../public/assets/js/countdown';
+import DealsRelatedProducts from '../Components/DealsRelatedProducts';
 
 // Images
 import imgBanner from '../../public/assets/img/banner/banner-img.png';
@@ -36,17 +37,6 @@ import imgBrand3 from '../../public/assets/img/brand/3.png';
 import imgBrand4 from '../../public/assets/img/brand/4.png';
 import imgBrand5 from '../../public/assets/img/brand/5.png';
 
-import imgRelatedProduct1 from '../../public/assets/img/r1.jpg';
-import imgRelatedProduct2 from '../../public/assets/img/r2.jpg';
-import imgRelatedProduct3 from '../../public/assets/img/r3.jpg';
-import imgRelatedProduct5 from '../../public/assets/img/r5.jpg';
-import imgRelatedProduct6 from '../../public/assets/img/r6.jpg';
-import imgRelatedProduct7 from '../../public/assets/img/r7.jpg';
-import imgRelatedProduct9 from '../../public/assets/img/r9.jpg';
-import imgRelatedProduct10 from '../../public/assets/img/r10.jpg';
-import imgRelatedProduct11 from '../../public/assets/img/r11.jpg';
-import DealsRelatedProducts from '../Components/DealsRelatedProducts';
-
 class Index extends Component {
     constructor(props) {
         super(props);
@@ -62,14 +52,14 @@ class Index extends Component {
             $(".fitscreen").css("height", fitscreen);
 
             if (document.getElementById("js-countdown")) {
-                var countdown = new Date("October 17, 2018");
+                const countdown = new Date("October 17, 2018");
 
                 function getRemainingTime(endtime) {
-                    var milliseconds = Date.parse(endtime) - Date.parse(new Date());
-                    var seconds = Math.floor(milliseconds / 1000 % 60);
-                    var minutes = Math.floor(milliseconds / 1000 / 60 % 60);
-                    var hours = Math.floor(milliseconds / (1000 * 60 * 60) % 24);
-                    var days = Math.floor(milliseconds / (1000 * 60 * 60 * 24));
+                    const milliseconds = Date.parse(endtime) - Date.parse(new Date());
+                    const seconds = Math.floor(milliseconds / 1000 % 60);
+                    const minutes = Math.floor(milliseconds / 1000 / 60 % 60);
+                    const hours = Math.floor(milliseconds / (1000 * 60 * 60) % 24);
+                    const days = Math.floor(milliseconds / (1000 * 60 * 60 * 24));
 
                     return {
                         'total': milliseconds,
@@ -81,14 +71,14 @@ class Index extends Component {
                 }
 
                 function initClock(id, endtime) {
-                    var counter = document.getElementById(id);
-                    var daysItem = counter.querySelector('.js-countdown-days');
-                    var hoursItem = counter.querySelector('.js-countdown-hours');
-                    var minutesItem = counter.querySelector('.js-countdown-minutes');
-                    var secondsItem = counter.querySelector('.js-countdown-seconds');
+                    const counter = document.getElementById(id);
+                    const daysItem = counter.querySelector('.js-countdown-days');
+                    const hoursItem = counter.querySelector('.js-countdown-hours');
+                    const minutesItem = counter.querySelector('.js-countdown-minutes');
+                    const secondsItem = counter.querySelector('.js-countdown-seconds');
 
                     function updateClock() {
-                        var time = getRemainingTime(endtime);
+                        const time = getRemainingTime(endtime);
 
                         daysItem.innerHTML = time.days;
                         hoursItem.innerHTML = ('0' + time.hours).slice(-2);
@@ -101,7 +91,7 @@ class Index extends Component {
                     }
 
                     updateClock();
-                    var timeinterval = setInterval(updateClock, 1000);
+                    const timeinterval = setInterval(updateClock, 1000);
                 }
 
                 initClock('js-countdown', countdown);

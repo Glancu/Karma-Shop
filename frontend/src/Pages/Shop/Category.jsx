@@ -1,23 +1,22 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import noUiSlider from '../../../public/assets/js/nouislider.min';
+import BaseTemplate from '../../Components/BaseTemplate';
 
 // Images
-
 import imgProduct1 from '../../../public/assets/img/product/p1.jpg';
 import imgProduct2 from '../../../public/assets/img/product/p2.jpg';
 import imgProduct3 from '../../../public/assets/img/product/p3.jpg';
 import imgProduct4 from '../../../public/assets/img/product/p4.jpg';
 import imgProduct5 from '../../../public/assets/img/product/p5.jpg';
 import imgProduct6 from '../../../public/assets/img/product/p6.jpg';
-import BaseTemplate from '../../Components/BaseTemplate';
 
 class Category extends Component {
     componentDidMount() {
         document.body.id = 'category';
 
         if(document.getElementById('price-range')) {
-            var nonLinearSlider = document.getElementById('price-range');
+            const nonLinearSlider = document.getElementById('price-range');
 
             noUiSlider.create(nonLinearSlider, {
                 connect: true,
@@ -33,7 +32,7 @@ class Category extends Component {
                 }
             }, true);
 
-            var nodes = [
+            const nodes = [
                 document.getElementById('lower-value'), // 0
                 document.getElementById('upper-value')  // 1
             ];
