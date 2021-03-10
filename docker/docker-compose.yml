@@ -2,7 +2,7 @@ version: "3.1"
 services:
   mysql:
     image: mysql:8.0
-    container_name: karma-shop-mysql
+    container_name: karma-shop-mysql-v2
     volumes:
       - ./karma-shop.sql:/docker-entrypoint-initdb.d/karma-shop.sql
     command: ['--default-authentication-plugin=mysql_native_password']
@@ -17,12 +17,12 @@ services:
 
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
-    container_name: karma-shop-phpmyadmin
+    container_name: karma-shop-phpmyadmin-v2
     restart: always
     links:
       - mysql:db
     ports:
-      - "8501:80"
+      - "8601:80"
     environment:
       - PMA_ARBITRARY=0
       - PMA_HOST=mysql
@@ -33,12 +33,12 @@ services:
 
   webserver:
     image: nginx:alpine
-    container_name: karma-shop-nginx
+    container_name: karma-shop-nginx-v2
     volumes:
       - ./..:/var/www/html
       - ./nginx/nginx.conf:/etc/nginx/conf.d/000-default.conf
     ports:
-      - "8500:8500"
+      - "8600:8600"
     restart: always
     links:
       - php
@@ -49,7 +49,7 @@ services:
     build:
       context: .
       dockerfile: php/Dockerfile
-    container_name: karma-shop-php
+    container_name: karma-shop-php-v2
     restart: always
     links:
       - mysql

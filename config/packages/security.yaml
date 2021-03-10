@@ -70,6 +70,10 @@ security:
         - { path: ^/api/user/create, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/api/newsletter/create, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/api/contact/create, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/api/products/list, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/api/categories/list, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/api/brands/list, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/api/colors/list, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }
         - { path: /admin/login, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/admin, role: ROLE_ADMIN }

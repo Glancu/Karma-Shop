@@ -1,0 +1,9 @@
+<th>{{ field_description.options.label }}</th>
+<td>
+    {% for media in value %}
+        <div style="display: inline-block; margin-right: 20px;">
+            {% thumbnail media, 'small' %}
+            <small>{{ media.name }} (id: {{ media.id }})</small>
+        </div>
+    {% endfor %}
+</td>

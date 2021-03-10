@@ -3,6 +3,7 @@
 namespace App\Traits;
 
 use Doctrine\ORM\Mapping as ORM;
+use Ramsey\Uuid\Uuid;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 trait UuidTrait
@@ -18,7 +19,7 @@ trait UuidTrait
 
     public function __construct()
     {
-        $this->uuid = uuid_create(UUID_TYPE_RANDOM);
+        $this->uuid = Uuid::uuid4();
     }
 
     /**

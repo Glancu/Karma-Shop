@@ -1,0 +1,28 @@
+{% block sonata_admin_orm_many_to_many_widget %}
+    {% include 'Admin/Form/edit_many_to_many.html.twig' %}
+{% endblock %}
+
+{# Code below from: vendor/sonata-project/doctrine-orm-admin-bundle/src/Resources/views/Form/form_admin_fields.html.twig #}
+{% block sonata_type_model_widget %}
+    {#
+    This is not the best way to do if
+    TODO : improve this part
+    #}
+
+    {#model {{ sonata_admin.field_description.mappingtype }}#}
+
+    {% if sonata_admin.field_description is empty %}
+        {{ block('choice_widget') }}
+    {% elseif sonata_admin.field_description.mappingtype == constant('Doctrine\\ORM\\Mapping\\ClassMetadataInfo::ONE_TO_ONE') %}
+        {{ block('sonata_admin_orm_one_to_one_widget') }}
+    {% elseif sonata_admin.field_description.mappingtype == constant('Doctrine\\ORM\\Mapping\\ClassMetadataInfo::MANY_TO_ONE') %}
+        {{ block('sonata_admin_orm_many_to_one_widget') }}
+    {% elseif sonata_admin.field_description.mappingtype == constant('Doctrine\\ORM\\Mapping\\ClassMetadataInfo::MANY_TO_MANY') %}
+        {{ block('sonata_admin_orm_many_to_many_widget') }}
+    {% elseif sonata_admin.field_description.mappingtype == constant('Doctrine\\ORM\\Mapping\\ClassMetadataInfo::ONE_TO_MANY') %}
+        {{ block('sonata_admin_orm_one_to_many_widget') }}
+    {% else %}
+        {#INVALID MODE : {{ id }}#}
+        {{ block('choice_widget') }}
+    {% endif %}
+{% endblock %}

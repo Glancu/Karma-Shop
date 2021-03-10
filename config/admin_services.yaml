@@ -46,3 +46,39 @@ services:
     arguments: [ ~, App\Entity\ClientUser, ~ ]
     tags:
       - { name: sonata.admin, manager_type: orm, group: Users, label: Clients }
+
+  admin.shop.delivery:
+    class: App\Admin\ShopDeliveryAdmin
+    arguments: [ ~, App\Entity\ShopDelivery, ~ ]
+    tags:
+      - { name: sonata.admin, manager_type: orm, group: Shop, label: Delivery }
+
+  admin.shop.product_specification:
+    class: App\Admin\ShopProductSpecificationAdmin
+    arguments: [ ~, App\Entity\ShopProductSpecification, ~ ]
+    tags:
+      - { name: sonata.admin, manager_type: orm, group: Shop, label: Product specification }
+
+  admin.shop.product_specification_type:
+    class: App\Admin\ShopProductSpecificationTypeAdmin
+    arguments: [ ~, App\Entity\ShopProductSpecificationType, 'PixSortableBehaviorBundle:SortableAdmin' ]
+    tags:
+      - { name: sonata.admin, manager_type: orm, group: Shop, label: Product specification type }
+
+  admin.shop.product:
+    class: App\Admin\ShopProductAdmin
+    arguments: [ ~, App\Entity\ShopProduct, ~ ]
+    tags:
+      - { name: sonata.admin, manager_type: orm, group: Shop, label: Product }
+
+  admin.shop.order:
+    class: App\Admin\OrderAdmin
+    arguments: [ ~, App\Entity\Order, ~ ]
+    tags:
+      - { name: sonata.admin, manager_type: orm, group: Shop, label: Order }
+
+  admin.comment:
+    class: App\Admin\CommentAdmin
+    arguments: [ ~, App\Entity\Comment, ~ ]
+    tags:
+      - { name: sonata.admin, manager_type: orm, group: Comments, label: Comments, icon: "<i class=\"fa fa-comment\"></i>" }

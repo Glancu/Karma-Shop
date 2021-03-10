@@ -29,6 +29,7 @@ yarn-error.log
 ###> CUSTOM ###
 /docker/karma-shop.sql/
 frontend/.sass-cache
+/public/uploads/
 ###< CUSTOM ###
 
 ###> lexik/jwt-authentication-bundle ###

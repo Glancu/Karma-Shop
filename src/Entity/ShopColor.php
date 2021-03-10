@@ -5,16 +5,20 @@ namespace App\Entity;
 use App\Repository\ShopColorRepository;
 use App\Traits\CreatedAtTrait;
 use App\Traits\EnableTrait;
+use App\Traits\UuidTrait;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass=ShopColorRepository::class)
  */
 class ShopColor
 {
-    use EnableTrait, CreatedAtTrait {
+    use EnableTrait, CreatedAtTrait, UuidTrait {
         EnableTrait::__construct as private __EnableTraitConstructor;
         CreatedAtTrait::__construct as private __CreatedAtTraitConstructor;
+        UuidTrait::__construct as private __UuidTraitConstructor;
     }
 
     /**
@@ -25,9 +29,16 @@ class ShopColor
     private int $id;
 
     /**
+     * @Groups("shop_color")
+     *
      * @ORM\Column(type="string", length=255)
      */
     private string $name;
+
+    /**
+     * @ORM\ManyToMany(targetEntity="App\Entity\ShopProduct", mappedBy="shopColors")
+     */
+    private $products;
 
     /**
      * ShopColor constructor.
@@ -36,6 +47,8 @@ class ShopColor
     {
         $this->__EnableTraitConstructor();
         $this->__CreatedAtTraitConstructor();
+        $this->__UuidTraitConstructor();
+        $this->products = new ArrayCollection();
     }
 
     /**
@@ -65,5 +78,49 @@ class ShopColor
     public function setName(string $name): void
     {
         $this->name = $name;
+    }
+
+    /**
+     * @return null|ArrayCollection
+     */
+    public function getProducts()
+    {
+        return $this->products;
+    }
+
+    /**
+     * @param ShopProduct $product
+     */
+    public function addProduct(ShopProduct $product): void
+    {
+        $this->products[] = $product;
+    }
+
+    /**
+     * @param ShopProduct $product
+     */
+    public function removeProduct(ShopProduct $product): void
+    {
+        $this->products->removeElement($product);
+    }
+
+    /**
+     * CUSTOM
+     */
+
+    public function getCountProducts(): int
+    {
+        $count = 0;
+
+        /**
+         * @var ShopProduct $product
+         */
+        foreach($this->products as $product) {
+            if($product->isEnable()) {
+                $count++;
+            }
+        }
+
+        return $count;
     }
 }

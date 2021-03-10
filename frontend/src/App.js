@@ -4,6 +4,7 @@ import { Route, BrowserRouter as Router, Switch, Redirect } from 'react-router-d
 import Contact from "./Pages/Contact";
 import Category from './Pages/Shop/Category';
 import NotFound from './Pages/NotFound';
+import ProductsList from './Pages/Shop/ProductsList';
 import ProductDetail from './Pages/Shop/ProductDetail';
 import Checkout from './Pages/Shop/Checkout';
 import Cart from './Pages/Shop/Cart';
@@ -31,6 +32,7 @@ const App = () => (
             <Route path='/shop/cart' component={Cart} />
             <Route path='/shop/confirmation' component={Confirmation} />
             <Route path='/shop/tracking' component={Tracking} />
+            <Route path='/shop' component={ProductsList} />
 
             <Route path='/blog/:id' component={Show} />
             <Route path='/blog' component={List} />

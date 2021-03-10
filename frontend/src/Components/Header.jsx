@@ -90,6 +90,9 @@ class Header extends Component {
                                            aria-expanded="false">Shop</a>
                                         <ul className="dropdown-menu">
                                             <li className="nav-item">
+                                                <NavLink className="nav-link" to={'/shop'}>Products</NavLink>
+                                            </li>
+                                            <li className="nav-item">
                                                 <NavLink className="nav-link" to={'/shop/category'}>Shop category</NavLink>
                                             </li>
                                             <li className="nav-item">

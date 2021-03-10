@@ -6,6 +6,7 @@ namespace App\Entity;
 use App\Repository\ProductReviewRepository;
 use App\Traits\CreatedAtTrait;
 use App\Traits\EnableTrait;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -78,10 +79,16 @@ class ProductReview
      */
     private string $message;
 
+    /**
+     * @ORM\ManyToMany(targetEntity="App\Entity\ShopProduct", mappedBy="reviews")
+     */
+    private $products;
+
     public function __construct()
     {
         $this->enable = false;
         $this->__CreatedAtTraitConstructor();
+        $this->products = new ArrayCollection();
     }
 
     public function __toString(): string
@@ -183,5 +190,29 @@ class ProductReview
     public function setMessage(string $message): void
     {
         $this->message = $message;
+    }
+
+    /**
+     * @return null|ArrayCollection
+     */
+    public function getProducts()
+    {
+        return $this->products;
+    }
+
+    /**
+     * @param ShopProduct $product
+     */
+    public function addProduct(ShopProduct $product): void
+    {
+        $this->products[] = $product;
+    }
+
+    /**
+     * @param ShopProduct $product
+     */
+    public function removeProduct(ShopProduct $product): void
+    {
+        $this->products->removeElement($product);
     }
 }

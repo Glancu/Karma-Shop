@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Repository\ClientUserRepository;
 use App\Traits\CreatedAtTrait;
 use App\Traits\UuidTrait;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -94,10 +95,16 @@ class ClientUser implements UserInterface
      */
     private string $street;
 
+    /**
+     * @ORM\ManyToMany(targetEntity="App\Entity\Order", mappedBy="user")
+     */
+    private $orders;
+
     public function __construct()
     {
         $this->__CreatedAtTraitConstructor();
         $this->__UuidTraitConstructor();
+        $this->orders = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -212,6 +219,42 @@ class ClientUser implements UserInterface
 
         return $this;
     }
+
+    /**
+     * @return null|ArrayCollection
+     */
+    public function getOrders()
+    {
+        return $this->orders;
+    }
+
+    /**
+     * @param Order $order
+     */
+    public function addOrder(Order $order): void
+    {
+        $this->orders[] = $order;
+    }
+
+    /**
+     * @param Order $order
+     */
+    public function removeOrder(Order $order): void
+    {
+        $this->orders->removeElement($order);
+    }
+
+    /**
+     * @param null|ArrayCollection $orders
+     */
+    public function setOrders(?ArrayCollection $orders): void
+    {
+        $this->orders = $orders;
+    }
+
+    /**
+     * CUSTOM
+     */
 
     public function getRoles(): array
     {

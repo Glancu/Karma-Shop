@@ -7,6 +7,13 @@ _sonata_admin:
     type: sonata_admin
     prefix: /admin
 
+gallery:
+    resource: '@SonataMediaBundle/Resources/config/routing/gallery.xml'
+    prefix: /admin/media/gallery
+
+media:
+    resource: '@SonataMediaBundle/Resources/config/routing/media.xml'
+    prefix: /admin/media
 
 controllers:
     resource: ../../src/Controller/
