@@ -5,6 +5,7 @@ namespace App\Controller\Shop;
 
 use App\Service\SerializeDataResponse;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\Exception\ExceptionInterface;
@@ -30,8 +31,7 @@ class ProductController
     public function __construct(
         EntityManagerInterface $entityManager,
         SerializeDataResponse $serializeDataResponse
-    )
-    {
+    ) {
         $this->entityManager = $entityManager;
         $this->serializeDataResponse = $serializeDataResponse;
     }
@@ -43,14 +43,15 @@ class ProductController
      *
      * @throws ExceptionInterface
      */
-    public function getProductsList(): Response
+    public function getProductsList(Request $request): Response
     {
         $em = $this->entityManager;
         $serializer = $this->serializeDataResponse;
 
-        $products = $em->getRepository('App:ShopProduct')->findBy(
-            ['enable' => true],
-            ['id' => 'DESC']);
+        $limit = $request->query->get('limit') ?: 10;
+        $offset = $request->query->get('offset') ?: 0;
+
+        $products = $em->getRepository('App:ShopProduct')->getProductsWithLimitAndOffset($limit, $offset);
 
         $response = new Response($serializer->getProductsData($products));
         $response->headers->set('Content-Type', 'application/json');

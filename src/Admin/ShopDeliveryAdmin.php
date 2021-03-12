@@ -2,6 +2,7 @@
 
 namespace App\Admin;
 
+use App\Service\MoneyService;
 use Sonata\AdminBundle\Admin\AbstractAdmin;
 use Sonata\AdminBundle\Datagrid\DatagridMapper;
 use Sonata\AdminBundle\Datagrid\ListMapper;
@@ -26,8 +27,18 @@ final class ShopDeliveryAdmin extends AbstractAdmin
                        'label' => 'Free delivery',
                        'required' => false
                    ])
-                   ->add('priceNet', MoneyType::class, ['label' => 'Price net', 'required' => false])
-                   ->add('priceGross', MoneyType::class, ['label' => 'Price gross', 'required' => false]);
+                   ->add('priceNet', MoneyType::class, [
+                       'label' => 'Price net',
+                       'required' => false,
+                       'scale' => 2,
+                       'divisor' => MoneyService::PRICE_DIVIDE_MULTIPLY
+                   ])
+                   ->add('priceGross', MoneyType::class, [
+                       'label' => 'Price gross',
+                       'required' => false,
+                       'scale' => 2,
+                       'divisor' => MoneyService::PRICE_DIVIDE_MULTIPLY
+                   ]);
     }
 
     protected function configureDatagridFilters(DatagridMapper $datagridMapper): void
@@ -39,6 +50,14 @@ final class ShopDeliveryAdmin extends AbstractAdmin
     {
         $listMapper->add('id', null, ['label' => 'ID'])
                    ->add('name', null, ['label' => 'Name'])
+                   ->add('priceNet', MoneyType::class, [
+                       'label' => 'Price net',
+                       'template' => 'Admin/list_price_int.html.twig'
+                   ])
+                   ->add('priceGross', MoneyType::class, [
+                       'label' => 'Price gross',
+                       'template' => 'Admin/list_price_int.html.twig'
+                   ])
                    ->add('freeDelivery', null, ['label' => 'Free delivery', 'editable' => true])
                    ->add('_action', null, [
                        'actions' => [
@@ -55,7 +74,13 @@ final class ShopDeliveryAdmin extends AbstractAdmin
                    ->add('uuid', null, ['label' => 'UUID'])
                    ->add('name', null, ['label' => 'Name'])
                    ->add('freeDelivery', null, ['label' => 'Free delivery'])
-                   ->add('priceNet', null, ['label' => 'Price net'])
-                   ->add('priceGross', null, ['label' => 'Price gross']);
+                   ->add('priceNet', null, [
+                       'label' => 'Price net',
+                       'template' => 'Admin/show_price_int.html.twig'
+                   ])
+                   ->add('priceGross', null, [
+                       'label' => 'Price gross',
+                       'template' => 'Admin/show_price_int.html.twig'
+                   ]);
     }
 }

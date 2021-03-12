@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use App\Repository\OrderRepository;
 use App\Traits\CreatedAtTrait;
+use App\Traits\PriceTrait;
 use App\Traits\UuidTrait;
 use DateTime;
 use DateTimeInterface;
@@ -17,7 +18,7 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class Order
 {
-    use CreatedAtTrait, UuidTrait {
+    use CreatedAtTrait, UuidTrait, PriceTrait {
         CreatedAtTrait::__construct as private __CreatedAtTraitConstructor;
         UuidTrait::__construct as private __UuidTraitConstructor;
     }
@@ -28,16 +29,6 @@ class Order
      * @ORM\Column(type="integer")
      */
     private int $id;
-
-    /**
-     * @ORM\Column(name="price_net", type="float")
-     */
-    private float $priceNet;
-
-    /**
-     * @ORM\Column(name="price_gross", type="float")
-     */
-    private float $priceGross;
 
     /**
      * @ORM\Column(type="integer")
@@ -98,30 +89,6 @@ class Order
     public function getId(): ?int
     {
         return $this->id;
-    }
-
-    public function getPriceNet(): ?float
-    {
-        return $this->priceNet;
-    }
-
-    public function setPriceNet(float $priceNet): self
-    {
-        $this->priceNet = $priceNet;
-
-        return $this;
-    }
-
-    public function getPriceGross(): ?float
-    {
-        return $this->priceGross;
-    }
-
-    public function setPriceGross(float $priceGross): self
-    {
-        $this->priceGross = $priceGross;
-
-        return $this;
     }
 
     public function getMethodPay(): ?int

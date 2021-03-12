@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
+use App\Traits\PriceTrait;
 use App\Traits\UuidTrait;
 use Doctrine\ORM\Mapping as ORM;
 use App\Repository\ShopDeliveryRepository;
@@ -13,7 +14,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  * @ORM\Entity(repositoryClass=ShopDeliveryRepository::class)
  */
 class ShopDelivery {
-    use UuidTrait {
+    use UuidTrait, PriceTrait {
         UuidTrait::__construct as private __UuidTraitConstructor;
     }
 
@@ -44,24 +45,6 @@ class ShopDelivery {
      * @ORM\COlumn(type="boolean")
      */
     private bool $freeDelivery;
-
-    /**
-     * @var null|float
-     *
-     * @Groups("shop_delivery")
-     *
-     * @ORM\Column(type="float", scale=2, precision=10, nullable=true)
-     */
-    private ?float $priceNet;
-
-    /**
-     * @var null|float
-     *
-     * @Groups("shop_delivery")
-     *
-     * @ORM\Column(type="float", scale=2, precision=10, nullable=true)
-     */
-    private ?float $priceGross;
 
     public function __construct() {
         $this->__UuidTraitConstructor();
@@ -111,37 +94,5 @@ class ShopDelivery {
     public function setFreeDelivery(bool $freeDelivery): void
     {
         $this->freeDelivery = $freeDelivery;
-    }
-
-    /**
-     * @return float
-     */
-    public function getPriceNet(): ?float
-    {
-        return $this->priceNet;
-    }
-
-    /**
-     * @param float|null $priceNet
-     */
-    public function setPriceNet(?float $priceNet): void
-    {
-        $this->priceNet = $priceNet;
-    }
-
-    /**
-     * @return float
-     */
-    public function getPriceGross(): ?float
-    {
-        return $this->priceGross;
-    }
-
-    /**
-     * @param float|null $priceGross
-     */
-    public function setPriceGross(?float $priceGross): void
-    {
-        $this->priceGross = $priceGross;
     }
 }

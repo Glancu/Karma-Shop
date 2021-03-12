@@ -3,6 +3,7 @@
 namespace App\Admin;
 
 use App\Form\Type\Admin\ShopProductSpecificationTypeType;
+use App\Service\MoneyService;
 use FOS\CKEditorBundle\Form\Type\CKEditorType;
 use Sonata\AdminBundle\Admin\AbstractAdmin;
 use Sonata\AdminBundle\Datagrid\DatagridMapper;
@@ -13,7 +14,9 @@ use Sonata\AdminBundle\Form\Type\ModelType;
 use Sonata\AdminBundle\Show\ShowMapper;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\MoneyType;
+use Symfony\Component\Form\Extension\Core\Type\NumberType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Intl\NumberFormatter\NumberFormatter;
 
 final class ShopProductAdmin extends AbstractAdmin
 {
@@ -27,8 +30,16 @@ final class ShopProductAdmin extends AbstractAdmin
     {
         $formMapper->with('General')
                    ->add('name', TextType::class, ['label' => 'Name'])
-                   ->add('priceNet', MoneyType::class, ['label' => 'Price net'])
-                   ->add('priceGross', MoneyType::class, ['label' => 'Price gross'])
+                   ->add('priceNet', MoneyType::class, [
+                       'label' => 'Price net',
+                       'scale' => 2,
+                       'divisor' => MoneyService::PRICE_DIVIDE_MULTIPLY
+                   ])
+                   ->add('priceGross', MoneyType::class, [
+                       'label' => 'Price gross',
+                       'scale' => 2,
+                       'divisor' => MoneyService::PRICE_DIVIDE_MULTIPLY
+                   ])
                    ->add('quantity', IntegerType::class, ['label' => 'Quantity'])
                    ->add('shopBrand', null, ['label' => 'Brand'])
                    ->add('shopCategory', null, ['label' => 'Category'])
@@ -62,8 +73,14 @@ final class ShopProductAdmin extends AbstractAdmin
         $listMapper->add('id', null, ['label' => 'ID'])
                    ->add('name', null, ['label' => 'Name'])
                    ->add('shopBrand', null, ['label' => 'Brand'])
-                   ->add('priceNet', MoneyType::class, ['label' => 'Price net'])
-                   ->add('priceGross', MoneyType::class, ['label' => 'Price gross'])
+                   ->add('priceNet', MoneyType::class, [
+                       'label' => 'Price net',
+                       'template' => 'Admin/list_price_int.html.twig'
+                   ])
+                   ->add('priceGross', MoneyType::class, [
+                       'label' => 'Price gross',
+                       'template' => 'Admin/list_price_int.html.twig'
+                   ])
                    ->add('quantity', IntegerType::class, ['label' => 'Quantity'])
                    ->add('_action', null, [
                        'actions' => [
@@ -82,8 +99,14 @@ final class ShopProductAdmin extends AbstractAdmin
                    ->add('name', null, ['label' => 'Name'])
                    ->add('slug', null, ['label' => 'Slug'])
                    ->add('createdAt', null, ['label' => 'Created At'])
-                   ->add('priceNet', null, ['label' => 'Price net'])
-                   ->add('priceGross', null, ['label' => 'Price gross'])
+                   ->add('priceNet', null, [
+                       'label' => 'Price net',
+                       'template' => 'Admin/show_price_int.html.twig'
+                   ])
+                   ->add('priceGross', null, [
+                       'label' => 'Price gross',
+                       'template' => 'Admin/show_price_int.html.twig'
+                   ])
                    ->add('quantity', null, ['label' => 'Quantity'])
                    ->add('shopBrand', null, ['label' => 'Brand'])
                    ->add('shopCategory', null, ['label' => 'Category'])

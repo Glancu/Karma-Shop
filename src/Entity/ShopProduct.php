@@ -5,6 +5,7 @@ namespace App\Entity;
 
 use App\Traits\CreatedAtTrait;
 use App\Traits\EnableTrait;
+use App\Traits\PriceTrait;
 use App\Traits\UuidTrait;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -19,7 +20,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  * @ORM\Entity(repositoryClass=ShopProductRepository::class)
  */
 class ShopProduct {
-    use CreatedAtTrait, EnableTrait, UuidTrait {
+    use CreatedAtTrait, EnableTrait, UuidTrait, PriceTrait {
         CreatedAtTrait::__construct as private __CreatedAtTraitConstructor;
         EnableTrait::__construct as private __EnableTraitConstructor;
         UuidTrait::__construct as private __UuidTraitConstructor;
@@ -54,24 +55,6 @@ class ShopProduct {
      * @ORM\Column(type="string")
      */
     private string $slug;
-
-    /**
-     * @var float
-     *
-     * @Groups("shop_product")
-     *
-     * @ORM\Column(type="float", scale=2, precision=10)
-     */
-    private float $priceNet;
-
-    /**
-     * @var float
-     *
-     * @Groups("shop_product")
-     *
-     * @ORM\Column(type="float", scale=2, precision=10)
-     */
-    private float $priceGross;
 
     /**
      * @var integer
@@ -229,38 +212,6 @@ class ShopProduct {
     public function setSlug(string $slug): void
     {
         $this->slug = $slug;
-    }
-
-    /**
-     * @return float
-     */
-    public function getPriceNet(): float
-    {
-        return $this->priceNet;
-    }
-
-    /**
-     * @param float $priceNet
-     */
-    public function setPriceNet(float $priceNet): void
-    {
-        $this->priceNet = $priceNet;
-    }
-
-    /**
-     * @return float
-     */
-    public function getPriceGross(): float
-    {
-        return $this->priceGross;
-    }
-
-    /**
-     * @param float $priceGross
-     */
-    public function setPriceGross(float $priceGross): void
-    {
-        $this->priceGross = $priceGross;
     }
 
     /**

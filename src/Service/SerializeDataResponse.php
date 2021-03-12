@@ -122,19 +122,12 @@ class SerializeDataResponse
      */
     public function getProductsData(array $products): string
     {
-        $items = '';
-
-        $countProducts = count($products);
+        $items = [];
 
         /**
          * @var ShopProduct $product
          */
-        foreach ($products as $key => $product) {
-            $normalizer = new GetSetMethodNormalizer();
-            $encoder = new JsonEncoder();
-
-            $serializer = new Serializer([$normalizer], [$encoder]);
-
+        foreach ($products as $product) {
             $data = $this->shopSerializer->normalizeProductsList($product, 'json', [
                 'groups' => [
                     'uuid_trait',
@@ -151,21 +144,10 @@ class SerializeDataResponse
                 'datetime_format' => 'Y-m-d H:i:s'
             ]);
 
-            if(!empty($data) && is_array($data)) {
-                $items .= $serializer->serialize($data, 'json');
-
-                if($key + 1 !== $countProducts) {
-                    $items .= ',';
-                }
-            }
-
+            $items[] = $data;
         }
 
-        if(substr($items, -1) === ',') {
-            $items = substr($items, 0, -1);
-        }
-
-        return '[' . $items . ']';
+        return $this->serializer->serialize($items, 'json');
     }
 
     public function getCategoriesList(array $categories): string

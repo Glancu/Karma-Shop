@@ -19,32 +19,16 @@ class ShopProductRepository extends ServiceEntityRepository
         parent::__construct($registry, ShopProduct::class);
     }
 
-    // /**
-    //  * @return ShopProduct[] Returns an array of ShopProduct objects
-    //  */
-    /*
-    public function findByExampleField($value)
+    public function getProductsWithLimitAndOffset($limit = 10, $offset = 0): array
     {
-        return $this->createQueryBuilder('s')
-            ->andWhere('s.exampleField = :val')
-            ->setParameter('val', $value)
-            ->orderBy('s.id', 'ASC')
-            ->setMaxResults(10)
-            ->getQuery()
-            ->getResult()
-        ;
-    }
-    */
+        $queryBuilder = $this->createQueryBuilder('s')
+                             ->where('s.enable = 1')
+                             ->orderBy('s.id', 'DESC')
+                             ->setFirstResult($offset)
+                             ->setMaxResults($limit);
 
-    /*
-    public function findOneBySomeField($value): ?ShopProduct
-    {
-        return $this->createQueryBuilder('s')
-            ->andWhere('s.exampleField = :val')
-            ->setParameter('val', $value)
+        return $queryBuilder
             ->getQuery()
-            ->getOneOrNullResult()
-        ;
+            ->getResult();
     }
-    */
 }
