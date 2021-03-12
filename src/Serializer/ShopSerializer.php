@@ -5,7 +5,9 @@ namespace App\Serializer;
 use App\Entity\ShopBrand;
 use App\Entity\ShopCategory;
 use App\Entity\ShopColor;
+use App\Entity\ShopProduct;
 use App\Entity\SonataMediaMedia;
+use App\Service\MoneyService;
 use Sonata\MediaBundle\Provider\ImageProvider;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
@@ -18,21 +20,26 @@ class ShopSerializer
     private $normalizer;
     private $imageProvider;
     private $request;
+    private MoneyService $moneyService;
 
     public function __construct(
         UrlGeneratorInterface $router,
         ObjectNormalizer $normalizer,
         ImageProvider $imageProvider,
-        RequestStack $request
+        RequestStack $request,
+        MoneyService $moneyService
     ) {
         $this->router = $router;
         $this->normalizer = $normalizer;
         $this->imageProvider = $imageProvider;
         $this->request = $request;
+        $this->moneyService = $moneyService;
     }
 
-    public function normalizeProductsList($topic, $format = null, array $context = []): array
+    public function normalizeProductsList(ShopProduct $topic, $format = null, array $context = []): array
     {
+        $moneyService = $this->moneyService;
+
         $data = $this->normalizer->normalize($topic, $format, $context);
         if (isset($data['enable']) && $data['enable'] === false) {
             return [];
@@ -82,6 +89,20 @@ class ShopSerializer
                 'name' => $image->getName(),
                 'url' => $fullImageUrl
             ];
+        }
+
+        if(isset($data['priceNet'], $data['priceGross'])) {
+            $data['priceNet'] = $moneyService->convertIntToFloatWithCurrency($data['priceNet']);
+            $data['priceGross'] = $moneyService->convertIntToFloatWithCurrency($data['priceGross']);
+        }
+
+        if(isset($data['shopDelivery'], $data['shopDelivery']['priceNet'], $data['shopDelivery']['priceGross'])) {
+            $shopDelivery = $data['shopDelivery'];
+
+            $shopDelivery['priceNet'] = $moneyService->convertIntToFloatWithCurrency($shopDelivery['priceNet']);
+            $shopDelivery['priceGross'] = $moneyService->convertIntToFloatWithCurrency($shopDelivery['priceGross']);
+
+            $data['shopDelivery'] = $shopDelivery;
         }
 
         return $data;

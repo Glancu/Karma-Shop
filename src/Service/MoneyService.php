@@ -5,15 +5,23 @@ namespace App\Service;
 
 class MoneyService
 {
-    public const PRICE_DIVIDE_MULTIPLY = 100;
+    private string $currency;
 
-    public static function convertIntToFloatDivideBy(int $price, int $divideBy = self::PRICE_DIVIDE_MULTIPLY): float
+    public function __construct(string $currency)
     {
-        return (float)($price / $divideBy);
+        $this->currency = $currency;
     }
 
-    public static function convertFloatToIntMultiplyBy($price, int $multipleBy = self::PRICE_DIVIDE_MULTIPLY): int
+    public const PRICE_DIVIDE_MULTIPLY = 100;
+
+    public function convertIntToFloatWithCurrency(int $price): string
     {
-        return (int)($price * $multipleBy);
+        return $this->currency . ' ' . ($price / self::PRICE_DIVIDE_MULTIPLY);
+    }
+
+    public function convertFloatToInt($price): int
+    {
+        $price = str_replace($this->currency, '', $price);
+        return (int)($price * self::PRICE_DIVIDE_MULTIPLY);
     }
 }

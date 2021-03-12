@@ -7,7 +7,7 @@ imports:
 # Put parameters here that don't need to change on each machine where the app is deployed
 # https://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
 parameters:
-    currency: '€'
+    currency: '$'
 
 services:
     # default configuration for services in *this* file
@@ -39,3 +39,8 @@ services:
         arguments: [ '@request_stack', '%lexik_jwt_authentication.token_ttl%' ]
         tags:
             - { name: kernel.event_listener, event: lexik_jwt_authentication.on_jwt_created, method: onJWTCreated }
+
+    App\Service\MoneyService: '@app_money_service'
+    app_money_service:
+        class: App\Service\MoneyService
+        arguments: ['%currency%']

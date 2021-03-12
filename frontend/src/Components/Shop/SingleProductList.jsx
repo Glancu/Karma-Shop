@@ -13,7 +13,7 @@ class SingleProductList extends Component {
                     <div className="product-details">
                         <h6>{item.name}</h6>
                         <div className="price" data-price={item.priceGross}>
-                            <h6>${item.priceGross}</h6>
+                            <h6>{item.priceGross}</h6>
                         </div>
                         <div className="prd-bottom">
                             <a href="#" className="social-info">

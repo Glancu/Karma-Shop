@@ -132,6 +132,7 @@ class SerializeDataResponse
                 'groups' => [
                     'uuid_trait',
                     'enable_trait',
+                    'price_trait',
                     'shop_product',
                     'shop_category',
                     'shop_delivery',
