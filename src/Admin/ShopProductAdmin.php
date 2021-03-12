@@ -75,11 +75,11 @@ final class ShopProductAdmin extends AbstractAdmin
                    ->add('shopBrand', null, ['label' => 'Brand'])
                    ->add('priceNet', MoneyType::class, [
                        'label' => 'Price net',
-                       'template' => 'Admin/list_price_int.html.twig'
+                       'template' => 'admin/list_price_int.html.twig'
                    ])
                    ->add('priceGross', MoneyType::class, [
                        'label' => 'Price gross',
-                       'template' => 'Admin/list_price_int.html.twig'
+                       'template' => 'admin/list_price_int.html.twig'
                    ])
                    ->add('quantity', IntegerType::class, ['label' => 'Quantity'])
                    ->add('_action', null, [
@@ -101,11 +101,11 @@ final class ShopProductAdmin extends AbstractAdmin
                    ->add('createdAt', null, ['label' => 'Created At'])
                    ->add('priceNet', null, [
                        'label' => 'Price net',
-                       'template' => 'Admin/show_price_int.html.twig'
+                       'template' => 'admin/show_price_int.html.twig'
                    ])
                    ->add('priceGross', null, [
                        'label' => 'Price gross',
-                       'template' => 'Admin/show_price_int.html.twig'
+                       'template' => 'admin/show_price_int.html.twig'
                    ])
                    ->add('quantity', null, ['label' => 'Quantity'])
                    ->add('shopBrand', null, ['label' => 'Brand'])
@@ -117,13 +117,13 @@ final class ShopProductAdmin extends AbstractAdmin
                    ->with('Images')
                    ->add('images', null, [
                        'label' => 'Images',
-                       'template' => 'Admin/show_sonata_media_images.html.twig'
+                       'template' => 'admin/show_sonata_media_images.html.twig'
                    ])
                    ->end()
                    ->with('Product specifications')
                    ->add('shopProductSpecifications', null, [
                        'label' => 'Product specifications',
-                       'template' => 'Admin/show_product_products_specifications.html.twig'
+                       'template' => 'admin/show_product_products_specifications.html.twig'
                    ])
                    ->end()
                    ->with('Reviews')

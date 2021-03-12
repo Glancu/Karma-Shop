@@ -52,11 +52,11 @@ final class ShopDeliveryAdmin extends AbstractAdmin
                    ->add('name', null, ['label' => 'Name'])
                    ->add('priceNet', MoneyType::class, [
                        'label' => 'Price net',
-                       'template' => 'Admin/list_price_int.html.twig'
+                       'template' => 'admin/list_price_int.html.twig'
                    ])
                    ->add('priceGross', MoneyType::class, [
                        'label' => 'Price gross',
-                       'template' => 'Admin/list_price_int.html.twig'
+                       'template' => 'admin/list_price_int.html.twig'
                    ])
                    ->add('freeDelivery', null, ['label' => 'Free delivery', 'editable' => true])
                    ->add('_action', null, [
@@ -76,11 +76,11 @@ final class ShopDeliveryAdmin extends AbstractAdmin
                    ->add('freeDelivery', null, ['label' => 'Free delivery'])
                    ->add('priceNet', null, [
                        'label' => 'Price net',
-                       'template' => 'Admin/show_price_int.html.twig'
+                       'template' => 'admin/show_price_int.html.twig'
                    ])
                    ->add('priceGross', null, [
                        'label' => 'Price gross',
-                       'template' => 'Admin/show_price_int.html.twig'
+                       'template' => 'admin/show_price_int.html.twig'
                    ]);
     }
 }
