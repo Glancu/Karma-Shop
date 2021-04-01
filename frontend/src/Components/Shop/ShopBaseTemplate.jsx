@@ -5,21 +5,33 @@ import SingleProductList from './SingleProductList';
 import BaseTemplate from '../BaseTemplate';
 import noUiSlider from '../../../public/assets/js/nouislider.min';
 import ShopSortingPagination from './ShopSortingPagination';
+import axios from 'axios';
+import PropTypes from 'prop-types';
+import GetPage from '../GetPage';
 import '../../../public/assets/js/jquery.nice-select.min';
 
 class ShopBaseTemplate extends Component {
     constructor(props) {
         super(props);
         this.state = {
+            itemsUrl: '',
             items: [],
-            pageOfItems: props.pageOfItems ?? []
+            pageOfItems: props.pageOfItems ?? [],
+            pagination: {
+                perPage: 2, // @TODO Set value from sort select
+                currentPage: GetPage.getSubPage(),
+                countItems: 0
+            }
         };
 
-        this.onChangePage = this.onChangePage.bind(this);
+        this.setCurrentPage = this.setCurrentPage.bind(this);
+        this.getItems = this.getItems.bind(this);
     }
 
     componentDidMount() {
         $('select').niceSelect();
+
+        this.getItems();
 
         if(document.getElementById('price-range')) {
             const nonLinearSlider = document.getElementById('price-range');
@@ -31,46 +43,66 @@ class ShopBaseTemplate extends Component {
                 range: {
                     // Starting at 500, step the value by 500,
                     // until 4000 is reached. From there, step by 1000.
-                    'min': [0],
+                    'min': [50],
                     '10%': [500, 500],
                     '50%': [4000, 1000],
                     'max': [10000]
                 }
             }, true);
 
-            const nodes = [
-                document.getElementById('lower-value'), // 0
-                document.getElementById('upper-value')  // 1
-            ];
+            const nodes = {
+                0: document.getElementById('lower-value'),
+                1: document.getElementById('upper-value')
+            };
 
             // Display the slider value and how far the handle moved
             // from the left edge of the slider.
-            nonLinearSlider.noUiSlider.on('update', function(values, handle, unencoded, isTap, positions) {
+            nonLinearSlider.noUiSlider.on('update', function(values, handle) {
                 nodes[handle].innerHTML = values[handle];
             });
         }
     }
 
-    componentDidUpdate(prevProps, prevState, snapshot) {
-        if(prevProps.items !== this.state.items) {
-            this.setState({items: prevProps.items})
+    getItems() {
+        if(this.props && this.props.itemsUrl) {
+            const itemsUrl = this.props.itemsUrl;
+            const {pagination} = this.state;
+            const currentPage = GetPage.getSubPage('page');
+            const limit = pagination.perPage;
+            const offset = parseInt(currentPage) > 0 ? (currentPage - 1) * pagination.perPage : 0;
+
+            // Get items
+            axios.get(itemsUrl + `?limit=${limit}&offset=${offset}`, null)
+                .then(result => {
+                    if(result.status === 200 && result.data && result.data.items) {
+                        pagination.countItems = result.data.countItems;
+
+                        this.setState({items: result.data.items, pagination});
+                    }
+                })
+                .catch((err) => {
+                    console.log(err);
+                });
+
+            this.setState({itemsUrl})
         }
     }
 
-    onChangePage(pageOfItems) {
-        const _this = this;
-        setTimeout(function() {
-            _this.setState({pageOfItems: pageOfItems});
-        }, 800)
-    }
+    setCurrentPage(page) {
+        const {pagination} = this.state;
+        if(pagination.currentPage !== page) {
+            pagination.currentPage = page;
+            this.setState({pagination});
 
-    getSubPage() {
-        const splittedText = window.location.href.split('page/');
-        return (splittedText && splittedText[1]) ? splittedText[1] : 1;
+            this.getItems();
+        }
     }
 
     render() {
-        const {pageOfItems, items} = this.state;
+        const {items, pagination} = this.state;
+
+        const itemsPerPage = pagination.perPage;
+        const paginationCountItems = Math.ceil(pagination.countItems / itemsPerPage);
 
         return (
             <BaseTemplate>
@@ -90,32 +122,37 @@ class ShopBaseTemplate extends Component {
 
                 <div className="container">
                     <div className="row">
-                        <ShopSidebar />
+                        <ShopSidebar/>
 
                         <div className="col-xl-9 col-lg-8 col-md-7">
                             <ShopSortingPagination
-                                onPageChange={this.handlePageClick}
                                 paginationItems={items}
-                                paginationOnChangePage={this.onChangePage}
-                                paginationInitialPage={this.getSubPage}
                                 paginationSubPagePrefix='/shop'
+                                paginationSetCurrentPage={this.setCurrentPage}
+                                paginationPerPage={itemsPerPage}
+                                paginationCountItems={paginationCountItems}
                             />
 
                             <section className="lattest-product-area pb-40 category-list">
                                 <div className="row">
-                                    {pageOfItems.map(item => (
-                                        <SingleProductList key={item.uuid} item={item} />
+                                    {items.map(item => (
+                                        <SingleProductList key={item.uuid} item={item}/>
                                     ))}
                                 </div>
                             </section>
 
-                            {/*<ShopSortingPagination onPageChange={this.handlePageClick} />*/}
+                            {/*// @TODO Add a second sort with pagination*/}
+                            {/*<ShopSortingPagination />*/}
                         </div>
                     </div>
                 </div>
             </BaseTemplate>
         )
     }
+}
+
+ShopBaseTemplate.propTypes = {
+    itemsUrl: PropTypes.string.isRequired
 }
 
 export default ShopBaseTemplate;

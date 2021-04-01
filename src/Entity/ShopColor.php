@@ -8,6 +8,7 @@ use App\Traits\EnableTrait;
 use App\Traits\UuidTrait;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
+use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
@@ -34,6 +35,15 @@ class ShopColor
      * @ORM\Column(type="string", length=255)
      */
     private string $name;
+
+    /**
+     * @Groups("shop_color")
+     *
+     * @Gedmo\Slug(fields={"name"}, updatable=true, separator="-", unique=true)
+     *
+     * @ORM\Column(type="string", length=255, unique=true)
+     */
+    private string $slug;
 
     /**
      * @ORM\ManyToMany(targetEntity="App\Entity\ShopProduct", mappedBy="shopColors")
@@ -78,6 +88,22 @@ class ShopColor
     public function setName(string $name): void
     {
         $this->name = $name;
+    }
+
+    /**
+     * @return null|string
+     */
+    public function getSlug(): ?string
+    {
+        return $this->slug;
+    }
+
+    /**
+     * @param string $slug
+     */
+    public function setSlug(string $slug): void
+    {
+        $this->slug = $slug;
     }
 
     /**

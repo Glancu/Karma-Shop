@@ -4,6 +4,8 @@ namespace App\Repository;
 
 use App\Entity\ShopProduct;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\NonUniqueResultException;
+use Doctrine\ORM\NoResultException;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -30,5 +32,22 @@ class ShopProductRepository extends ServiceEntityRepository
         return $queryBuilder
             ->getQuery()
             ->getResult();
+    }
+
+    public function getCountEnableProducts(): int
+    {
+        $queryBuilder = $this->createQueryBuilder('s')
+                             ->select('COUNT(s.id)')
+                             ->where('s.enable = 1');
+
+        try {
+            return $queryBuilder
+                ->getQuery()
+                ->getSingleScalarResult();
+        } catch (NoResultException $e) {
+            return 0;
+        } catch (NonUniqueResultException $e) {
+            return 0;
+        }
     }
 }

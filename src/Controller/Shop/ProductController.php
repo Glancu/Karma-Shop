@@ -8,7 +8,6 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Serializer\Exception\ExceptionInterface;
 
 /**
  * Class ProductController
@@ -39,21 +38,23 @@ class ProductController
     /**
      * @Route("/list", name="shop_products_list", methods={"GET"})
      *
-     * @return Response
+     * @param Request $request
      *
-     * @throws ExceptionInterface
+     * @return Response
      */
     public function getProductsList(Request $request): Response
     {
         $em = $this->entityManager;
         $serializer = $this->serializeDataResponse;
 
-        $limit = $request->query->get('limit') ?: 10;
+        $limit = $request->query->get('limit') ?: 12;
         $offset = $request->query->get('offset') ?: 0;
+
+        $countProducts = $em->getRepository('App:ShopProduct')->getCountEnableProducts();
 
         $products = $em->getRepository('App:ShopProduct')->getProductsWithLimitAndOffset($limit, $offset);
 
-        $response = new Response($serializer->getProductsData($products));
+        $response = new Response($serializer->getProductsData($products, $countProducts));
         $response->headers->set('Content-Type', 'application/json');
 
         return $response;

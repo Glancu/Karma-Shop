@@ -33,6 +33,7 @@ const App = () => (
             <Route path='/shop/confirmation' component={Confirmation} />
             <Route path='/shop/tracking' component={Tracking} />
             <Route path='/shop' component={ProductsList} />
+            <Route path='/shop/page/:page' component={ProductsList} />
 
             <Route path='/blog/:id' component={Show} />
             <Route path='/blog' component={List} />

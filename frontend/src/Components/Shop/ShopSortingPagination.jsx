@@ -5,17 +5,14 @@ class ShopSortingPagination extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            sorting: 1,
-            itemsPerPage: 1,
-            currentPage: 1,
-            pages: 1
+            sorting: 1
         }
 
         this.onSubmitSort = this.onSubmitSort.bind(this);
     }
 
     componentDidMount() {
-        const { sorting, itemsPerPage } = this.state;
+        const {sorting, itemsPerPage} = this.state;
 
         const itemsSortSelects = document.querySelectorAll('.sorting.items-sort select');
         const itemPerPageSelects = document.querySelectorAll('.sorting.items-per-page select');
@@ -36,7 +33,7 @@ class ShopSortingPagination extends Component {
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
-        const { sorting, itemsPerPage } = this.state;
+        const {sorting, itemsPerPage} = this.state;
 
         const itemsSortSelects = document.querySelectorAll('.sorting.items-sort select');
         const itemPerPageSelects = document.querySelectorAll('.sorting.items-per-page select');
@@ -83,7 +80,7 @@ class ShopSortingPagination extends Component {
     onSubmitSort(e) {
         e.preventDefault();
 
-        const { sorting, itemsPerPage } = this.state;
+        const {sorting, itemsPerPage} = this.state;
 
         const currentValueItemsSort = parseInt(document.querySelector('.sorting.items-sort > div > ul > li.selected').getAttribute('data-value'));
         const currentValueItemsPerPage = parseInt(document.querySelector('.sorting.items-per-page > div > ul > li.selected').getAttribute('data-value'));
@@ -120,11 +117,11 @@ class ShopSortingPagination extends Component {
                 <div className="pagination">
                     <Pagination
                         items={this.props.paginationItems}
-                        onChangePage={this.props.paginationOnChangePage}
-                        initialPage={this.props.paginationInitialPage()}
-                        activeClasses="active"
-                        itemPerPage={6}
-                        paginationSubPagePrefix={this.props.paginationSubPagePrefix}/>
+                        itemsPerPage={this.props.paginationPerPage}
+                        countPaginationLength={this.props.paginationCountItems}
+                        paginationSubPagePrefix={this.props.paginationSubPagePrefix}
+                        paginationSetCurrentPage={this.props.paginationSetCurrentPage}
+                    />
                 </div>
             </div>
         )

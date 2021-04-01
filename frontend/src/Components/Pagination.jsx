@@ -1,116 +1,119 @@
 import React, { Component } from "react";
+import PropTypes from 'prop-types';
 import UrlParams from "./UrlParams";
-
-const defaultProps = {
-    initialPage: 1
-}
+import GetPage from './GetPage';
 
 const PREFIX_PAGE = 'page';
+const LEFT_PAGE = 'LEFT';
+const RIGHT_PAGE = 'RIGHT';
+
+const range = (from, to, step = 1) => {
+    const rangeCount = [];
+    let i = from;
+
+    while (i <= to) {
+        rangeCount.push(i);
+        i += step;
+    }
+
+    return rangeCount;
+}
 
 class Pagination extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            subPageName: '',
-            items: [],
-            pager: {}
+            paginationSubPagePrefix: props.paginationSubPagePrefix,
+            pager: {},
+            totalPages: 1,
+            currentPage: GetPage.getSubPage() || 1,
+            pageNeighbours: 1,
         };
     }
 
-    componentWillMount() {
-        const _this = this;
-
-        if(this.props.items && this.props.items.length) {
-            this.setPage(this.props.initialPage);
+    componentDidUpdate(prevProps, prevState, snapshot) {
+        if(prevProps.countPaginationLength !== this.props.countPaginationLength) {
+            this.updatePage();
         }
 
-        window.addEventListener("popstate", () => {
-            const currentPage = UrlParams.getCurrentSubPage(`${this.state.subPageName}/${PREFIX_PAGE}`);
-            if(currentPage) {
-                if(currentPage > 0) {
-                    _this.setPage(currentPage - 1);
-                } else {
-                    _this.setPage(1);
-                }
-            } else {
-                _this.setPage(1);
-            }
-        });
-    }
-
-    componentDidUpdate(prevProps, prevState) {
-        if((this.props.items !== prevProps.items) && (this.props.items && this.props.items.length)) {
-            this.setState({
-                items: prevProps.items
-            });
-
-            this.setPage(this.props.initialPage);
+        if(GetPage.getSubPage() !== this.state.currentPage) {
+            this.setPage(GetPage.getSubPage(PREFIX_PAGE));
         }
     }
 
-    setPage(page, event = null) {
-        if(event) {
-            event.preventDefault();
+    updatePage() {
+        const paginationLength = this.props.countPaginationLength;
+        const currentPage = GetPage.getSubPage(PREFIX_PAGE);
+        const page = (paginationLength < currentPage) || (currentPage < 1) ? 1 : currentPage;
+        const paginationSubPagePrefix = this.props.paginationSubPagePrefix;
+
+        if(paginationSubPagePrefix !== this.state.paginationSubPagePrefix) {
+            this.setState({paginationSubPagePrefix});
         }
 
+        this.setPage(page);
+    }
+
+    setPage(page, setFromPagination = false) {
         const items = this.props.items;
-        let pager = this.state.pager;
+        const countPaginationLength = this.props.countPaginationLength;
 
-        if(page < 1 || page > pager.totalPages) {
-            return;
+        if(countPaginationLength !== 0) {
+            if(countPaginationLength !== this.state.totalPages) {
+                this.setState({totalPages: countPaginationLength});
+            }
+
+            if(page < 1 || page > countPaginationLength) {
+                return;
+            }
         }
 
-        pager = this.getPager(items.length, page);
+        const pager = items ? this.getPager(items.length, page) : null;
 
-        if(pager.currentPage) {
-            if(pager.currentPage > 1) {
-                const newUrl = UrlParams.updateURLParameter(window.location.href, PREFIX_PAGE, pager.currentPage)
+        if(pager && page) {
+            const currentUrl = window.location.href;
+            let newUrl = '';
 
-                window.history.pushState({}, null, newUrl);
-            } else if(pager.currentPage === 1) {
-                const currentUrl = window.location.href;
+            if(page > 1) {
+                newUrl = UrlParams.updateURLParameter(currentUrl, PREFIX_PAGE, page)
+            }
+
+            if(page === 1) {
                 const splittedUrl = currentUrl.split(PREFIX_PAGE);
-                let newUrl = '';
 
                 if(splittedUrl) {
                     newUrl = currentUrl.replace(PREFIX_PAGE + splittedUrl[1], '', currentUrl);
                 }
-
-                window.history.replaceState({}, null, newUrl);
             }
+
+            if(newUrl) {
+                if(setFromPagination || !history.state || (history.state && (!history.state.page || history.state.page < page))) {
+                    history.pushState({page}, null, newUrl);
+                }
+            }
+
+            this.setState({pager: pager, currentPage: page});
+
+            this.props.paginationSetCurrentPage(page);
         }
-
-        const pageOfItems = items.slice(pager.startIndex, pager.endIndex + 1);
-
-        this.setState({pager: pager});
-
-        this.props.onChangePage(pageOfItems);
     }
 
     getPager(totalItems, currentPage, pageSize) {
-        // default to first page
+        const itemsPerPage = this.props.itemsPerPage;
         currentPage = currentPage || 1;
 
-        // default page size is 10
-        pageSize = pageSize || 5;
+        pageSize = pageSize || itemsPerPage;
 
-        if(this.props && this.props.itemPerPage && this.props.itemPerPage > 0) {
-            pageSize = this.props.itemPerPage;
-        }
-
-        // calculate total pages
         const totalPages = Math.ceil(totalItems / pageSize);
 
         let startPage, endPage;
         if(totalPages <= 10) {
-            // less than 10 total pages so show all
             startPage = 1;
             endPage = totalPages;
         } else {
-            // more than 10 total pages so calculate start and end pages
             if(currentPage <= 6) {
                 startPage = 1;
-                endPage = 10;
+                endPage = itemsPerPage;
             } else if(currentPage + 4 >= totalPages) {
                 startPage = totalPages - 9;
                 endPage = totalPages;
@@ -120,11 +123,9 @@ class Pagination extends Component {
             }
         }
 
-        // calculate start and end item indexes
         const startIndex = (currentPage - 1) * pageSize;
         const endIndex = Math.min(startIndex + pageSize - 1, totalItems - 1);
 
-        // create an array of pages to ng-repeat in the pager control
         const pages = [...Array((endPage + 1) - startPage).keys()].map(i => startPage + i);
 
         return {
@@ -140,69 +141,129 @@ class Pagination extends Component {
         };
     }
 
+    /**
+     * Let's say we have 10 pages and we set pageNeighbours to 2
+     * Given that the current page is 6
+     * The pagination control will look like the following:
+     *
+     * (1) < {4 5} [6] {7 8} > (10)
+     *
+     * (x) => terminal pages: first and last page(always visible)
+     * [x] => represents current page
+     * {...x} => represents page neighbours
+     */
+    fetchPageNumbers() {
+        const totalPages = parseInt(this.state.totalPages);
+        const currentPage = parseInt(this.state.currentPage);
+        const pageNeighbours = parseInt(this.state.pageNeighbours);
+
+        /**
+         * totalNumbers: the total page numbers to show on the control
+         * totalBlocks: totalNumbers + 2 to cover for the left(<) and right(>) controls
+         */
+        const totalNumbers = (pageNeighbours * 2) + 1;
+        const runFullPagination = totalPages > 5;
+        const startPage = Math.max(2, currentPage - pageNeighbours);
+        const endPage = runFullPagination ? Math.min(totalPages - 1, currentPage + pageNeighbours) : totalPages - 1;
+        let pages = range(startPage, endPage);
+
+        if(runFullPagination) {
+            /**
+             * hasLeftSpill: has hidden pages to the left
+             * hasRightSpill: has hidden pages to the right
+             * spillOffset: number of hidden pages either to the left or to the right
+             */
+            const hasLeftSpill = startPage > 2;
+            const hasRightSpill = (totalPages - endPage) > 1;
+            const spillOffset = totalNumbers - (pages.length + 1);
+
+            switch (true) {
+                // handle: (1) < {5 6} [7] {8 9} (10)
+                case (hasLeftSpill && !hasRightSpill): {
+                    const extraPages = range(startPage - spillOffset, startPage - 1);
+                    pages = [LEFT_PAGE, ...extraPages, ...pages];
+                    break;
+                }
+
+                // handle: (1) {2 3} [4] {5 6} > (10)
+                case (!hasLeftSpill && hasRightSpill): {
+                    const extraPages = range(endPage + 1, endPage + spillOffset);
+                    pages = [...pages, ...extraPages, RIGHT_PAGE];
+                    break;
+                }
+
+                // handle: (1) < {4 5} [6] {7 8} > (10)
+                case (hasLeftSpill && hasRightSpill):
+                default: {
+                    pages = [LEFT_PAGE, ...pages, RIGHT_PAGE];
+                    break;
+                }
+            }
+        }
+
+        return [1, ...pages, totalPages];
+    }
+
+    changePaginationClick(page, evt) {
+        evt.preventDefault();
+        this.setPage(page, true);
+    }
+
     render() {
-        const pager = this.state.pager;
-
-        if(!pager.pages || pager.pages.length <= 1) {
-            return null;
-        }
-
-        const prefixPage = `${this.state.subPageName}/${PREFIX_PAGE}/`;
-        const classesPaginationA = "link-prevent-default";
-
-        let isLastPage = parseInt(pager.currentPage) === parseInt(pager.totalPages);
-
-        let classes = '';
-        let activeClasses = '';
-
-        if(this.props) {
-            if(this.props.defaultClasses) {
-                classes = this.props.defaultClasses;
-            }
-
-            if(this.props.activeClasses) {
-                activeClasses = this.props.activeClasses;
-            }
-        }
-
-        classes = classes + ' ' + classesPaginationA;
-
-        const paginationSubPagePrefix = this.props.paginationSubPagePrefix;
+        const {currentPage, totalPages, paginationSubPagePrefix} = this.state;
+        const prefixPage = `${paginationSubPagePrefix}/${PREFIX_PAGE}/`;
+        const pages = this.fetchPageNumbers();
+        const isLastPage = currentPage === totalPages;
+        const classes = 'link-prevent-default';
+        const activeClasses = `${classes} active`;
 
         return (
             <>
-                <a
-                    href={(parseInt(pager.currentPage) - 1) > 1 ? prefixPage + (parseInt(pager.currentPage) - 1) : paginationSubPagePrefix}
-                    onClick={(e) => this.setPage(pager.currentPage - 1, e)}
-                    className={classes}
-                >
-                    <i className="fa fa-long-arrow-left" aria-hidden="true"/>
-                </a>
+                { pages.map((page, index) => {
+                    if (page === LEFT_PAGE) return (
+                        <a key={index}
+                           className={classes}
+                           href={(parseInt(currentPage) - 1) > 1 ?  prefixPage + (parseInt(currentPage) - 1) : paginationSubPagePrefix}
+                           aria-label="Previous"
+                           onClick={(e) => this.changePaginationClick(parseInt(currentPage) - 1, e)}
+                        >
+                            <span aria-hidden="true">&laquo;</span>
+                            <span className="sr-only">Previous</span>
+                        </a>
+                    );
 
-                {pager.pages.map((page, index) => (
-                    <a
-                        key={index}
-                        href={page > 1 ? paginationSubPagePrefix + prefixPage + page : paginationSubPagePrefix}
-                        onClick={(e) => this.setPage(page, e)}
-                        className={parseInt(pager.currentPage) === parseInt(page) ? classes + ' ' + activeClasses : classes}
-                    >
-                        {page}
-                    </a>
-                    )
-                )}
+                    if (page === RIGHT_PAGE) return (
+                        <a key={index}
+                           className={classes}
+                           href={!isLastPage ? prefixPage + (parseInt(currentPage) + 1) : prefixPage + totalPages}
+                           aria-label="Next"
+                           onClick={(e) => this.changePaginationClick(parseInt(currentPage) + 1, e)}>
+                            <span aria-hidden="true">&raquo;</span>
+                            <span className="sr-only">Next</span>
+                        </a>
+                    );
 
-                <a
-                    href={!isLastPage ? paginationSubPagePrefix + prefixPage + (parseInt(pager.currentPage) + 1) : paginationSubPagePrefix + prefixPage + pager.totalPages}
-                    onClick={(e) => this.setPage(pager.currentPage + 1, e)}
-                    className={classes}
-                >
-                    <i className="fa fa-long-arrow-right" aria-hidden="true"/>
-                </a>
+                    return (
+                        <a key={index}
+                           className={parseInt(currentPage) === parseInt(page) ? activeClasses : classes}
+                           href={page > 1 ? prefixPage + page : paginationSubPagePrefix}
+                           onClick={(e) => this.changePaginationClick(page, e) }
+                        >{ page }
+                        </a>
+                    );
+                }) }
             </>
         );
     }
 }
 
-Pagination.defaultProps = defaultProps;
+Pagination.propTypes = {
+    items: PropTypes.array.isRequired,
+    itemsPerPage: PropTypes.number.isRequired,
+    countPaginationLength: PropTypes.number.isRequired,
+    paginationSubPagePrefix: PropTypes.string.isRequired,
+    paginationSetCurrentPage: PropTypes.func.isRequired
+};
 
 export default Pagination;
+

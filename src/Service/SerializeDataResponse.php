@@ -115,12 +115,11 @@ class SerializeDataResponse
 
     /**
      * @param array $products
+     * @param int $countProducts
      *
      * @return string
-     *
-     * @throws ExceptionInterface
      */
-    public function getProductsData(array $products): string
+    public function getProductsData(array $products, int $countProducts = 0): string
     {
         $items = [];
 
@@ -148,7 +147,12 @@ class SerializeDataResponse
             $items[] = $data;
         }
 
-        return $this->serializer->serialize($items, 'json');
+        $return = [
+            'countItems' => $countProducts,
+            'items' => $items
+        ];
+
+        return $this->serializer->serialize($return, 'json');
     }
 
     public function getCategoriesList(array $categories): string
