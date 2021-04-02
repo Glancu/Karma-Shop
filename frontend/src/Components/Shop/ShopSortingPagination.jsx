@@ -45,41 +45,27 @@ class ShopSortingPagination extends Component {
         const itemsSortSelects = document.querySelectorAll('.sorting.items-sort select');
         const itemPerPageSelects = document.querySelectorAll('.sorting.items-per-page select');
 
-        Array.from(itemsSortSelects).map((itemSortSelect) => {
-            const itemSortSelectEl = itemSortSelect.querySelector(`option[value='${sorting}']`);
-            if(itemSortSelectEl) {
-                itemSortSelect.querySelector('option[selected="selected"]').removeAttribute('selected');
+        this.updateSelectsSelected(itemsSortSelects, sorting, 'items-sort')
+        this.updateSelectsSelected(itemPerPageSelects, itemsPerPage, 'items-per-page')
+    }
 
-                const currentSelects = document.querySelectorAll('.sorting.items-sort div.nice-select');
-                Array.from(currentSelects).map((currentSelect) => {
-                    currentSelect.querySelector('span').textContent = itemSortSelectEl.textContent;
+    updateSelectsSelected(selects, value, querySelectorClass) {
+        Array.from(selects).map((select) => {
+            const element = select.querySelector(`option[value='${value}']`);
+            if(element) {
+                select.querySelector('option[selected="selected"]').removeAttribute('selected');
 
-                    currentSelect.querySelector('ul li.selected').classList.remove('selected');
-                    currentSelect.querySelector(`ul li[data-value='${sorting}']`).classList.add('selected');
+                const items = document.querySelectorAll(`.sorting.${querySelectorClass} div.nice-select`);
+                Array.from(items).map((item) => {
+                    item.querySelector('span').textContent = element.textContent;
+
+                    item.querySelector('ul li.selected').classList.remove('selected');
+                    item.querySelector(`ul li[data-value='${value}']`).classList.add('selected');
                 });
 
-                itemSortSelectEl.setAttribute('selected', 'selected');
+                element.setAttribute('selected', 'selected');
             } else {
-                itemSortSelect.querySelectorAll('option')[0].setAttribute('selected', 'selected');
-            }
-        });
-
-        Array.from(itemPerPageSelects).map((itemPerPageSelect) => {
-            const itemsPerPageEl = itemPerPageSelect.querySelector(`option[value='${itemsPerPage}']`);
-            if(itemsPerPageEl) {
-                itemPerPageSelect.querySelector('option[selected="selected"]').removeAttribute('selected');
-
-                const currentPerPageItems = document.querySelectorAll('.sorting.items-per-page div.nice-select');
-                Array.from(currentPerPageItems).map((currentPerPageItem) => {
-                    currentPerPageItem.querySelector('span').textContent = itemsPerPageEl.textContent;
-
-                    currentPerPageItem.querySelector('ul li.selected').classList.remove('selected');
-                    currentPerPageItem.querySelector(`ul li[data-value='${itemsPerPage}']`).classList.add('selected');
-                });
-
-                itemsPerPageEl.setAttribute('selected', 'selected');
-            } else {
-                itemPerPageSelect.querySelectorAll('option')[0].setAttribute('selected', 'selected');
+                select.querySelectorAll('option')[0].setAttribute('selected', 'selected');
             }
         });
     }
