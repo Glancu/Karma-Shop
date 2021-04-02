@@ -2,8 +2,9 @@ import React, { Component } from "react";
 import PropTypes from 'prop-types';
 import UrlParams from "./UrlParams";
 import GetPage from './GetPage';
+import CONFIG from '../config';
 
-const PREFIX_PAGE = 'page';
+const PREFIX_PAGE = CONFIG.shop.prefixPage;
 const LEFT_PAGE = 'LEFT';
 const RIGHT_PAGE = 'RIGHT';
 
@@ -24,10 +25,9 @@ class Pagination extends Component {
         super(props);
         this.state = {
             subPagePrefix: props.subPagePrefix,
-            pager: {},
-            totalPages: 1,
             currentPage: GetPage.getSubPage() || 1,
             pageNeighbours: 1,
+            pager: {}
         };
     }
 
@@ -39,6 +39,10 @@ class Pagination extends Component {
         if(GetPage.getSubPage() !== this.state.currentPage) {
             this.setPage(GetPage.getSubPage(PREFIX_PAGE));
         }
+    }
+
+    static updateAddressUrl(data, title, url) {
+        history.pushState(data, title, url);
     }
 
     updatePage() {
@@ -81,7 +85,7 @@ class Pagination extends Component {
 
             if(newUrl) {
                 if(setFromPagination || !history.state || (history.state && (!history.state.page || history.state.page < page))) {
-                    history.pushState({page}, null, newUrl);
+                    Pagination.updateAddressUrl({page}, null, newUrl)
                 }
             }
 

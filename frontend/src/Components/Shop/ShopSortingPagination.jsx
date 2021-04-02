@@ -1,12 +1,9 @@
 import React, { Component } from 'react';
 import Pagination from '../Pagination';
+import CONFIG from '../../config';
 
-const localStorageKey = 'shop_pagination';
-const sortPerPage = {
-    1: 12,
-    2: 21,
-    3: 48
-}
+const localStorageKey = CONFIG.shop.localStorageKey;
+const sortPerPage = CONFIG.shop.sortPerPage;
 
 class ShopSortingPagination extends Component {
     constructor(props) {
@@ -101,7 +98,7 @@ class ShopSortingPagination extends Component {
 
         if(itemsPerPage !== currentValueItemsPerPage) {
             this.updateLocalStorageInfo(localStorageKey, 'perPage', currentValueItemsPerPage);
-            this.props.sortingSetPerPage(sortPerPage[currentValueItemsPerPage]);
+            this.props.sortingSetPerPage(sortPerPage[currentValueItemsPerPage], true);
         }
     }
 

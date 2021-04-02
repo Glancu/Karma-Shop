@@ -8,6 +8,9 @@ import ShopSortingPagination from './ShopSortingPagination';
 import axios from 'axios';
 import PropTypes from 'prop-types';
 import GetPage from '../GetPage';
+import Pagination from '../Pagination';
+import UrlParams from '../UrlParams';
+import CONFIG from '../../config';
 import '../../../public/assets/js/jquery.nice-select.min';
 
 class ShopBaseTemplate extends Component {
@@ -85,7 +88,9 @@ class ShopBaseTemplate extends Component {
                     console.log(err);
                 });
 
-            this.setState({itemsUrl})
+            if(this.state.itemsUrl !== itemsUrl) {
+                this.setState({itemsUrl})
+            }
         }
     }
 
@@ -99,11 +104,20 @@ class ShopBaseTemplate extends Component {
         }
     }
 
-    setPerPage(perPage) {
+    setPerPage(perPage, overwriteAddressUrl = false) {
         const {pagination} = this.state;
         if(pagination.perPage !== perPage) {
             pagination.perPage = perPage;
             this.setState({pagination});
+
+            if(overwriteAddressUrl) {
+                const currentUrl = window.location.href;
+                const newUrl = UrlParams.updateURLParameter(currentUrl, CONFIG.shop.prefixPage, 1);
+
+                Pagination.updateAddressUrl({}, null, newUrl)
+            }
+
+            this.getItems();
         }
     }
 
