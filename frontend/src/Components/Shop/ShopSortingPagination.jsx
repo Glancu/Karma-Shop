@@ -1,18 +1,28 @@
 import React, { Component } from 'react';
 import Pagination from '../Pagination';
 
+const localStorageKey = 'shop_pagination';
+const sortPerPage = {
+    1: 12,
+    2: 21,
+    3: 48
+}
+
 class ShopSortingPagination extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            sorting: 1
+            sorting: localStorage.getItem(localStorageKey) ? JSON.parse(localStorage.getItem(localStorageKey)).sorting : 1,
+            perPage: localStorage.getItem(localStorageKey) ? JSON.parse(localStorage.getItem(localStorageKey)).perPage : sortPerPage[1]
         }
 
         this.onSubmitSort = this.onSubmitSort.bind(this);
     }
 
     componentDidMount() {
-        const {sorting, itemsPerPage} = this.state;
+        const {sorting, perPage} = this.state;
+
+        this.props.sortingSetPerPage(sortPerPage[perPage]);
 
         const itemsSortSelects = document.querySelectorAll('.sorting.items-sort select');
         const itemPerPageSelects = document.querySelectorAll('.sorting.items-per-page select');
@@ -25,7 +35,7 @@ class ShopSortingPagination extends Component {
         });
 
         Array.from(itemPerPageSelects).map((itemPerPageSelect) => {
-            const itemsPerPageEl = itemPerPageSelect.querySelector(`option[value='${itemsPerPage}']`);
+            const itemsPerPageEl = itemPerPageSelect.querySelector(`option[value='${perPage}']`);
             itemsPerPageEl ?
                 itemsPerPageEl.setAttribute('selected', 'selected') :
                 itemPerPageSelect.querySelectorAll('option')[0].setAttribute('selected', 'selected');
@@ -86,15 +96,34 @@ class ShopSortingPagination extends Component {
         const currentValueItemsPerPage = parseInt(document.querySelector('.sorting.items-per-page > div > ul > li.selected').getAttribute('data-value'));
 
         if(sorting !== currentValueItemsSort) {
-            this.setState({sorting: currentValueItemsSort});
+            this.updateLocalStorageInfo(localStorageKey, 'sorting', currentValueItemsSort);
         }
 
         if(itemsPerPage !== currentValueItemsPerPage) {
-            this.setState({itemsPerPage: currentValueItemsPerPage});
+            this.updateLocalStorageInfo(localStorageKey, 'perPage', currentValueItemsPerPage);
+            this.props.sortingSetPerPage(sortPerPage[currentValueItemsPerPage]);
         }
     }
 
+    updateLocalStorageInfo(type, key, value) {
+        let currentLocalStorageValues = localStorage.getItem(type);
+        currentLocalStorageValues = currentLocalStorageValues ? JSON.parse(currentLocalStorageValues) : {};
+
+        currentLocalStorageValues[key] = value;
+
+        localStorage.setItem(type, JSON.stringify(currentLocalStorageValues));
+    }
+
     render() {
+        const {perPage} = this.state;
+        const perPageOptions = [];
+
+        for(const i in sortPerPage) {
+            perPageOptions.push(
+                <option key={i} value={i}>Show {sortPerPage[i]}</option>
+            )
+        }
+
         return (
             <div className="filter-bar d-flex flex-wrap align-items-center">
                 <div className="sorting items-sort">
@@ -106,9 +135,7 @@ class ShopSortingPagination extends Component {
                 </div>
                 <div className="sorting items-per-page">
                     <select>
-                        <option value="1">Show 12</option>
-                        <option value="2">Show 21</option>
-                        <option value="3">Show 48</option>
+                        {perPageOptions}
                     </select>
                 </div>
                 <div className="sorting mr-auto">
@@ -116,11 +143,10 @@ class ShopSortingPagination extends Component {
                 </div>
                 <div className="pagination">
                     <Pagination
-                        items={this.props.paginationItems}
-                        itemsPerPage={this.props.paginationPerPage}
-                        countPaginationLength={this.props.paginationCountItems}
-                        paginationSubPagePrefix={this.props.paginationSubPagePrefix}
-                        paginationSetCurrentPage={this.props.paginationSetCurrentPage}
+                        itemsPerPage={perPage}
+                        countItems={this.props.paginationCountItems}
+                        subPagePrefix={this.props.paginationSubPagePrefix}
+                        setCurrentPage={this.props.paginationSetCurrentPage}
                     />
                 </div>
             </div>

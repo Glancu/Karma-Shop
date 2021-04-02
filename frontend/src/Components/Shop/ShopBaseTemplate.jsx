@@ -18,13 +18,14 @@ class ShopBaseTemplate extends Component {
             items: [],
             pageOfItems: props.pageOfItems ?? [],
             pagination: {
-                perPage: 2, // @TODO Set value from sort select
+                perPage: 12,
                 currentPage: GetPage.getSubPage(),
                 countItems: 0
             }
         };
 
         this.setCurrentPage = this.setCurrentPage.bind(this);
+        this.setPerPage = this.setPerPage.bind(this);
         this.getItems = this.getItems.bind(this);
     }
 
@@ -98,9 +99,16 @@ class ShopBaseTemplate extends Component {
         }
     }
 
+    setPerPage(perPage) {
+        const {pagination} = this.state;
+        if(pagination.perPage !== perPage) {
+            pagination.perPage = perPage;
+            this.setState({pagination});
+        }
+    }
+
     render() {
         const {items, pagination} = this.state;
-
         const itemsPerPage = pagination.perPage;
         const paginationCountItems = Math.ceil(pagination.countItems / itemsPerPage);
 
@@ -126,11 +134,10 @@ class ShopBaseTemplate extends Component {
 
                         <div className="col-xl-9 col-lg-8 col-md-7">
                             <ShopSortingPagination
-                                paginationItems={items}
+                                paginationCountItems={paginationCountItems}
                                 paginationSubPagePrefix='/shop'
                                 paginationSetCurrentPage={this.setCurrentPage}
-                                paginationPerPage={itemsPerPage}
-                                paginationCountItems={paginationCountItems}
+                                sortingSetPerPage={this.setPerPage}
                             />
 
                             <section className="lattest-product-area pb-40 category-list">

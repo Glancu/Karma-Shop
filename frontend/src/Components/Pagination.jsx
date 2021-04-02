@@ -23,7 +23,7 @@ class Pagination extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            paginationSubPagePrefix: props.paginationSubPagePrefix,
+            subPagePrefix: props.subPagePrefix,
             pager: {},
             totalPages: 1,
             currentPage: GetPage.getSubPage() || 1,
@@ -32,7 +32,7 @@ class Pagination extends Component {
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
-        if(prevProps.countPaginationLength !== this.props.countPaginationLength) {
+        if(prevProps.countItems !== this.props.countItems) {
             this.updatePage();
         }
 
@@ -42,33 +42,26 @@ class Pagination extends Component {
     }
 
     updatePage() {
-        const paginationLength = this.props.countPaginationLength;
+        const countItems = this.props.countItems;
         const currentPage = GetPage.getSubPage(PREFIX_PAGE);
-        const page = (paginationLength < currentPage) || (currentPage < 1) ? 1 : currentPage;
-        const paginationSubPagePrefix = this.props.paginationSubPagePrefix;
+        const page = (countItems < currentPage) || (currentPage < 1) ? 1 : currentPage;
+        const subPagePrefix = this.props.subPagePrefix;
 
-        if(paginationSubPagePrefix !== this.state.paginationSubPagePrefix) {
-            this.setState({paginationSubPagePrefix});
+        if(subPagePrefix !== this.state.subPagePrefix) {
+            this.setState({subPagePrefix});
         }
 
         this.setPage(page);
     }
 
     setPage(page, setFromPagination = false) {
-        const items = this.props.items;
-        const countPaginationLength = this.props.countPaginationLength;
+        const countItems = this.props.countItems;
 
-        if(countPaginationLength !== 0) {
-            if(countPaginationLength !== this.state.totalPages) {
-                this.setState({totalPages: countPaginationLength});
-            }
-
-            if(page < 1 || page > countPaginationLength) {
-                return;
-            }
+        if(countItems > 0 && (page < 0 || page > countItems)) {
+            return;
         }
 
-        const pager = items ? this.getPager(items.length, page) : null;
+        const pager = countItems ? this.getPager(countItems, page) : null;
 
         if(pager && page) {
             const currentUrl = window.location.href;
@@ -94,7 +87,7 @@ class Pagination extends Component {
 
             this.setState({pager: pager, currentPage: page});
 
-            this.props.paginationSetCurrentPage(page);
+            this.props.setCurrentPage(page);
         }
     }
 
@@ -153,7 +146,7 @@ class Pagination extends Component {
      * {...x} => represents page neighbours
      */
     fetchPageNumbers() {
-        const totalPages = parseInt(this.state.totalPages);
+        const totalPages = this.props.countItems;
         const currentPage = parseInt(this.state.currentPage);
         const pageNeighbours = parseInt(this.state.pageNeighbours);
 
@@ -201,6 +194,10 @@ class Pagination extends Component {
             }
         }
 
+        if(pages.length === 0 || totalPages < 2) {
+            return [];
+        }
+
         return [1, ...pages, totalPages];
     }
 
@@ -210,8 +207,8 @@ class Pagination extends Component {
     }
 
     render() {
-        const {currentPage, totalPages, paginationSubPagePrefix} = this.state;
-        const prefixPage = `${paginationSubPagePrefix}/${PREFIX_PAGE}/`;
+        const {currentPage, totalPages, subPagePrefix} = this.state;
+        const prefixPage = `${subPagePrefix}/${PREFIX_PAGE}/`;
         const pages = this.fetchPageNumbers();
         const isLastPage = currentPage === totalPages;
         const classes = 'link-prevent-default';
@@ -223,7 +220,7 @@ class Pagination extends Component {
                     if (page === LEFT_PAGE) return (
                         <a key={index}
                            className={classes}
-                           href={(parseInt(currentPage) - 1) > 1 ?  prefixPage + (parseInt(currentPage) - 1) : paginationSubPagePrefix}
+                           href={(parseInt(currentPage) - 1) > 1 ?  prefixPage + (parseInt(currentPage) - 1) : subPagePrefix}
                            aria-label="Previous"
                            onClick={(e) => this.changePaginationClick(parseInt(currentPage) - 1, e)}
                         >
@@ -246,7 +243,7 @@ class Pagination extends Component {
                     return (
                         <a key={index}
                            className={parseInt(currentPage) === parseInt(page) ? activeClasses : classes}
-                           href={page > 1 ? prefixPage + page : paginationSubPagePrefix}
+                           href={page > 1 ? prefixPage + page : subPagePrefix}
                            onClick={(e) => this.changePaginationClick(page, e) }
                         >{ page }
                         </a>
@@ -258,12 +255,10 @@ class Pagination extends Component {
 }
 
 Pagination.propTypes = {
-    items: PropTypes.array.isRequired,
+    countItems: PropTypes.number.isRequired,
     itemsPerPage: PropTypes.number.isRequired,
-    countPaginationLength: PropTypes.number.isRequired,
-    paginationSubPagePrefix: PropTypes.string.isRequired,
-    paginationSetCurrentPage: PropTypes.func.isRequired
+    subPagePrefix: PropTypes.string.isRequired,
+    setCurrentPage: PropTypes.func.isRequired
 };
 
 export default Pagination;
-
