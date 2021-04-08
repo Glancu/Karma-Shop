@@ -49,12 +49,25 @@ class ProductController
 
         $limit = $request->query->get('limit') ?: 12;
         $offset = $request->query->get('offset') ?: 0;
+        $sortBy = $request->query->get('sortBy') ?: null;
+        if($sortBy === 'price') {
+            $sortBy = 'priceNet';
+        }
+
+        $sortOrder = $request->query->get('sortOrder') ?: 'DESC';
 
         $countProducts = $em->getRepository('App:ShopProduct')->getCountEnableProducts();
 
-        $products = $em->getRepository('App:ShopProduct')->getProductsWithLimitAndOffset($limit, $offset);
+        $products = $em->getRepository('App:ShopProduct')
+                       ->getProductsWithLimitAndOffset($limit, $offset, $sortBy, $sortOrder);
 
-        $response = new Response($serializer->getProductsData($products, $countProducts));
+        $return = $serializer->getProductsData($products, $countProducts);
+
+        if($countProducts === 0 && !$products) {
+            $return = json_encode(['errorMessage' => 'Products was not found.']);
+        }
+
+        $response = new Response($return);
         $response->headers->set('Content-Type', 'application/json');
 
         return $response;

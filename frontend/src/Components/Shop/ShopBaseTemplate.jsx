@@ -11,6 +11,7 @@ import GetPage from '../GetPage';
 import Pagination from '../Pagination';
 import UrlParams from '../UrlParams';
 import CONFIG from '../../config';
+import Loader from '../Loader';
 import '../../../public/assets/js/jquery.nice-select.min';
 
 class ShopBaseTemplate extends Component {
@@ -21,21 +22,27 @@ class ShopBaseTemplate extends Component {
             items: [],
             pageOfItems: props.pageOfItems ?? [],
             pagination: {
-                perPage: 12,
+                perPage: 1,
                 currentPage: GetPage.getSubPage(),
                 countItems: 0
-            }
+            },
+            sorting: {
+                sortBy: null,
+                sortOrder: null
+            },
+            loader: true,
+            noticeMessage: '',
+            errorMessage: ''
         };
 
         this.setCurrentPage = this.setCurrentPage.bind(this);
         this.setPerPage = this.setPerPage.bind(this);
         this.getItems = this.getItems.bind(this);
+        this.sortItems = this.sortItems.bind(this);
     }
 
     componentDidMount() {
         $('select').niceSelect();
-
-        this.getItems();
 
         if(document.getElementById('price-range')) {
             const nonLinearSlider = document.getElementById('price-range');
@@ -68,24 +75,57 @@ class ShopBaseTemplate extends Component {
     }
 
     getItems() {
+        const _this = this;
         if(this.props && this.props.itemsUrl) {
             const itemsUrl = this.props.itemsUrl;
             const {pagination} = this.state;
             const currentPage = GetPage.getSubPage('page');
             const limit = pagination.perPage;
-            const offset = parseInt(currentPage) > 0 ? (currentPage - 1) * pagination.perPage : 0;
+            const offset = currentPage > 0 ? (currentPage - 1) * pagination.perPage : 0;
 
+            let urlGetValues = `?limit=${limit}&offset=${offset}`;
+
+            if(this.state.sorting.sortBy && this.state.sorting.sortOrder) {
+                const sortBy = this.state.sorting.sortBy;
+                const sortOrder = this.state.sorting.sortOrder;
+
+                urlGetValues += `&sortBy=${sortBy}&sortOrder=${sortOrder}`;
+            }
+
+            const itemsUrlWithGetValues = itemsUrl + urlGetValues;
             // Get items
-            axios.get(itemsUrl + `?limit=${limit}&offset=${offset}`, null)
+            axios.get(itemsUrlWithGetValues, null)
                 .then(result => {
-                    if(result.status === 200 && result.data && result.data.items) {
-                        pagination.countItems = result.data.countItems;
+                    if(result.status === 200) {
+                        if(result.data) {
+                            if(result.data.items && result.data.items.length > 0) {
+                                pagination.countItems = result.data.countItems;
 
-                        this.setState({items: result.data.items, pagination});
+                                this.setState({items: result.data.items, pagination});
+
+                                setTimeout(() => {
+                                    _this.setState({loader: false});
+                                }, 500);
+                            } else if(result.data.errorMessage) {
+                                setTimeout(() => {
+                                    const errorMessage = result.data.errorMessage;
+                                    _this.setState({errorMessage, loader: false});
+                                }, 1500);
+                            }
+                        }
+                    } else {
+                        setTimeout(() => {
+                            const errorMessage = 'Error while load products. Try again.';
+                            _this.setState({errorMessage, loader: false});
+                        }, 1500);
                     }
                 })
                 .catch((err) => {
                     console.log(err);
+                    setTimeout(() => {
+                        const errorMessage = 'Error while load products. Try again.';
+                        _this.setState({errorMessage, loader: false});
+                    }, 1500);
                 });
 
             if(this.state.itemsUrl !== itemsUrl) {
@@ -98,31 +138,51 @@ class ShopBaseTemplate extends Component {
         const {pagination} = this.state;
         if(pagination.currentPage !== page) {
             pagination.currentPage = page;
-            this.setState({pagination});
 
             this.getItems();
         }
     }
 
     setPerPage(perPage, overwriteAddressUrl = false) {
-        const {pagination} = this.state;
+        const {pagination, sorting} = this.state;
         if(pagination.perPage !== perPage) {
             pagination.perPage = perPage;
-            this.setState({pagination});
+            this.setState({pagination, loader: true});
 
             if(overwriteAddressUrl) {
                 const currentUrl = window.location.href;
-                const newUrl = UrlParams.updateURLParameter(currentUrl, CONFIG.shop.prefixPage, 1);
+                const shopPrefixPage = CONFIG.shop.prefixPage;
+                const newUrl = UrlParams.updateURLParameter(currentUrl, shopPrefixPage, 1)
+                    .replace(shopPrefixPage + '/1', '');
 
                 Pagination.updateAddressUrl({}, null, newUrl)
             }
 
-            this.getItems();
+            if(sorting.sortBy !== null && sorting.sortOrder !== null) {
+                this.getItems();
+            }
+        }
+    }
+
+    sortItems(optionType) {
+        const {pagination, sorting} = this.state;
+        const {sortBy, sortOrder} = sorting;
+
+        this.setState({loader: true});
+
+        const newSorting = {
+            sortBy: optionType.value,
+            sortOrder: optionType.order
+        };
+
+        if(sortBy !== optionType.value || sortOrder !== optionType.order) {
+            pagination.perPage = 1;
+            this.setState({pagination, sorting: newSorting}, this.getItems);
         }
     }
 
     render() {
-        const {items, pagination} = this.state;
+        const {items, pagination, loader, noticeMessage, errorMessage} = this.state;
         const itemsPerPage = pagination.perPage;
         const paginationCountItems = Math.ceil(pagination.countItems / itemsPerPage);
 
@@ -152,15 +212,28 @@ class ShopBaseTemplate extends Component {
                                 paginationSubPagePrefix='/shop'
                                 paginationSetCurrentPage={this.setCurrentPage}
                                 sortingSetPerPage={this.setPerPage}
+                                sortingSortItems={this.sortItems}
                             />
 
-                            <section className="lattest-product-area pb-40 category-list">
-                                <div className="row">
-                                    {items.map(item => (
-                                        <SingleProductList key={item.uuid} item={item}/>
-                                    ))}
-                                </div>
-                            </section>
+                            <Loader isLoading={loader} />
+
+                            {!loader && noticeMessage && (
+                                <div className="message notice">{noticeMessage}</div>
+                            )}
+
+                            {!loader && errorMessage && (
+                                <div className="message error">{errorMessage}</div>
+                            )}
+
+                            {!loader && !noticeMessage && (
+                                <section className="lattest-product-area pb-40 category-list">
+                                    <div className="row">
+                                        {items.map((item) => (
+                                            <SingleProductList key={item.uuid} item={item} />
+                                        ))}
+                                    </div>
+                                </section>
+                            )}
 
                             {/*// @TODO Add a second sort with pagination*/}
                             {/*<ShopSortingPagination />*/}

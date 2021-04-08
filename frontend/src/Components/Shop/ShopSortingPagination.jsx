@@ -3,6 +3,7 @@ import Pagination from '../Pagination';
 import CONFIG from '../../config';
 
 const localStorageKey = CONFIG.shop.localStorageKey;
+const sortItems = CONFIG.shop.sortItems;
 const sortPerPage = CONFIG.shop.sortPerPage;
 
 class ShopSortingPagination extends Component {
@@ -10,7 +11,7 @@ class ShopSortingPagination extends Component {
         super(props);
         this.state = {
             sorting: localStorage.getItem(localStorageKey) ? JSON.parse(localStorage.getItem(localStorageKey)).sorting : 1,
-            perPage: localStorage.getItem(localStorageKey) ? JSON.parse(localStorage.getItem(localStorageKey)).perPage : sortPerPage[1]
+            perPage: localStorage.getItem(localStorageKey) ? JSON.parse(localStorage.getItem(localStorageKey)).perPage : 1
         }
 
         this.onSubmitSort = this.onSubmitSort.bind(this);
@@ -19,6 +20,7 @@ class ShopSortingPagination extends Component {
     componentDidMount() {
         const {sorting, perPage} = this.state;
 
+        this.props.sortingSortItems(sortItems[sorting]);
         this.props.sortingSetPerPage(sortPerPage[perPage]);
 
         const itemsSortSelects = document.querySelectorAll('.sorting.items-sort select');
@@ -43,9 +45,9 @@ class ShopSortingPagination extends Component {
         const {sorting, itemsPerPage} = this.state;
 
         const itemsSortSelects = document.querySelectorAll('.sorting.items-sort select');
-        const itemPerPageSelects = document.querySelectorAll('.sorting.items-per-page select');
-
         this.updateSelectsSelected(itemsSortSelects, sorting, 'items-sort')
+
+        const itemPerPageSelects = document.querySelectorAll('.sorting.items-per-page select');
         this.updateSelectsSelected(itemPerPageSelects, itemsPerPage, 'items-per-page')
     }
 
@@ -80,10 +82,13 @@ class ShopSortingPagination extends Component {
 
         if(sorting !== currentValueItemsSort) {
             this.updateLocalStorageInfo(localStorageKey, 'sorting', currentValueItemsSort);
+            this.setState({sorting: currentValueItemsSort});
+            this.props.sortingSortItems(sortItems[currentValueItemsSort]);
         }
 
         if(itemsPerPage !== currentValueItemsPerPage) {
             this.updateLocalStorageInfo(localStorageKey, 'perPage', currentValueItemsPerPage);
+            this.setState({perPage: currentValueItemsPerPage});
             this.props.sortingSetPerPage(sortPerPage[currentValueItemsPerPage], true);
         }
     }
@@ -99,7 +104,14 @@ class ShopSortingPagination extends Component {
 
     render() {
         const {perPage} = this.state;
+        const sortOptions = [];
         const perPageOptions = [];
+
+        for(const i in sortItems) {
+            sortOptions.push(
+                <option key={i} value={i}>{sortItems[i].title}</option>
+            )
+        }
 
         for(const i in sortPerPage) {
             perPageOptions.push(
@@ -111,9 +123,7 @@ class ShopSortingPagination extends Component {
             <div className="filter-bar d-flex flex-wrap align-items-center">
                 <div className="sorting items-sort">
                     <select>
-                        <option value="1">Newest</option>
-                        <option value="2">Price: Low to High</option>
-                        <option value="3">Price: High to Low</option>
+                        {sortOptions}
                     </select>
                 </div>
                 <div className="sorting items-per-page">

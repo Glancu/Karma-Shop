@@ -21,13 +21,18 @@ class ShopProductRepository extends ServiceEntityRepository
         parent::__construct($registry, ShopProduct::class);
     }
 
-    public function getProductsWithLimitAndOffset($limit = 10, $offset = 0): array
+    public function getProductsWithLimitAndOffset($limit = 10, $offset = 0, $sortBy = null, $sortOrder = 'DESC'): array
     {
         $queryBuilder = $this->createQueryBuilder('s')
                              ->where('s.enable = 1')
                              ->orderBy('s.id', 'DESC')
                              ->setFirstResult($offset)
                              ->setMaxResults($limit);
+
+        if($sortBy) {
+            $queryBuilder
+                ->orderBy("s.${sortBy}", $sortOrder);
+        }
 
         return $queryBuilder
             ->getQuery()
