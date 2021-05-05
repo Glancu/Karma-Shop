@@ -176,7 +176,7 @@ class ShopBaseTemplate extends Component {
         };
 
         if(sortBy !== optionType.value || sortOrder !== optionType.order) {
-            pagination.perPage = 1;
+            pagination.perPage = CONFIG.shop.sortPerPage[1];
             this.setState({pagination, sorting: newSorting}, this.getItems);
         }
     }
@@ -235,8 +235,13 @@ class ShopBaseTemplate extends Component {
                                 </section>
                             )}
 
-                            {/*// @TODO Add a second sort with pagination*/}
-                            {/*<ShopSortingPagination />*/}
+                            <ShopSortingPagination
+                                paginationCountItems={paginationCountItems}
+                                paginationSubPagePrefix='/shop'
+                                paginationSetCurrentPage={this.setCurrentPage}
+                                sortingSetPerPage={this.setPerPage}
+                                sortingSortItems={this.sortItems}
+                            />
                         </div>
                     </div>
                 </div>

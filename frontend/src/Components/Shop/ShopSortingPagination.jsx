@@ -42,13 +42,17 @@ class ShopSortingPagination extends Component {
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
-        const {sorting, itemsPerPage} = this.state;
+        const {sorting, perPage} = this.state;
 
-        const itemsSortSelects = document.querySelectorAll('.sorting.items-sort select');
-        this.updateSelectsSelected(itemsSortSelects, sorting, 'items-sort')
+        if(sorting !== prevState.sorting) {
+            const itemsSortSelects = document.querySelectorAll('.sorting.items-sort select');
+            this.updateSelectsSelected(itemsSortSelects, sorting, 'items-sort')
+        }
 
-        const itemPerPageSelects = document.querySelectorAll('.sorting.items-per-page select');
-        this.updateSelectsSelected(itemPerPageSelects, itemsPerPage, 'items-per-page')
+        if(perPage !== prevState.perPage) {
+            const itemPerPageSelects = document.querySelectorAll('.sorting.items-per-page select');
+            this.updateSelectsSelected(itemPerPageSelects, perPage, 'items-per-page')
+        }
     }
 
     updateSelectsSelected(selects, value, querySelectorClass) {
@@ -72,24 +76,40 @@ class ShopSortingPagination extends Component {
         });
     }
 
+    windowScrollTo(top) {
+        window.scrollTo({
+            top: top,
+            left: 0,
+            behavior: 'smooth'
+        });
+    }
+
     onSubmitSort(e) {
         e.preventDefault();
 
-        const {sorting, itemsPerPage} = this.state;
+        const {sorting, perPage} = this.state;
 
-        const currentValueItemsSort = parseInt(document.querySelector('.sorting.items-sort > div > ul > li.selected').getAttribute('data-value'));
-        const currentValueItemsPerPage = parseInt(document.querySelector('.sorting.items-per-page > div > ul > li.selected').getAttribute('data-value'));
+        const filterWrap = e.target.parentElement.parentElement;
+        const contentEl = document.querySelector('.col-xl-9.col-lg-8.col-md-7');
+        const headerAreaEl = document.querySelector('.header_area');
+
+        const currentValueItemsSort = parseInt(filterWrap.querySelector('.sorting.items-sort > div > ul > li.selected').getAttribute('data-value'));
+        const currentValueItemsPerPage = parseInt(filterWrap.querySelector('.sorting.items-per-page > div > ul > li.selected').getAttribute('data-value'));
 
         if(sorting !== currentValueItemsSort) {
             this.updateLocalStorageInfo(localStorageKey, 'sorting', currentValueItemsSort);
-            this.setState({sorting: currentValueItemsSort});
             this.props.sortingSortItems(sortItems[currentValueItemsSort]);
+            this.setState({sorting: currentValueItemsSort});
+
+            this.windowScrollTo(contentEl.offsetTop - headerAreaEl.offsetHeight);
         }
 
-        if(itemsPerPage !== currentValueItemsPerPage) {
+        if(perPage !== currentValueItemsPerPage) {
             this.updateLocalStorageInfo(localStorageKey, 'perPage', currentValueItemsPerPage);
-            this.setState({perPage: currentValueItemsPerPage});
             this.props.sortingSetPerPage(sortPerPage[currentValueItemsPerPage], true);
+            this.setState({perPage: currentValueItemsPerPage});
+
+            this.windowScrollTo(contentEl.offsetTop - headerAreaEl.offsetHeight);
         }
     }
 

@@ -8,7 +8,6 @@ const Loader = ({isLoading = false, width = 200, height = 200}) => {
                y="0px"
                width={width + 'px'} height={height + 'px'}
                viewBox="0 0 50 50"
-               // style={{enableBackground: 'new 0 0 50 50'}}
                className="loader"
           >
               <path fill="#828bb3"
