@@ -1,11 +1,10 @@
 export default {
     shop: {
         prefixPage: 'page',
-        localStorageKey: 'shop_pagination',
         sortItems: {
             1: {
                 title: 'Newset',
-                value: '',
+                value: 'newset',
                 order: 'DESC'
             },
             2: {
@@ -20,9 +19,15 @@ export default {
             }
         },
         sortPerPage: {
-            1: 12,
-            2: 21,
-            3: 48
+            1: 1,
+            2: 2,
+            3: 4
+        },
+        filters: {
+            brand: null,
+            color: null,
+            priceFrom: 0,
+            priceTo: 2000
         }
     }
 }

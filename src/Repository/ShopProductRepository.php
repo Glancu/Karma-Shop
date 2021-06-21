@@ -21,22 +21,60 @@ class ShopProductRepository extends ServiceEntityRepository
         parent::__construct($registry, ShopProduct::class);
     }
 
-    public function getProductsWithLimitAndOffset($limit = 10, $offset = 0, $sortBy = null, $sortOrder = 'DESC'): array
-    {
+    /**
+     * @throws NonUniqueResultException
+     * @throws NoResultException
+     */
+    public function getProductsWithLimitAndOffsetAndCountItems(array $parameters): array {
+        $limit = $parameters['limit'] ?? 10;
+        $offset = $parameters['offset'] ?? 0;
+        $sortBy = $parameters['sortBy'] ?? null;
+        $sortOrder = $parameters['sortOrder'] ?? 'DESC';
+        $brandSlug = $parameters['brandSlug'] ?? null;
+        $colorSlug = $parameters['colorSlug'] ?? null;
+
         $queryBuilder = $this->createQueryBuilder('s')
                              ->where('s.enable = 1')
                              ->orderBy('s.id', 'DESC')
                              ->setFirstResult($offset)
                              ->setMaxResults($limit);
 
-        if($sortBy) {
+        if ($sortBy && $sortBy !== 'newset') {
             $queryBuilder
                 ->orderBy("s.${sortBy}", $sortOrder);
         }
 
-        return $queryBuilder
+        if ($brandSlug) {
+            $queryBuilder
+                ->leftJoin('s.shopBrand', 'brand')
+                ->andWhere('brand.slug = :brandSlug')
+                ->setParameter('brandSlug', $brandSlug)
+            ;
+        }
+
+        if ($colorSlug) {
+            $queryBuilder
+                ->leftJoin('s.shopColors', 'color')
+                ->andWhere('color.slug = :colorSlug')
+                ->setParameter('colorSlug', $colorSlug)
+            ;
+        }
+
+        $items = $queryBuilder
             ->getQuery()
             ->getResult();
+
+        $countProducts = $queryBuilder
+            ->select('COUNT(s.id)')
+            ->setFirstResult(0)
+            ->setMaxResults(null)
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        return [
+            'items' => $items,
+            'countProducts' => (int)$countProducts
+        ];
     }
 
     public function getCountEnableProducts(): int

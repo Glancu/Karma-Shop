@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import PropTypes from 'prop-types';
-import UrlParams from "./UrlParams";
+import UrlAddressBar from "./UrlAddressBar";
 import GetPage from './GetPage';
 import CONFIG from '../config';
 
@@ -41,10 +41,6 @@ class Pagination extends Component {
         }
     }
 
-    static updateAddressUrl(data, title, url) {
-        history.pushState(data, title, url);
-    }
-
     updatePage() {
         const countItems = this.props.countItems;
         const currentPage = GetPage.getSubPage(PREFIX_PAGE);
@@ -69,29 +65,18 @@ class Pagination extends Component {
 
         if(pager && page) {
             const currentUrl = window.location.href;
-            let newUrl = '';
+            let newUrl = UrlAddressBar.updateOrRemovePageFromStringURL(currentUrl, '/' + PREFIX_PAGE + '/', page);
 
-            if(page > 1) {
-                newUrl = UrlParams.updateURLParameter(currentUrl, PREFIX_PAGE, page)
-            }
-
-            if(page === 1) {
-                const splittedUrl = currentUrl.split(PREFIX_PAGE);
-
-                if(splittedUrl) {
-                    newUrl = currentUrl.replace(PREFIX_PAGE + splittedUrl[1], '', currentUrl);
-                }
-            }
-
-            if(newUrl) {
-                if(setFromPagination || !history.state || (history.state && (!history.state.page || history.state.page < page))) {
-                    Pagination.updateAddressUrl({page}, null, newUrl)
-                }
+            if(newUrl && newUrl !== currentUrl && (setFromPagination || !history.state || (history.state &&
+                (!history.state.page || history.state.page < page)))
+            ) {
+                UrlAddressBar.pushAddressUrl({page}, null, newUrl)
             }
 
             this.setState({pager: pager, currentPage: page});
-
-            this.props.setCurrentPage(page);
+            if(newUrl !== currentUrl) {
+                this.props.setCurrentPage(page);
+            }
         }
     }
 
@@ -224,7 +209,8 @@ class Pagination extends Component {
                     if (page === LEFT_PAGE) return (
                         <a key={index}
                            className={classes}
-                           href={(parseInt(currentPage) - 1) > 1 ?  prefixPage + (parseInt(currentPage) - 1) : subPagePrefix}
+                           href={UrlAddressBar.setPageAfterPrefix(PREFIX_PAGE, parseInt(currentPage) - 1)}
+                           // href={(parseInt(currentPage) - 1) > 1 ?  prefixPage + (parseInt(currentPage) - 1) : subPagePrefix}
                            aria-label="Previous"
                            onClick={(e) => this.changePaginationClick(parseInt(currentPage) - 1, e)}
                         >
@@ -236,7 +222,8 @@ class Pagination extends Component {
                     if (page === RIGHT_PAGE) return (
                         <a key={index}
                            className={classes}
-                           href={!isLastPage ? prefixPage + (parseInt(currentPage) + 1) : prefixPage + totalPages}
+                           href={UrlAddressBar.setPageAfterPrefix(PREFIX_PAGE, parseInt(currentPage) + 1)}
+                           // href={!isLastPage ? prefixPage + (parseInt(currentPage) + 1) : prefixPage + totalPages}
                            aria-label="Next"
                            onClick={(e) => this.changePaginationClick(parseInt(currentPage) + 1, e)}>
                             <span aria-hidden="true">&raquo;</span>
@@ -247,7 +234,8 @@ class Pagination extends Component {
                     return (
                         <a key={index}
                            className={parseInt(currentPage) === parseInt(page) ? activeClasses : classes}
-                           href={page > 1 ? prefixPage + page : subPagePrefix}
+                           href={UrlAddressBar.setPageAfterPrefix(PREFIX_PAGE, page)}
+                           // href={page > 1 ? prefixPage + page : subPagePrefix}
                            onClick={(e) => this.changePaginationClick(page, e) }
                         >{ page }
                         </a>

@@ -1,8 +1,10 @@
 import React, { Component } from 'react';
 import Pagination from '../Pagination';
 import CONFIG from '../../config';
+import PropTypes from 'prop-types';
+import UrlAddressBar from '../UrlAddressBar';
+import { windowScrollTo } from '../WindowScroll';
 
-const localStorageKey = CONFIG.shop.localStorageKey;
 const sortItems = CONFIG.shop.sortItems;
 const sortPerPage = CONFIG.shop.sortPerPage;
 
@@ -10,34 +12,30 @@ class ShopSortingPagination extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            sorting: localStorage.getItem(localStorageKey) ? JSON.parse(localStorage.getItem(localStorageKey)).sorting : 1,
-            perPage: localStorage.getItem(localStorageKey) ? JSON.parse(localStorage.getItem(localStorageKey)).perPage : 1
+            sorting: 1,
+            perPage: 1
         }
 
         this.onSubmitSort = this.onSubmitSort.bind(this);
+        this.updateDefaultValues = this.updateDefaultValues.bind(this);
+        this.setSortingSelectValue = this.setSortingSelectValue.bind(this);
+        this.setPerPageSelectValue = this.setPerPageSelectValue.bind(this);
     }
 
     componentDidMount() {
-        const {sorting, perPage} = this.state;
+        const _this = this;
+        this.updateDefaultValues(true);
 
-        this.props.sortingSortItems(sortItems[sorting]);
-        this.props.sortingSetPerPage(sortPerPage[perPage]);
+        window.addEventListener('popstate', () => {
+            const sortingValue = _this.setSortingSelectValue(true);
+            if(sortingValue) {
+                _this.setState({sorting: sortingValue});
+            }
 
-        const itemsSortSelects = document.querySelectorAll('.sorting.items-sort select');
-        const itemPerPageSelects = document.querySelectorAll('.sorting.items-per-page select');
-
-        Array.from(itemsSortSelects).map((itemSortSelect) => {
-            const itemSortSelectEl = itemSortSelect.querySelector(`option[value='${sorting}']`);
-            itemSortSelectEl ?
-                itemSortSelectEl.setAttribute('selected', 'selected') :
-                itemSortSelect.querySelectorAll('option')[0].setAttribute('selected', 'selected');
-        });
-
-        Array.from(itemPerPageSelects).map((itemPerPageSelect) => {
-            const itemsPerPageEl = itemPerPageSelect.querySelector(`option[value='${perPage}']`);
-            itemsPerPageEl ?
-                itemsPerPageEl.setAttribute('selected', 'selected') :
-                itemPerPageSelect.querySelectorAll('option')[0].setAttribute('selected', 'selected');
+            const perPageValue = _this.setPerPageSelectValue(true);
+            if(perPageValue) {
+                _this.setState({perPage: perPageValue});
+            }
         });
     }
 
@@ -55,11 +53,92 @@ class ShopSortingPagination extends Component {
         }
     }
 
+    setSortingSelectValue(returnValue = false, sendUpdateSortingFunction = true) {
+        const sortItemsConfig = CONFIG.shop.sortItems;
+        const {sorting} = this.state;
+        let sortingValue = sorting;
+
+        const sortingFromURL = UrlAddressBar.getGetValueOfKeyFromAddressURL('sorting');
+        if(sortingFromURL) {
+            const splittedSortingFromURL = sortingFromURL.split('_');
+            const sortingValueFromURL = splittedSortingFromURL[0]
+            const sortingOrderFromURL = splittedSortingFromURL[1].toUpperCase();
+
+            const valuesSortingConfig = Object
+                .values(sortItemsConfig)
+                .filter(i => i.value === sortingValueFromURL && i.order === sortingOrderFromURL);
+            const valueSortingConfig = valuesSortingConfig.length > 0 ? valuesSortingConfig[0] : null;
+            if(valueSortingConfig) {
+                Object.keys(sortItemsConfig).map((i) => {
+                    if(sortItemsConfig[i] && (sortItemsConfig[i] === valueSortingConfig)) {
+                        sortingValue = i;
+                    }
+                });
+            }
+        } else {
+            sortingValue = 1;
+        }
+
+        const itemsSortSelects = document.querySelectorAll('.sorting.items-sort select');
+        this.updateSelectsSelected(itemsSortSelects, sortingValue, 'items-sort')
+
+        if(sendUpdateSortingFunction) {
+            this.props.sortingUpdateSorting(null, sortItems[sortingValue]);
+        }
+
+        if(returnValue) {
+            return parseInt(sortingValue);
+        }
+    }
+
+    setPerPageSelectValue(returnValue = false, sendUpdateSortingFunction = true) {
+        const sortPerPageConfig = CONFIG.shop.sortPerPage;
+        const {perPage} = this.state;
+        let perPageValue = perPage;
+
+        const perPageFromURL = UrlAddressBar.getGetValueOfKeyFromAddressURL('per_page');
+        if(perPageFromURL) {
+            const perPageFromURLValue = Object.keys(sortPerPageConfig).find(i => sortPerPageConfig[i] === parseInt(perPageFromURL));
+            if(perPageFromURLValue) {
+                perPageValue = perPageFromURLValue;
+            }
+        } else {
+            perPageValue = 1;
+        }
+
+        const itemPerPageSelects = document.querySelectorAll('.sorting.items-per-page select');
+        this.updateSelectsSelected(itemPerPageSelects, perPageValue, 'items-per-page')
+
+        if(sendUpdateSortingFunction) {
+            this.props.sortingUpdateSorting(sortPerPage[perPageValue]);
+        }
+
+        if(returnValue) {
+            return parseInt(perPageValue);
+        }
+    }
+
+    updateDefaultValues(updateStateValue = false) {
+        const sortingValue = this.setSortingSelectValue(true, false);
+        const perPageValue = this.setPerPageSelectValue(true, false);
+
+        if(this.props.firstComponent) {
+            this.props.sortingUpdateSorting(sortPerPage[perPageValue], sortItems[sortingValue]);
+        }
+
+        if(updateStateValue) {
+            this.setState({sorting: sortingValue, perPage: perPageValue})
+        }
+    }
+
     updateSelectsSelected(selects, value, querySelectorClass) {
         Array.from(selects).map((select) => {
             const element = select.querySelector(`option[value='${value}']`);
             if(element) {
-                select.querySelector('option[selected="selected"]').removeAttribute('selected');
+                const currentSelectedOption = select.querySelector('option[selected="selected"]');
+                currentSelectedOption ?
+                    currentSelectedOption.removeAttribute('selected') :
+                    null;
 
                 const items = document.querySelectorAll(`.sorting.${querySelectorClass} div.nice-select`);
                 Array.from(items).map((item) => {
@@ -76,14 +155,6 @@ class ShopSortingPagination extends Component {
         });
     }
 
-    windowScrollTo(top) {
-        window.scrollTo({
-            top: top,
-            left: 0,
-            behavior: 'smooth'
-        });
-    }
-
     onSubmitSort(e) {
         e.preventDefault();
 
@@ -96,30 +167,47 @@ class ShopSortingPagination extends Component {
         const currentValueItemsSort = parseInt(filterWrap.querySelector('.sorting.items-sort > div > ul > li.selected').getAttribute('data-value'));
         const currentValueItemsPerPage = parseInt(filterWrap.querySelector('.sorting.items-per-page > div > ul > li.selected').getAttribute('data-value'));
 
+        const currentUrl = window.location.href;
+        let newUrl = window.location.href;
+
         if(sorting !== currentValueItemsSort) {
-            this.updateLocalStorageInfo(localStorageKey, 'sorting', currentValueItemsSort);
-            this.props.sortingSortItems(sortItems[currentValueItemsSort]);
+            const newValue = sortItems[currentValueItemsSort].value;
+            const newOrder = sortItems[currentValueItemsSort].order.toLocaleLowerCase();
+
+            if(newValue !== 'newset' && newOrder === 'DESC') {
+                newUrl = UrlAddressBar.addParameterToStringURL(newUrl, 'sorting', newValue + '_' + newOrder);
+            } else {
+                newUrl = UrlAddressBar.removeParameterToStringURL(newUrl, 'sorting');
+            }
+
             this.setState({sorting: currentValueItemsSort});
 
-            this.windowScrollTo(contentEl.offsetTop - headerAreaEl.offsetHeight);
+            windowScrollTo(contentEl.offsetTop - headerAreaEl.offsetHeight);
         }
 
         if(perPage !== currentValueItemsPerPage) {
-            this.updateLocalStorageInfo(localStorageKey, 'perPage', currentValueItemsPerPage);
-            this.props.sortingSetPerPage(sortPerPage[currentValueItemsPerPage], true);
+            const perPageValue = parseInt(sortPerPage[currentValueItemsPerPage]);
+            if(perPageValue > 1) {
+                newUrl = UrlAddressBar.addParameterToStringURL(newUrl, 'per_page', perPageValue);
+            } else {
+                newUrl = UrlAddressBar.removeParameterToStringURL(newUrl, 'per_page');
+            }
+
             this.setState({perPage: currentValueItemsPerPage});
 
-            this.windowScrollTo(contentEl.offsetTop - headerAreaEl.offsetHeight);
+            windowScrollTo(contentEl.offsetTop - headerAreaEl.offsetHeight);
         }
-    }
 
-    updateLocalStorageInfo(type, key, value) {
-        let currentLocalStorageValues = localStorage.getItem(type);
-        currentLocalStorageValues = currentLocalStorageValues ? JSON.parse(currentLocalStorageValues) : {};
+        if(currentUrl !== newUrl) {
+            const shopPrefixPage = CONFIG.shop.prefixPage;
 
-        currentLocalStorageValues[key] = value;
+            newUrl = UrlAddressBar.updateOrRemovePageFromStringURL(newUrl, '/' + shopPrefixPage + '/', 1)
+                .replace(shopPrefixPage + '/1', '');
 
-        localStorage.setItem(type, JSON.stringify(currentLocalStorageValues));
+            UrlAddressBar.pushAddressUrl({},null, newUrl);
+
+            this.updateDefaultValues();
+        }
     }
 
     render() {
@@ -165,6 +253,14 @@ class ShopSortingPagination extends Component {
             </div>
         )
     }
+}
+
+ShopSortingPagination.propTypes = {
+    paginationCountItems: PropTypes.number.isRequired,
+    paginationSubPagePrefix: PropTypes.string.isRequired,
+    paginationSetCurrentPage: PropTypes.func.isRequired,
+    sortingUpdateSorting: PropTypes.func.isRequired,
+    firstComponent: PropTypes.bool.isRequired
 }
 
 export default ShopSortingPagination;

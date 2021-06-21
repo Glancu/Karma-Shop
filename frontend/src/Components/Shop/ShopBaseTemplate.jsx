@@ -3,15 +3,12 @@ import { Link } from 'react-router-dom';
 import ShopSidebar from './ShopSidebar';
 import SingleProductList from './SingleProductList';
 import BaseTemplate from '../BaseTemplate';
-import noUiSlider from '../../../public/assets/js/nouislider.min';
 import ShopSortingPagination from './ShopSortingPagination';
 import axios from 'axios';
 import PropTypes from 'prop-types';
 import GetPage from '../GetPage';
-import Pagination from '../Pagination';
-import UrlParams from '../UrlParams';
-import CONFIG from '../../config';
 import Loader from '../Loader';
+import { windowScrollTo } from '../WindowScroll';
 import '../../../public/assets/js/jquery.nice-select.min';
 
 class ShopBaseTemplate extends Component {
@@ -27,8 +24,8 @@ class ShopBaseTemplate extends Component {
                 countItems: 0
             },
             sorting: {
-                sortBy: null,
-                sortOrder: null
+                sortBy: 'newset',
+                sortOrder: 'DESC'
             },
             loader: true,
             noticeMessage: '',
@@ -36,42 +33,33 @@ class ShopBaseTemplate extends Component {
         };
 
         this.setCurrentPage = this.setCurrentPage.bind(this);
-        this.setPerPage = this.setPerPage.bind(this);
+        this.updateSorting = this.updateSorting.bind(this);
         this.getItems = this.getItems.bind(this);
-        this.sortItems = this.sortItems.bind(this);
+        this.updateSidebarFilters = this.updateSidebarFilters.bind(this);
     }
 
     componentDidMount() {
+        const _this = this;
         $('select').niceSelect();
 
-        if(document.getElementById('price-range')) {
-            const nonLinearSlider = document.getElementById('price-range');
-
-            noUiSlider.create(nonLinearSlider, {
-                connect: true,
-                behaviour: 'tap',
-                start: [500, 4000],
-                range: {
-                    // Starting at 500, step the value by 500,
-                    // until 4000 is reached. From there, step by 1000.
-                    'min': [50],
-                    '10%': [500, 500],
-                    '50%': [4000, 1000],
-                    'max': [10000]
-                }
-            }, true);
-
-            const nodes = {
-                0: document.getElementById('lower-value'),
-                1: document.getElementById('upper-value')
-            };
-
-            // Display the slider value and how far the handle moved
-            // from the left edge of the slider.
-            nonLinearSlider.noUiSlider.on('update', function(values, handle) {
-                nodes[handle].innerHTML = values[handle];
-            });
+        if(!window.location.search) {
+            this.getItems();
         }
+
+        window.addEventListener('popstate', function () {
+            _this.scrollToTop(1000);
+
+            _this.setCurrentPage(GetPage.getSubPage('page'));
+        });
+    }
+
+    scrollToTop(timeout = 0) {
+        const contentEl = document.querySelector('.col-xl-9.col-lg-8.col-md-7');
+        const headerAreaEl = document.querySelector('.header_area');
+
+        setTimeout(() => {
+            windowScrollTo(contentEl.offsetTop - headerAreaEl.offsetHeight);
+        }, timeout)
     }
 
     getItems() {
@@ -79,20 +67,33 @@ class ShopBaseTemplate extends Component {
         if(this.props && this.props.itemsUrl) {
             const itemsUrl = this.props.itemsUrl;
             const {pagination} = this.state;
-            const currentPage = GetPage.getSubPage('page');
+            const currentPage = pagination.currentPage;
             const limit = pagination.perPage;
             const offset = currentPage > 0 ? (currentPage - 1) * pagination.perPage : 0;
 
             let urlGetValues = `?limit=${limit}&offset=${offset}`;
 
+            let itemsUrlWithGetValues = itemsUrl;
+
+            const windowLocationSearch = window.location.search.replace('?', '&');
+            itemsUrlWithGetValues = itemsUrlWithGetValues + windowLocationSearch;
+            itemsUrlWithGetValues = itemsUrlWithGetValues.replaceAll(`&per_page=${limit}`, '');
+
             if(this.state.sorting.sortBy && this.state.sorting.sortOrder) {
                 const sortBy = this.state.sorting.sortBy;
                 const sortOrder = this.state.sorting.sortOrder;
+                const sortOrderLowerCase = sortOrder.toLowerCase();
 
                 urlGetValues += `&sortBy=${sortBy}&sortOrder=${sortOrder}`;
+
+                itemsUrlWithGetValues = itemsUrlWithGetValues
+                    .replaceAll(`&sorting=${sortBy}_${sortOrderLowerCase}`, '');
             }
 
-            const itemsUrlWithGetValues = itemsUrl + urlGetValues;
+            itemsUrlWithGetValues += urlGetValues;
+
+            this.setState({items: [], noticeMessage: null, errorMessage: null});
+
             // Get items
             axios.get(itemsUrlWithGetValues, null)
                 .then(result => {
@@ -121,7 +122,7 @@ class ShopBaseTemplate extends Component {
                     }
                 })
                 .catch((err) => {
-                    console.log(err);
+                    console.error(err);
                     setTimeout(() => {
                         const errorMessage = 'Error while load products. Try again.';
                         _this.setState({errorMessage, loader: false});
@@ -143,42 +144,50 @@ class ShopBaseTemplate extends Component {
         }
     }
 
-    setPerPage(perPage, overwriteAddressUrl = false) {
+    updateSorting(perPageValue = null, sortingValue = null) {
         const {pagination, sorting} = this.state;
-        if(pagination.perPage !== perPage) {
-            pagination.perPage = perPage;
-            this.setState({pagination, loader: true});
+        let getNewItems = false;
+        let newPaginationValue = pagination;
+        let newSortingValue = sorting;
 
-            if(overwriteAddressUrl) {
-                const currentUrl = window.location.href;
-                const shopPrefixPage = CONFIG.shop.prefixPage;
-                const newUrl = UrlParams.updateURLParameter(currentUrl, shopPrefixPage, 1)
-                    .replace(shopPrefixPage + '/1', '');
+        if(perPageValue && pagination.perPage !== perPageValue) {
+            pagination.perPage = perPageValue;
+            pagination.currentPage = GetPage.getSubPage('page') || 1;
 
-                Pagination.updateAddressUrl({}, null, newUrl)
+            getNewItems = true;
+            newPaginationValue = pagination;
+        }
+
+        if(sortingValue) {
+            const {sortBy, sortOrder} = this.state.sorting;
+
+            const newSorting = {
+                sortBy: sortingValue.value,
+                sortOrder: sortingValue.order
+            };
+
+            if(sortBy !== sortingValue.value || sortOrder !== sortingValue.order) {
+                getNewItems = true;
+                newSortingValue = newSorting;
             }
+        }
 
-            if(sorting.sortBy !== null && sorting.sortOrder !== null) {
-                this.getItems();
-            }
+        if(getNewItems) {
+            this.setState({pagination: newPaginationValue, sorting: newSortingValue, loader: true}, this.getItems);
         }
     }
 
-    sortItems(optionType) {
-        const {pagination, sorting} = this.state;
-        const {sortBy, sortOrder} = sorting;
-
-        this.setState({loader: true});
-
-        const newSorting = {
-            sortBy: optionType.value,
-            sortOrder: optionType.order
-        };
-
-        if(sortBy !== optionType.value || sortOrder !== optionType.order) {
-            pagination.perPage = CONFIG.shop.sortPerPage[1];
-            this.setState({pagination, sorting: newSorting}, this.getItems);
+    updateSidebarFilters(setFirstPagePagination) {
+        const {pagination} = this.state;
+        if(setFirstPagePagination) {
+            pagination.currentPage = 1;
         }
+
+        this.setState({loader: true, pagination});
+
+        this.scrollToTop();
+
+        this.getItems();
     }
 
     render() {
@@ -202,17 +211,17 @@ class ShopBaseTemplate extends Component {
                     </div>
                 </section>
 
-                <div className="container">
+                <div className="container margin-bottom-40">
                     <div className="row">
-                        <ShopSidebar/>
+                        <ShopSidebar updateFilters={this.updateSidebarFilters} />
 
                         <div className="col-xl-9 col-lg-8 col-md-7">
                             <ShopSortingPagination
                                 paginationCountItems={paginationCountItems}
                                 paginationSubPagePrefix='/shop'
                                 paginationSetCurrentPage={this.setCurrentPage}
-                                sortingSetPerPage={this.setPerPage}
-                                sortingSortItems={this.sortItems}
+                                sortingUpdateSorting={this.updateSorting}
+                                firstComponent={true}
                             />
 
                             <Loader isLoading={loader} />
@@ -239,8 +248,8 @@ class ShopBaseTemplate extends Component {
                                 paginationCountItems={paginationCountItems}
                                 paginationSubPagePrefix='/shop'
                                 paginationSetCurrentPage={this.setCurrentPage}
-                                sortingSetPerPage={this.setPerPage}
-                                sortingSortItems={this.sortItems}
+                                sortingUpdateSorting={this.updateSorting}
+                                firstComponent={false}
                             />
                         </div>
                     </div>

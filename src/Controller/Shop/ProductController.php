@@ -53,21 +53,32 @@ class ProductController
         if($sortBy === 'price') {
             $sortBy = 'priceNet';
         }
-
+        $color = $request->query->get('color');
+        $brand = $request->query->get('brand');
         $sortOrder = $request->query->get('sortOrder') ?: 'DESC';
 
-        $countProducts = $em->getRepository('App:ShopProduct')->getCountEnableProducts();
+        $parameters = [
+            'limit' => $limit,
+            'offset' => $offset,
+            'sortBy' => $sortBy,
+            'sortOrder' => $sortOrder,
+            'brand' => $brand,
+            'color' => $color
+        ];
 
-        $products = $em->getRepository('App:ShopProduct')
-                       ->getProductsWithLimitAndOffset($limit, $offset, $sortBy, $sortOrder);
+        $data = $em->getRepository('App:ShopProduct')
+                   ->getProductsWithLimitAndOffsetAndCountItems($parameters);
 
-        $return = $serializer->getProductsData($products, $countProducts);
+        $products = $data['items'];
+        $countProducts = $data['countProducts'];
+
+        $productData = $serializer->getProductsData($products, $countProducts);
 
         if($countProducts === 0 && !$products) {
-            $return = json_encode(['errorMessage' => 'Products was not found.']);
+            $productData = json_encode(['errorMessage' => 'Products was not found.'], JSON_THROW_ON_ERROR);
         }
 
-        $response = new Response($return);
+        $response = new Response($productData);
         $response->headers->set('Content-Type', 'application/json');
 
         return $response;
