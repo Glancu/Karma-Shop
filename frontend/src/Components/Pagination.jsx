@@ -196,10 +196,8 @@ class Pagination extends Component {
     }
 
     render() {
-        const {currentPage, totalPages, subPagePrefix} = this.state;
-        const prefixPage = `${subPagePrefix}/${PREFIX_PAGE}/`;
+        const {currentPage} = this.state;
         const pages = this.fetchPageNumbers();
-        const isLastPage = currentPage === totalPages;
         const classes = 'link-prevent-default';
         const activeClasses = `${classes} active`;
 
@@ -210,7 +208,6 @@ class Pagination extends Component {
                         <a key={index}
                            className={classes}
                            href={UrlAddressBar.setPageAfterPrefix(PREFIX_PAGE, parseInt(currentPage) - 1)}
-                           // href={(parseInt(currentPage) - 1) > 1 ?  prefixPage + (parseInt(currentPage) - 1) : subPagePrefix}
                            aria-label="Previous"
                            onClick={(e) => this.changePaginationClick(parseInt(currentPage) - 1, e)}
                         >
@@ -223,7 +220,6 @@ class Pagination extends Component {
                         <a key={index}
                            className={classes}
                            href={UrlAddressBar.setPageAfterPrefix(PREFIX_PAGE, parseInt(currentPage) + 1)}
-                           // href={!isLastPage ? prefixPage + (parseInt(currentPage) + 1) : prefixPage + totalPages}
                            aria-label="Next"
                            onClick={(e) => this.changePaginationClick(parseInt(currentPage) + 1, e)}>
                             <span aria-hidden="true">&raquo;</span>
@@ -235,7 +231,6 @@ class Pagination extends Component {
                         <a key={index}
                            className={parseInt(currentPage) === parseInt(page) ? activeClasses : classes}
                            href={UrlAddressBar.setPageAfterPrefix(PREFIX_PAGE, page)}
-                           // href={page > 1 ? prefixPage + page : subPagePrefix}
                            onClick={(e) => this.changePaginationClick(page, e) }
                         >{ page }
                         </a>

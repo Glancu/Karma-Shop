@@ -84,6 +84,7 @@ class ShopSidebar extends Component {
 
             if(priceFromValueFromURL || priceToValueFromURL) {
                 this.setState({filters});
+                this.props.updateFilters(false);
             }
 
             noUiSlider.create(nonLinearSlider, {
@@ -281,10 +282,16 @@ class ShopSidebar extends Component {
 
         const isFiltersAreTheSameAsDefault = Object.keys(filters).every((key) =>  filters[key] === configShopFilters[key]);
         if(isFiltersAreTheSameAsDefault === true) {
+            if(UrlAddressBar.getGetValueOfKeyFromAddressURL('priceFrom') ||
+                UrlAddressBar.getGetValueOfKeyFromAddressURL('priceTo')
+            ) {
+                newUrl = UrlAddressBar.removeParameterToStringURL(newUrl, ['priceFrom', 'priceTo']);
+                UrlAddressBar.replaceAddressUrl({},"", newUrl);
+            }
             return;
         }
 
-        newUrl = UrlAddressBar.removeParameterToStringURL(newUrl, ['priceTo', 'color', 'brand', 'priceFrom', 'priceTo']);
+        newUrl = UrlAddressBar.removeParameterToStringURL(newUrl, ['color', 'brand', 'priceFrom', 'priceTo']);
 
         newUrl = UrlAddressBar.updateOrRemovePageFromStringURL(newUrl, '/' + shopPrefixPage + '/', 1)
             .replace(shopPrefixPage + '/1', '');

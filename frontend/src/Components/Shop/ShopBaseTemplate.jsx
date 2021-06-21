@@ -71,17 +71,19 @@ class ShopBaseTemplate extends Component {
             const limit = pagination.perPage;
             const offset = currentPage > 0 ? (currentPage - 1) * pagination.perPage : 0;
 
-            let urlGetValues = `?limit=${limit}&offset=${offset}`;
-
             let itemsUrlWithGetValues = itemsUrl;
 
-            const windowLocationSearch = window.location.search.replace('?', '&');
+            const windowLocationSearch = window.location.search;
             itemsUrlWithGetValues = itemsUrlWithGetValues + windowLocationSearch;
             itemsUrlWithGetValues = itemsUrlWithGetValues.replaceAll(`&per_page=${limit}`, '');
 
-            if(this.state.sorting.sortBy && this.state.sorting.sortOrder) {
-                const sortBy = this.state.sorting.sortBy;
-                const sortOrder = this.state.sorting.sortOrder;
+            let startParameterCharacter = windowLocationSearch ? '&' : '?';
+
+            let urlGetValues = `${startParameterCharacter}limit=${limit}&offset=${offset}`;
+
+            const sortBy = this.state.sorting.sortBy;
+            const sortOrder = this.state.sorting.sortOrder;
+            if(sortBy && sortOrder) {
                 const sortOrderLowerCase = sortOrder.toLowerCase();
 
                 urlGetValues += `&sortBy=${sortBy}&sortOrder=${sortOrder}`;
@@ -121,8 +123,7 @@ class ShopBaseTemplate extends Component {
                         }, 1500);
                     }
                 })
-                .catch((err) => {
-                    console.error(err);
+                .catch(() => {
                     setTimeout(() => {
                         const errorMessage = 'Error while load products. Try again.';
                         _this.setState({errorMessage, loader: false});
@@ -183,17 +184,15 @@ class ShopBaseTemplate extends Component {
             pagination.currentPage = 1;
         }
 
-        this.setState({loader: true, pagination});
-
-        this.scrollToTop();
-
-        this.getItems();
+        this.setState({loader: true, pagination}, () => {
+            this.scrollToTop();
+            this.getItems();
+        });
     }
 
     render() {
         const {items, pagination, loader, noticeMessage, errorMessage} = this.state;
-        const itemsPerPage = pagination.perPage;
-        const paginationCountItems = Math.ceil(pagination.countItems / itemsPerPage);
+        const paginationCountItems = Math.ceil(pagination.countItems / pagination.perPage);
 
         return (
             <BaseTemplate>

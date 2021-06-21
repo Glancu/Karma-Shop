@@ -3,8 +3,10 @@ declare(strict_types=1);
 
 namespace App\Controller\Shop;
 
+use App\Service\MoneyService;
 use App\Service\SerializeDataResponse;
 use Doctrine\ORM\EntityManagerInterface;
+use JsonException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -39,10 +41,13 @@ class ProductController
      * @Route("/list", name="shop_products_list", methods={"GET"})
      *
      * @param Request $request
+     * @param MoneyService $moneyService
      *
      * @return Response
+     *
+     * @throws JsonException
      */
-    public function getProductsList(Request $request): Response
+    public function getProductsList(Request $request, MoneyService $moneyService): Response
     {
         $em = $this->entityManager;
         $serializer = $this->serializeDataResponse;
@@ -56,6 +61,14 @@ class ProductController
         $color = $request->query->get('color');
         $brand = $request->query->get('brand');
         $sortOrder = $request->query->get('sortOrder') ?: 'DESC';
+        $priceFrom = $request->query->get('priceFrom') ?: null;
+        if($priceFrom) {
+            $priceFrom = $moneyService->convertFloatToInt($priceFrom);
+        }
+        $priceTo = $request->query->get('priceTo') ?: null;
+        if($priceTo) {
+            $priceTo = $moneyService->convertFloatToInt($priceTo);
+        }
 
         $parameters = [
             'limit' => $limit,
@@ -63,14 +76,19 @@ class ProductController
             'sortBy' => $sortBy,
             'sortOrder' => $sortOrder,
             'brand' => $brand,
-            'color' => $color
+            'color' => $color,
+            'priceFrom' => $priceFrom,
+            'priceTo' => $priceTo
         ];
 
-        $data = $em->getRepository('App:ShopProduct')
-                   ->getProductsWithLimitAndOffsetAndCountItems($parameters);
+        $countProducts = $em->getRepository('App:ShopProduct')->getCountProductsByParameters($parameters);
+        if($countProducts < 5) {
+            $parameters['limit'] = 10;
+            $parameters['offset'] = 0;
+        }
 
-        $products = $data['items'];
-        $countProducts = $data['countProducts'];
+        $products = $em->getRepository('App:ShopProduct')
+                   ->getProductsWithLimitAndOffsetAndCountItems($parameters);
 
         $productData = $serializer->getProductsData($products, $countProducts);
 

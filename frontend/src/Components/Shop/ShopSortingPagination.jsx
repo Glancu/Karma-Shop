@@ -40,6 +40,8 @@ class ShopSortingPagination extends Component {
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
+        $('select').niceSelect();
+
         const {sorting, perPage} = this.state;
 
         if(sorting !== prevState.sorting) {
@@ -174,7 +176,7 @@ class ShopSortingPagination extends Component {
             const newValue = sortItems[currentValueItemsSort].value;
             const newOrder = sortItems[currentValueItemsSort].order.toLocaleLowerCase();
 
-            if(newValue !== 'newset' && newOrder === 'DESC') {
+            if(newValue !== 'newset' && newOrder !== 'DESC') {
                 newUrl = UrlAddressBar.addParameterToStringURL(newUrl, 'sorting', newValue + '_' + newOrder);
             } else {
                 newUrl = UrlAddressBar.removeParameterToStringURL(newUrl, 'sorting');
@@ -227,6 +229,8 @@ class ShopSortingPagination extends Component {
             )
         }
 
+        const paginationCountItems = this.props.paginationCountItems;
+
         return (
             <div className="filter-bar d-flex flex-wrap align-items-center">
                 <div className="sorting items-sort">
@@ -234,18 +238,21 @@ class ShopSortingPagination extends Component {
                         {sortOptions}
                     </select>
                 </div>
+
+                {paginationCountItems > 5 &&
                 <div className="sorting items-per-page">
                     <select>
                         {perPageOptions}
                     </select>
                 </div>
+                }
                 <div className="sorting mr-auto">
                     <button onClick={this.onSubmitSort} className="genric-btn primary">Apply</button>
                 </div>
                 <div className="pagination">
                     <Pagination
                         itemsPerPage={perPage}
-                        countItems={this.props.paginationCountItems}
+                        countItems={paginationCountItems}
                         subPagePrefix={this.props.paginationSubPagePrefix}
                         setCurrentPage={this.props.paginationSetCurrentPage}
                     />
