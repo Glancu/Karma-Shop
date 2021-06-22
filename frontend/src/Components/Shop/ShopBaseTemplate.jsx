@@ -192,7 +192,7 @@ class ShopBaseTemplate extends Component {
 
     render() {
         const {items, pagination, loader, noticeMessage, errorMessage} = this.state;
-        const paginationCountItems = Math.ceil(pagination.countItems / pagination.perPage);
+        const paginationCountPages = Math.ceil(pagination.countItems / pagination.perPage);
 
         return (
             <BaseTemplate>
@@ -216,7 +216,7 @@ class ShopBaseTemplate extends Component {
 
                         <div className="col-xl-9 col-lg-8 col-md-7">
                             <ShopSortingPagination
-                                paginationCountItems={paginationCountItems}
+                                paginationCountPages={paginationCountPages}
                                 paginationSubPagePrefix='/shop'
                                 paginationSetCurrentPage={this.setCurrentPage}
                                 sortingUpdateSorting={this.updateSorting}
@@ -244,7 +244,7 @@ class ShopBaseTemplate extends Component {
                             )}
 
                             <ShopSortingPagination
-                                paginationCountItems={paginationCountItems}
+                                paginationCountPages={paginationCountPages}
                                 paginationSubPagePrefix='/shop'
                                 paginationSetCurrentPage={this.setCurrentPage}
                                 sortingUpdateSorting={this.updateSorting}

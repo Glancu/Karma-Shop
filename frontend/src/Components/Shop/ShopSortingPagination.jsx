@@ -40,7 +40,7 @@ class ShopSortingPagination extends Component {
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
-        $('select').niceSelect();
+        this.props.paginationCountPages > 5 && $('select').niceSelect();
 
         const {sorting, perPage} = this.state;
 
@@ -216,6 +216,7 @@ class ShopSortingPagination extends Component {
         const {perPage} = this.state;
         const sortOptions = [];
         const perPageOptions = [];
+        const paginationCountPages = this.props.paginationCountPages;
 
         for(const i in sortItems) {
             sortOptions.push(
@@ -229,8 +230,6 @@ class ShopSortingPagination extends Component {
             )
         }
 
-        const paginationCountItems = this.props.paginationCountItems;
-
         return (
             <div className="filter-bar d-flex flex-wrap align-items-center">
                 <div className="sorting items-sort">
@@ -239,20 +238,21 @@ class ShopSortingPagination extends Component {
                     </select>
                 </div>
 
-                {paginationCountItems > 5 &&
-                <div className="sorting items-per-page">
-                    <select>
-                        {perPageOptions}
-                    </select>
-                </div>
+                {paginationCountPages > 5 &&
+                    <div className="sorting items-per-page">
+                        <select>
+                            {perPageOptions}
+                        </select>
+                    </div>
                 }
+
                 <div className="sorting mr-auto">
                     <button onClick={this.onSubmitSort} className="genric-btn primary">Apply</button>
                 </div>
                 <div className="pagination">
                     <Pagination
                         itemsPerPage={perPage}
-                        countItems={paginationCountItems}
+                        countPages={paginationCountPages}
                         subPagePrefix={this.props.paginationSubPagePrefix}
                         setCurrentPage={this.props.paginationSetCurrentPage}
                     />
@@ -263,7 +263,7 @@ class ShopSortingPagination extends Component {
 }
 
 ShopSortingPagination.propTypes = {
-    paginationCountItems: PropTypes.number.isRequired,
+    paginationCountPages: PropTypes.number.isRequired,
     paginationSubPagePrefix: PropTypes.string.isRequired,
     paginationSetCurrentPage: PropTypes.func.isRequired,
     sortingUpdateSorting: PropTypes.func.isRequired,

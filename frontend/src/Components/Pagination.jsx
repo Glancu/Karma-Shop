@@ -32,7 +32,7 @@ class Pagination extends Component {
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
-        if(prevProps.countItems !== this.props.countItems) {
+        if(prevProps.countPages !== this.props.countPages) {
             this.updatePage();
         }
 
@@ -42,9 +42,9 @@ class Pagination extends Component {
     }
 
     updatePage() {
-        const countItems = this.props.countItems;
+        const countPages = this.props.countPages;
         const currentPage = GetPage.getSubPage(PREFIX_PAGE);
-        const page = (countItems < currentPage) || (currentPage < 1) ? 1 : currentPage;
+        const page = (countPages < currentPage) || (currentPage < 1) ? 1 : currentPage;
         const subPagePrefix = this.props.subPagePrefix;
 
         if(subPagePrefix !== this.state.subPagePrefix) {
@@ -55,13 +55,13 @@ class Pagination extends Component {
     }
 
     setPage(page, setFromPagination = false) {
-        const countItems = this.props.countItems;
+        const countPages = this.props.countPages;
 
-        if(countItems > 0 && (page < 0 || page > countItems)) {
+        if(countPages > 0 && (page < 0 || page > countPages)) {
             return;
         }
 
-        const pager = countItems ? this.getPager(countItems, page) : null;
+        const pager = countPages ? this.getPager(countPages, page) : null;
 
         if(pager && page) {
             const currentUrl = window.location.href;
@@ -135,7 +135,7 @@ class Pagination extends Component {
      * {...x} => represents page neighbours
      */
     fetchPageNumbers() {
-        const totalPages = this.props.countItems;
+        const countPages = this.props.countPages;
         const currentPage = parseInt(this.state.currentPage);
         const pageNeighbours = parseInt(this.state.pageNeighbours);
 
@@ -144,9 +144,9 @@ class Pagination extends Component {
          * totalBlocks: totalNumbers + 2 to cover for the left(<) and right(>) controls
          */
         const totalNumbers = (pageNeighbours * 2) + 1;
-        const runFullPagination = totalPages > 5;
+        const runFullPagination = countPages > 5;
         const startPage = Math.max(2, currentPage - pageNeighbours);
-        const endPage = runFullPagination ? Math.min(totalPages - 1, currentPage + pageNeighbours) : totalPages - 1;
+        const endPage = runFullPagination ? Math.min(countPages - 1, currentPage + pageNeighbours) : countPages - 1;
         let pages = range(startPage, endPage);
 
         if(runFullPagination) {
@@ -156,7 +156,7 @@ class Pagination extends Component {
              * spillOffset: number of hidden pages either to the left or to the right
              */
             const hasLeftSpill = startPage > 2;
-            const hasRightSpill = (totalPages - endPage) > 1;
+            const hasRightSpill = (countPages - endPage) > 1;
             const spillOffset = totalNumbers - (pages.length + 1);
 
             switch (true) {
@@ -183,11 +183,11 @@ class Pagination extends Component {
             }
         }
 
-        if(pages.length === 0 || totalPages < 2) {
+        if(pages.length === 0 || countPages < 2) {
             return [];
         }
 
-        return [1, ...pages, totalPages];
+        return [1, ...pages, countPages];
     }
 
     changePaginationClick(page, evt) {
@@ -242,7 +242,7 @@ class Pagination extends Component {
 }
 
 Pagination.propTypes = {
-    countItems: PropTypes.number.isRequired,
+    countPages: PropTypes.number.isRequired,
     itemsPerPage: PropTypes.number.isRequired,
     subPagePrefix: PropTypes.string.isRequired,
     setCurrentPage: PropTypes.func.isRequired
