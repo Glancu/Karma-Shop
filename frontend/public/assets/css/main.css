@@ -1188,6 +1188,8 @@ h1, h2, h3, h4, h5, h6 {
       border: 0;
       cursor: pointer;
       padding: 0; }
+    .header_area .navbar .navbar-collapse .menu_nav li a.active {
+      color: #ffba00; }
 
 #search_input_box {
   position: fixed;
@@ -3058,7 +3060,7 @@ label {
   margin-right: 10px;
   text-align: center; }
   .sorting .nice-select {
-    border-radius: 0px;
+    border-radius: 0;
     border: 1px solid #eee;
     padding-right: 50px; }
     .sorting .nice-select:after {

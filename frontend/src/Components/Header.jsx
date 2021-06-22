@@ -81,13 +81,20 @@ class Header extends Component {
                             </button>
                             <div className="collapse navbar-collapse offset" id="navbarSupportedContent">
                                 <ul className="nav navbar-nav menu_nav ml-auto">
-                                    <li className="nav-item active">
-                                        <NavLink exact className="nav-link" to={'/'}>Home</NavLink>
+                                    <li className="nav-item">
+                                        <NavLink exact className="nav-link" to={'/'}>
+                                            Home
+                                        </NavLink>
                                     </li>
                                     <li className="nav-item submenu dropdown">
-                                        <a href="#" className="nav-link dropdown-toggle" data-toggle="dropdown"
-                                           role="button" aria-haspopup="true"
-                                           aria-expanded="false">Shop</a>
+                                        <NavLink className="nav-link dropdown-toggle"
+                                                 data-toggle="dropdown"
+                                                 role="button"
+                                                 aria-haspopup="true"
+                                                 aria-expanded="false"
+                                                 to={'/shop'}>
+                                            Shop
+                                        </NavLink>
                                         <ul className="dropdown-menu">
                                             <li className="nav-item">
                                                 <NavLink className="nav-link" to={'/shop'}>Products</NavLink>
@@ -110,9 +117,14 @@ class Header extends Component {
                                         </ul>
                                     </li>
                                     <li className="nav-item submenu dropdown">
-                                        <a href="#" className="nav-link dropdown-toggle" data-toggle="dropdown"
-                                           role="button" aria-haspopup="true"
-                                           aria-expanded="false">Blog</a>
+                                        <NavLink className="nav-link dropdown-toggle"
+                                                 data-toggle="dropdown"
+                                                 role="button"
+                                                 aria-haspopup="true"
+                                                 aria-expanded="false"
+                                                 to={'/blog'}>
+                                            Blog
+                                        </NavLink>
                                         <ul className="dropdown-menu">
                                             <li className="nav-item">
                                                 <NavLink className="nav-link" to={'/blog'}>Blog</NavLink>
