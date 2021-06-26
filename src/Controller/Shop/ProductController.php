@@ -78,7 +78,8 @@ class ProductController
             'brand' => $brand,
             'color' => $color,
             'priceFrom' => $priceFrom,
-            'priceTo' => $priceTo
+            'priceTo' => $priceTo,
+            'categorySlug' => $request->query->get('categorySlug')
         ];
 
         $countProducts = $em->getRepository('App:ShopProduct')->getCountProductsByParameters($parameters);

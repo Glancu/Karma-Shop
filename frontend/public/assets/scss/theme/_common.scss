@@ -1270,6 +1270,9 @@
 				margin-right: 10px;
 				display: none;
 			}
+			&.active {
+				color: #ffba00;
+			}
 		}
 		&.child {
 			a {

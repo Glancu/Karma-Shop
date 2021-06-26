@@ -59,6 +59,7 @@ class ShopProductRepository extends ServiceEntityRepository
         $colorSlug = $parameters['color'];
         $priceFrom = $parameters['priceFrom'];
         $priceTo = $parameters['priceTo'];
+        $categorySlug = $parameters['categorySlug'];
 
         $queryBuilder = $this->createQueryBuilder('s')
                              ->where('s.enable = 1')
@@ -95,6 +96,13 @@ class ShopProductRepository extends ServiceEntityRepository
             $queryBuilder
                 ->andWhere('s.priceGross <= :priceTo')
                 ->setParameter('priceTo', $priceTo);
+        }
+
+        if($categorySlug) {
+            $queryBuilder
+                ->leftJoin('s.shopCategory', 'shopCategory')
+                ->andWhere('shopCategory.slug = :shopCategorySlug')
+                ->setParameter('shopCategorySlug', $categorySlug);
         }
 
         return $queryBuilder;

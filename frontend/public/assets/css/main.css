@@ -3234,6 +3234,8 @@ label {
   .sidebar-categories .main-nav-list a .lnr {
     margin-right: 10px;
     display: none; }
+  .sidebar-categories .main-nav-list a.active {
+    color: #ffba00; }
 .sidebar-categories .main-nav-list.child a {
   padding-left: 32px; }
 

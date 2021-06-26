@@ -134,27 +134,29 @@ class ShopSortingPagination extends Component {
     }
 
     updateSelectsSelected(selects, value, querySelectorClass) {
-        Array.from(selects).map((select) => {
-            const element = select.querySelector(`option[value='${value}']`);
-            if(element) {
-                const currentSelectedOption = select.querySelector('option[selected="selected"]');
-                currentSelectedOption ?
-                    currentSelectedOption.removeAttribute('selected') :
-                    null;
+        if(selects) {
+            Array.from(selects).map((select) => {
+                const element = select.querySelector(`option[value='${value}']`);
+                if(element) {
+                    const currentSelectedOption = select.querySelector('option[selected="selected"]');
+                    currentSelectedOption ?
+                        currentSelectedOption.removeAttribute('selected') :
+                        null;
 
-                const items = document.querySelectorAll(`.sorting.${querySelectorClass} div.nice-select`);
-                Array.from(items).map((item) => {
-                    item.querySelector('span').textContent = element.textContent;
+                    const items = document.querySelectorAll(`.sorting.${querySelectorClass} div.nice-select`);
+                    Array.from(items).map((item) => {
+                        item.querySelector('span').textContent = element.textContent;
 
-                    item.querySelector('ul li.selected').classList.remove('selected');
-                    item.querySelector(`ul li[data-value='${value}']`).classList.add('selected');
-                });
+                        item.querySelector('ul li.selected').classList.remove('selected');
+                        item.querySelector(`ul li[data-value='${value}']`).classList.add('selected');
+                    });
 
-                element.setAttribute('selected', 'selected');
-            } else {
-                select.querySelectorAll('option')[0].setAttribute('selected', 'selected');
-            }
-        });
+                    element.setAttribute('selected', 'selected');
+                } else {
+                    select.querySelectorAll('option')[0].setAttribute('selected', 'selected');
+                }
+            });
+        }
     }
 
     onSubmitSort(e) {
@@ -167,7 +169,7 @@ class ShopSortingPagination extends Component {
         const headerAreaEl = document.querySelector('.header_area');
 
         const currentValueItemsSort = parseInt(filterWrap.querySelector('.sorting.items-sort > div > ul > li.selected').getAttribute('data-value'));
-        const currentValueItemsPerPage = parseInt(filterWrap.querySelector('.sorting.items-per-page > div > ul > li.selected').getAttribute('data-value'));
+        const currentValueItemsPerPage = filterWrap.querySelector('.sorting.items-per-page') && parseInt(filterWrap.querySelector('.sorting.items-per-page > div > ul > li.selected').getAttribute('data-value'));
 
         const currentUrl = window.location.href;
         let newUrl = window.location.href;
@@ -187,7 +189,7 @@ class ShopSortingPagination extends Component {
             windowScrollTo(contentEl.offsetTop - headerAreaEl.offsetHeight);
         }
 
-        if(perPage !== currentValueItemsPerPage) {
+        if(currentValueItemsPerPage && (perPage !== currentValueItemsPerPage)) {
             const perPageValue = parseInt(sortPerPage[currentValueItemsPerPage]);
             if(perPageValue > 1) {
                 newUrl = UrlAddressBar.addParameterToStringURL(newUrl, 'per_page', perPageValue);

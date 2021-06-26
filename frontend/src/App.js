@@ -26,14 +26,14 @@ const App = () => (
 
             <Route path='/contact' component={Contact} />
 
-            <Route path='/shop/category' component={Category} />
             <Route path='/shop/product' component={ProductDetail} />
             <Route path='/shop/checkout' component={Checkout} />
             <Route path='/shop/cart' component={Cart} />
             <Route path='/shop/confirmation' component={Confirmation} />
             <Route path='/shop/tracking' component={Tracking} />
-            <Route path='/shop' component={ProductsList} />
             <Route path='/shop/page/:page' component={ProductsList} />
+            <Route path='/shop/category/:slug' component={Category} />
+            <Route path='/shop' component={ProductsList} />
 
             <Route path='/blog/:id' component={Show} />
             <Route path='/blog' component={List} />

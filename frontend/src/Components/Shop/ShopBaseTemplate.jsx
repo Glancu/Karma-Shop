@@ -74,10 +74,14 @@ class ShopBaseTemplate extends Component {
             let itemsUrlWithGetValues = itemsUrl;
 
             const windowLocationSearch = window.location.search;
-            itemsUrlWithGetValues = itemsUrlWithGetValues + windowLocationSearch;
+
+            itemsUrlWithGetValues += itemsUrlWithGetValues.includes('?') ?
+                windowLocationSearch.replace('?', '&') :
+                windowLocationSearch;
+
             itemsUrlWithGetValues = itemsUrlWithGetValues.replaceAll(`&per_page=${limit}`, '');
 
-            let startParameterCharacter = windowLocationSearch ? '&' : '?';
+            let startParameterCharacter = windowLocationSearch || itemsUrlWithGetValues.includes('?') ? '&' : '?';
 
             let urlGetValues = `${startParameterCharacter}limit=${limit}&offset=${offset}`;
 
@@ -112,6 +116,11 @@ class ShopBaseTemplate extends Component {
                             } else if(result.data.errorMessage) {
                                 setTimeout(() => {
                                     const errorMessage = result.data.errorMessage;
+                                    _this.setState({errorMessage, loader: false});
+                                }, 1500);
+                            } else {
+                                setTimeout(() => {
+                                    const errorMessage = 'Error while load products. Try again.';
                                     _this.setState({errorMessage, loader: false});
                                 }, 1500);
                             }
@@ -212,7 +221,7 @@ class ShopBaseTemplate extends Component {
 
                 <div className="container margin-bottom-40">
                     <div className="row">
-                        <ShopSidebar updateFilters={this.updateSidebarFilters} />
+                        <ShopSidebar updateFilters={this.updateSidebarFilters} categorySlug={this.props.categorySlug} />
 
                         <div className="col-xl-9 col-lg-8 col-md-7">
                             <ShopSortingPagination
@@ -259,7 +268,8 @@ class ShopBaseTemplate extends Component {
 }
 
 ShopBaseTemplate.propTypes = {
-    itemsUrl: PropTypes.string.isRequired
+    itemsUrl: PropTypes.string.isRequired,
+    categorySlug: PropTypes.string
 }
 
 export default ShopBaseTemplate;
