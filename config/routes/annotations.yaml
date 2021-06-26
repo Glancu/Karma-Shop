@@ -15,6 +15,12 @@ media:
     resource: '@SonataMediaBundle/Resources/config/routing/media.xml'
     prefix: /admin/media
 
+controllers_api:
+    resource: '../../src/Controller/Api/'
+    type: annotation
+    prefix: '/api'
+    name_prefix: 'api_'
+
 controllers:
     resource: ../../src/Controller/
     type: annotation

@@ -1,9 +1,10 @@
 <?php
 declare(strict_types=1);
 
-namespace App\Controller\Shop;
+namespace App\Controller\Api;
 
-use App\Entity\Order;
+use App\Entity\Newsletter;
+use App\Form\Type\NewsletterType;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -14,13 +15,13 @@ use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
- * Class OrderController
+ * Class NewsletterController
  *
  * @package App\Controller
  *
- * @Route("/api/shop/order")
+ * @Route("/api/newsletter")
  */
-class OrderController
+class NewsletterController
 {
     private EntityManagerInterface $entityManager;
 
@@ -39,21 +40,22 @@ class OrderController
     }
 
     /**
-     * @Route("/", name="app_shop_order_create", methods={"POST"})
+     * @Route("/create", name="add_newsletter", methods={"POST"})
      *
      * @param Request $request
      * @param SerializerInterface $serializer
      * @param ValidatorInterface $validator
+     *
      * @return Response
      */
-    public function createOrder(
+    public function createNewsletter(
         Request $request,
         SerializerInterface $serializer,
         ValidatorInterface $validator
     ): Response {
         $em = $this->entityManager;
         $form = $this->form;
-        $order = new Order();
+        $newsletter = new Newsletter();
 
         $data = [
             'name' => $request->request->get('name'),
@@ -61,21 +63,29 @@ class OrderController
             'dataProcessingAgreement' => $request->request->get('dataProcessingAgreement'),
         ];
 
-        $orderForm = $form->create(Order::class, $order);
-        $orderForm->handleRequest($request);
-        $orderForm->submit($data);
+        $newsletterForm = $form->create(NewsletterType::class, $newsletter);
+        $newsletterForm->handleRequest($request);
+        $newsletterForm->submit($data);
 
-        $errors = $validator->validate($order);
-        if ($orderForm->isSubmitted() && $orderForm->isValid()) {
-            // @TODO Implement it
+        $errors = $validator->validate($newsletter);
+        if($errors->count() === 0) {
+            $newsletterObj = $em->getRepository('App:Newsletter')->findOneBy([
+                'email' => $data['email']
+            ]);
+            if($newsletterObj) {
+                $errorsList = ['error' => true, 'message' => 'User is saved with this email.'];
 
+                $return = $serializer->serialize($errorsList, 'json');
 
-            dump('Implement it');
-            exit;
-//            $em->persist($order);
-//            $em->flush();
-//
-            $createdObjectJson = $serializer->serialize($order, 'json');
+                return new Response($return);
+            }
+        }
+
+        if ($newsletterForm->isSubmitted() && $newsletterForm->isValid()) {
+            $em->persist($newsletter);
+            $em->flush();
+
+            $createdObjectJson = $serializer->serialize($newsletter, 'json');
 
             return new Response($createdObjectJson);
         }

@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace App\Controller\Shop;
+namespace App\Controller\Api\Shop;
 
 use App\Service\SerializeDataResponse;
 use Doctrine\ORM\EntityManagerInterface;
@@ -9,19 +9,19 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * Class ColorController
+ * Class BrandController
  *
- * @Route("/api/colors")
+ * @Route("/api/brands")
  *
  * @package App\Controller\Shop
  */
-class ColorController
+class BrandController
 {
     private EntityManagerInterface $entityManager;
     private SerializeDataResponse $serializeDataResponse;
 
     /**
-     * ColorController constructor.
+     * BrandController constructor.
      *
      * @param EntityManagerInterface $entityManager
      * @param SerializeDataResponse $serializeDataResponse
@@ -36,20 +36,20 @@ class ColorController
     }
 
     /**
-     * @Route("/list", name="shop_colors_list", methods={"GET"})
+     * @Route("/list", name="shop_brands_list", methods={"GET"})
      *
      * @return Response
      */
-    public function getCategoriesList(): Response
+    public function getBrandsList(): Response
     {
         $em = $this->entityManager;
         $serializer = $this->serializeDataResponse;
 
-        $items = $em->getRepository('App:ShopColor')->findBy(
+        $items = $em->getRepository('App:ShopBrand')->findBy(
             ['enable' => true],
             ['id' => 'DESC']);
 
-        $response = new Response($serializer->getColorsList($items));
+        $response = new Response($serializer->getBrandsList($items));
         $response->headers->set('Content-Type', 'application/json');
 
         return $response;

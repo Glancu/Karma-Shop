@@ -1,10 +1,10 @@
 <?php
 declare(strict_types=1);
 
-namespace App\Controller;
+namespace App\Controller\Api\Shop;
 
-use App\Entity\Newsletter;
-use App\Form\Type\NewsletterType;
+use App\Entity\ProductReview;
+use App\Form\Type\ProductReviewType;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -15,20 +15,20 @@ use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
- * Class NewsletterController
+ * Class ShopController
  *
  * @package App\Controller
  *
- * @Route("/api/newsletter")
+ * @Route("/api/shop")
  */
-class NewsletterController
+class ShopController
 {
     private EntityManagerInterface $entityManager;
 
     private FormFactoryInterface $form;
 
     /**
-     * NewsletterController constructor.
+     * ShopController constructor.
      *
      * @param EntityManagerInterface $entityManager
      * @param FormFactoryInterface $formFactory
@@ -40,7 +40,7 @@ class NewsletterController
     }
 
     /**
-     * @Route("/create", name="add_newsletter", methods={"POST"})
+     * @Route("/product-review/create", name="shop_add_product_reviewt", methods={"POST"})
      *
      * @param Request $request
      * @param SerializerInterface $serializer
@@ -48,46 +48,48 @@ class NewsletterController
      *
      * @return Response
      */
-    public function createNewsletter(
+    public function createContact(
         Request $request,
         SerializerInterface $serializer,
         ValidatorInterface $validator
     ): Response {
         $em = $this->entityManager;
         $form = $this->form;
-        $newsletter = new Newsletter();
+        $productReview = new ProductReview();
+
+        $name = $request->get('name');
+        $email = $request->get('email');
+        $rating = (int)$request->get('rating');
+        $phoneNumber = $request->get('phoneNumber');
+        $message = $request->get('message');
 
         $data = [
-            'name' => $request->request->get('name'),
-            'email' => $request->request->get('email'),
-            'dataProcessingAgreement' => $request->request->get('dataProcessingAgreement'),
+            'name' => $name,
+            'email' => $email,
+            'rating' => $rating,
+            'phoneNumber' => $phoneNumber,
+            'message' => $message
         ];
 
-        $newsletterForm = $form->create(NewsletterType::class, $newsletter);
-        $newsletterForm->handleRequest($request);
-        $newsletterForm->submit($data);
+        $productReviewForm = $form->create(ProductReviewType::class, $productReview);
+        $productReviewForm->handleRequest($request);
+        $productReviewForm->submit($data);
 
-        $errors = $validator->validate($newsletter);
-        if($errors->count() === 0) {
-            $newsletterObj = $em->getRepository('App:Newsletter')->findOneBy([
-                'email' => $data['email']
-            ]);
-            if($newsletterObj) {
-                $errorsList = ['error' => true, 'message' => 'User is saved with this email.'];
+        $errors = $validator->validate($productReview);
 
-                $return = $serializer->serialize($errorsList, 'json');
+        if ($productReviewForm->isSubmitted() && $productReviewForm->isValid()) {
+            $productReview->setName($name);
+            $productReview->setEmail($email);
+            $productReview->setRating($rating);
+            $productReview->setPhoneNumber($phoneNumber);
+            $productReview->setMessage($message);
 
-                return new Response($return);
-            }
-        }
-
-        if ($newsletterForm->isSubmitted() && $newsletterForm->isValid()) {
-            $em->persist($newsletter);
+            $em->persist($productReview);
             $em->flush();
 
-            $createdObjectJson = $serializer->serialize($newsletter, 'json');
+            $return = $serializer->serialize($productReview, 'json');
 
-            return new Response($createdObjectJson);
+            return new Response($return);
         }
 
         $errorsList = ['error' => true, 'message' => []];

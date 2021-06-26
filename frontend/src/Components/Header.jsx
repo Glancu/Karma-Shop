@@ -100,9 +100,6 @@ class Header extends Component {
                                                 <NavLink className="nav-link" to={'/shop'}>Products</NavLink>
                                             </li>
                                             <li className="nav-item">
-                                                <NavLink className="nav-link" to={'/shop/category'}>Shop category</NavLink>
-                                            </li>
-                                            <li className="nav-item">
                                                 <NavLink className="nav-link" to={'/shop/product'}>Product Details</NavLink>
                                             </li>
                                             <li className="nav-item">

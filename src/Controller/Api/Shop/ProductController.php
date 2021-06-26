@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace App\Controller\Shop;
+namespace App\Controller\Api\Shop;
 
 use App\Service\MoneyService;
 use App\Service\SerializeDataResponse;

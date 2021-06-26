@@ -1,10 +1,9 @@
 <?php
 declare(strict_types=1);
 
-namespace App\Controller\Shop;
+namespace App\Controller\Api\Shop;
 
-use App\Entity\ProductReview;
-use App\Form\Type\ProductReviewType;
+use App\Entity\Order;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -15,20 +14,20 @@ use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
- * Class ShopController
+ * Class OrderController
  *
  * @package App\Controller
  *
- * @Route("/api/shop")
+ * @Route("/api/shop/order")
  */
-class ShopController
+class OrderController
 {
     private EntityManagerInterface $entityManager;
 
     private FormFactoryInterface $form;
 
     /**
-     * ShopController constructor.
+     * NewsletterController constructor.
      *
      * @param EntityManagerInterface $entityManager
      * @param FormFactoryInterface $formFactory
@@ -40,56 +39,45 @@ class ShopController
     }
 
     /**
-     * @Route("/product-review/create", name="shop_add_product_reviewt", methods={"POST"})
+     * @Route("/", name="app_shop_order_create", methods={"POST"})
      *
      * @param Request $request
      * @param SerializerInterface $serializer
      * @param ValidatorInterface $validator
-     *
      * @return Response
      */
-    public function createContact(
+    public function createOrder(
         Request $request,
         SerializerInterface $serializer,
         ValidatorInterface $validator
     ): Response {
         $em = $this->entityManager;
         $form = $this->form;
-        $productReview = new ProductReview();
-
-        $name = $request->get('name');
-        $email = $request->get('email');
-        $rating = (int)$request->get('rating');
-        $phoneNumber = $request->get('phoneNumber');
-        $message = $request->get('message');
+        $order = new Order();
 
         $data = [
-            'name' => $name,
-            'email' => $email,
-            'rating' => $rating,
-            'phoneNumber' => $phoneNumber,
-            'message' => $message
+            'name' => $request->request->get('name'),
+            'email' => $request->request->get('email'),
+            'dataProcessingAgreement' => $request->request->get('dataProcessingAgreement'),
         ];
 
-        $productReviewForm = $form->create(ProductReviewType::class, $productReview);
-        $productReviewForm->handleRequest($request);
-        $productReviewForm->submit($data);
+        $orderForm = $form->create(Order::class, $order);
+        $orderForm->handleRequest($request);
+        $orderForm->submit($data);
 
-        $errors = $validator->validate($productReview);
+        $errors = $validator->validate($order);
+        if ($orderForm->isSubmitted() && $orderForm->isValid()) {
+            // @TODO Implement it
 
-        if ($productReviewForm->isSubmitted() && $productReviewForm->isValid()) {
-            $productReview->setName($name);
-            $productReview->setEmail($email);
-            $productReview->setRating($rating);
-            $productReview->setPhoneNumber($phoneNumber);
-            $productReview->setMessage($message);
 
-            $em->persist($productReview);
-            $em->flush();
+            dump('Implement it');
+            exit;
+//            $em->persist($order);
+//            $em->flush();
+//
+            $createdObjectJson = $serializer->serialize($order, 'json');
 
-            $return = $serializer->serialize($productReview, 'json');
-
-            return new Response($return);
+            return new Response($createdObjectJson);
         }
 
         $errorsList = ['error' => true, 'message' => []];
