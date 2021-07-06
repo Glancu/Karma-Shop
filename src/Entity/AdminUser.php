@@ -68,58 +68,35 @@ class AdminUser implements UserInterface
         $this->roles = $roles;
     }
 
-    /**
-     * @return string
-     */
     public function __toString(): string {
         return $this->username;
     }
 
-    /**
-     * @return int|null
-     */
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    /**
-     * @return string
-     */
     public function getEmail(): string
     {
         return $this->email;
     }
 
-    /**
-     * @return string
-     */
     public function getUsername(): string
     {
         return $this->username;
     }
 
-    /**
-     * @see UserInterface
-     */
     public function getPassword(): ?string
     {
         return $this->password;
     }
 
-    /**
-     * @param mixed $password
-     */
-    public function setPassword($password): void
+    public function setPassword(string $password): void
     {
         $this->password = $password;
     }
 
-    /**
-     * @see UserInterface
-     *
-     * @return array
-     */
     public function getRoles(): array
     {
         $roles = $this->roles;
@@ -129,16 +106,9 @@ class AdminUser implements UserInterface
         return array_unique($roles);
     }
 
-    /**
-     * @param array $roles
-     *
-     * @return $this
-     */
-    public function setRoles(array $roles): self
+    public function setRoles(array $roles): void
     {
         $this->roles = $roles;
-
-        return $this;
     }
 
     /**

@@ -112,113 +112,74 @@ class ProductReview
         return $this->name;
     }
 
-    /**
-     * @return int|null
-     */
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    /**
-     * @return string
-     */
     public function getName(): string
     {
         return $this->name;
     }
 
-    /**
-     * @param string $name
-     */
     public function setName(string $name): void
     {
         $this->name = $name;
     }
 
-    /**
-     * @return string
-     */
     public function getEmail(): string
     {
         return $this->email;
     }
 
-    /**
-     * @param string $email
-     */
     public function setEmail(string $email): void
     {
         $this->email = $email;
     }
 
-    /**
-     * @return int
-     */
     public function getRating(): int
     {
         return $this->rating;
     }
 
-    /**
-     * @param int $rating
-     */
     public function setRating(int $rating): void
     {
         $this->rating = $rating;
     }
 
-    /**
-     * @return string|null
-     */
     public function getPhoneNumber(): ?string
     {
         return $this->phoneNumber;
     }
 
-    /**
-     * @param string|null $phoneNumber
-     */
     public function setPhoneNumber(?string $phoneNumber): void
     {
         $this->phoneNumber = $phoneNumber;
     }
 
-    /**
-     * @return string
-     */
     public function getMessage(): string
     {
         return $this->message;
     }
 
-    /**
-     * @param string $message
-     */
     public function setMessage(string $message): void
     {
         $this->message = $message;
     }
 
     /**
-     * @return null|ArrayCollection
+     * @return ArrayCollection|PersistentCollection
      */
     public function getProducts()
     {
         return $this->products;
     }
 
-    /**
-     * @param ShopProduct $product
-     */
     public function addProduct(ShopProduct $product): void
     {
         $this->products[] = $product;
     }
 
-    /**
-     * @param ShopProduct $product
-     */
     public function removeProduct(ShopProduct $product): void
     {
         $this->products->removeElement($product);

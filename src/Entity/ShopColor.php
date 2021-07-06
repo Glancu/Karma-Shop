@@ -60,9 +60,6 @@ class ShopColor
      */
     private $products;
 
-    /**
-     * ShopColor constructor.
-     */
     public function __construct(string $name, bool $enable = true)
     {
         $this->__EnableTraitConstructor();
@@ -73,9 +70,6 @@ class ShopColor
         $this->products = new ArrayCollection();
     }
 
-    /**
-     * @return string
-     */
     public function __toString(): string
     {
         return $this->name;
@@ -86,57 +80,39 @@ class ShopColor
         return $this->id;
     }
 
-    /**
-     * @return string
-     */
     public function getName(): string
     {
         return $this->name;
     }
 
-    /**
-     * @param string $name
-     */
     public function setName(string $name): void
     {
         $this->name = $name;
     }
 
-    /**
-     * @return null|string
-     */
     public function getSlug(): ?string
     {
         return $this->slug;
     }
 
-    /**
-     * @param string $slug
-     */
     public function setSlug(string $slug): void
     {
         $this->slug = $slug;
     }
 
     /**
-     * @return null|ArrayCollection
+     * @return ArrayCollection|PersistentCollection
      */
     public function getProducts()
     {
         return $this->products;
     }
 
-    /**
-     * @param ShopProduct $product
-     */
     public function addProduct(ShopProduct $product): void
     {
         $this->products[] = $product;
     }
 
-    /**
-     * @param ShopProduct $product
-     */
     public function removeProduct(ShopProduct $product): void
     {
         $this->products->removeElement($product);

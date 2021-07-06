@@ -13,6 +13,8 @@ use Sonata\MediaBundle\Entity\BaseGalleryHasMedia;
 class SonataMediaGalleryHasMedia extends BaseGalleryHasMedia
 {
     /**
+     * @var int|null
+     *
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")

@@ -60,9 +60,9 @@ class ShopProduct
     private string $slug;
 
     /**
-     * @Assert\Positive
-     *
      * @var integer
+     *
+     * @Assert\Positive
      *
      * @Groups("shop_product")
      *
@@ -182,105 +182,66 @@ class ShopProduct
         $this->shopColors = new ArrayCollection();
     }
 
-    /**
-     * @return string
-     */
     public function __toString(): string
     {
         return $this->name;
     }
 
-    /**
-     * @return int|null
-     */
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    /**
-     * @return string
-     */
     public function getName(): string
     {
         return $this->name;
     }
 
-    /**
-     * @param string $name
-     */
     public function setName(string $name): void
     {
         $this->name = $name;
     }
 
-    /**
-     * @return string
-     */
     public function getSlug(): string
     {
         return $this->slug;
     }
 
-    /**
-     * @return int
-     */
     public function getQuantity(): int
     {
         return $this->quantity;
     }
 
-    /**
-     * @param int $quantity
-     */
     public function setQuantity(int $quantity): void
     {
         $this->quantity = $quantity;
     }
 
-    /**
-     * @return string
-     */
     public function getDescription(): string
     {
         return $this->description;
     }
 
-    /**
-     * @param string $description
-     */
     public function setDescription(string $description): void
     {
         $this->description = $description;
     }
 
-    /**
-     * @return null|ShopBrand
-     */
     public function getShopBrand(): ?ShopBrand
     {
         return $this->shopBrand;
     }
 
-    /**
-     * @param ShopBrand $shopBrand
-     */
     public function setShopBrand(ShopBrand $shopBrand): void
     {
         $this->shopBrand = $shopBrand;
     }
 
-    /**
-     * @return ShopCategory|null
-     */
     public function getShopCategory(): ?ShopCategory
     {
         return $this->shopCategory;
     }
 
-    /**
-     * @param ShopCategory $shopCategory
-     */
     public function setShopCategory(ShopCategory $shopCategory): void
     {
         $this->shopCategory = $shopCategory;
@@ -294,33 +255,21 @@ class ShopProduct
         return $this->shopProductSpecifications;
     }
 
-    /**
-     * @param ShopProductSpecification $shopProductSpecification
-     */
     public function addShopProductSpecification(ShopProductSpecification $shopProductSpecification): void
     {
         $this->shopProductSpecifications[] = $shopProductSpecification;
     }
 
-    /**
-     * @param ShopProductSpecification $shopProductSpecification
-     */
     public function removeShopProductSpecification(ShopProductSpecification $shopProductSpecification): void
     {
         $this->shopProductSpecifications->removeElement($shopProductSpecification);
     }
 
-    /**
-     * @return ShopDelivery|null
-     */
     public function getShopDelivery(): ?ShopDelivery
     {
         return $this->shopDelivery;
     }
 
-    /**
-     * @param ShopDelivery $shopDelivery
-     */
     public function setShopDelivery(ShopDelivery $shopDelivery): void
     {
         $this->shopDelivery = $shopDelivery;
@@ -334,17 +283,11 @@ class ShopProduct
         return $this->images;
     }
 
-    /**
-     * @param SonataMediaMedia $image
-     */
     public function addImage(SonataMediaMedia $image): void
     {
         $this->images[] = $image;
     }
 
-    /**
-     * @param SonataMediaMedia $image
-     */
     public function removeImage(SonataMediaMedia $image): void
     {
         $this->images->removeElement($image);
@@ -358,41 +301,26 @@ class ShopProduct
         return $this->reviews;
     }
 
-    /**
-     * @param Comment $review
-     */
     public function addReview(Comment $review): void
     {
         $this->reviews[] = $review;
     }
 
-    /**
-     * @param Comment $review
-     */
     public function removeReview(Comment $review): void
     {
         $this->reviews->removeElement($review);
     }
 
-    /**
-     * @return ArrayCollection
-     */
     public function getShopColors()
     {
         return $this->shopColors;
     }
 
-    /**
-     * @param ShopColor $color
-     */
     public function addShopColor(ShopColor $color): void
     {
         $this->shopColors[] = $color;
     }
 
-    /**
-     * @param ShopColor $color
-     */
     public function removeShopColor(ShopColor $color): void
     {
         $this->shopColors->removeElement($color);

@@ -60,9 +60,6 @@ class ShopBrand
      */
     private $products;
 
-    /**
-     * ShopBrand constructor.
-     */
     public function __construct(string $title, bool $enable = true)
     {
         $this->__EnableTraitConstructor();
@@ -73,9 +70,6 @@ class ShopBrand
         $this->products = new ArrayCollection();
     }
 
-    /**
-     * @return string
-     */
     public function __toString(): string
     {
         return $this->title;
@@ -86,33 +80,21 @@ class ShopBrand
         return $this->id;
     }
 
-    /**
-     * @return string
-     */
     public function getTitle(): string
     {
         return $this->title;
     }
 
-    /**
-     * @param string $title
-     */
     public function setTitle(string $title): void
     {
         $this->title = $title;
     }
 
-    /**
-     * @return string
-     */
     public function getSlug(): string
     {
         return $this->slug;
     }
 
-    /**
-     * @param string $slug
-     */
     public function setSlug(string $slug): void
     {
         $this->slug = $slug;
@@ -126,17 +108,11 @@ class ShopBrand
         return $this->products;
     }
 
-    /**
-     * @param ShopProduct $product
-     */
     public function addProduct(ShopProduct $product): void
     {
         $this->products[] = $product;
     }
 
-    /**
-     * @param ShopProduct $product
-     */
     public function removeProduct(ShopProduct $product): void
     {
         $this->products->removeElement($product);

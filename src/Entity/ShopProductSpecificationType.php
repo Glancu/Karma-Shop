@@ -19,6 +19,8 @@ class ShopProductSpecificationType {
     }
 
     /**
+     * @var int|null
+     *
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
@@ -38,7 +40,7 @@ class ShopProductSpecificationType {
     private string $name = '';
 
     /**
-     * @var integer
+     * @var int
      *
      * @Gedmo\SortablePosition
      *
@@ -57,41 +59,26 @@ class ShopProductSpecificationType {
         return $this->name;
     }
 
-    /**
-     * @return int|null
-     */
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    /**
-     * @return string
-     */
     public function getName(): string
     {
         return $this->name;
     }
 
-    /**
-     * @param string $name
-     */
     public function setName(string $name): void
     {
         $this->name = $name;
     }
 
-    /**
-     * @return int
-     */
     public function getPosition(): int
     {
         return $this->position;
     }
 
-    /**
-     * @param int $position
-     */
     public function setPosition(int $position): void
     {
         $this->position = $position;

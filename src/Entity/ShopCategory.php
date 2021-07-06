@@ -33,6 +33,8 @@ class ShopCategory
     private ?int $id = null;
 
     /**
+     * @var string
+     *
      * @Groups("shop_category")
      *
      * @ORM\Column(type="string", length=255)
@@ -40,6 +42,8 @@ class ShopCategory
     private string $title = '';
 
     /**
+     * @var string
+     *
      * @Groups("shop_category")
      *
      * @Gedmo\Slug(fields={"title"}, updatable=true, separator="-", unique=true)
@@ -55,9 +59,6 @@ class ShopCategory
      */
     private $products;
 
-    /**
-     * ShopCategory constructor.
-     */
     public function __construct(string $title, bool $enable = true)
     {
         $this->__EnableTraitConstructor();
@@ -68,9 +69,6 @@ class ShopCategory
         $this->products = new ArrayCollection();
     }
 
-    /**
-     * @return string
-     */
     public function __toString(): string
     {
         return $this->title;
@@ -81,33 +79,21 @@ class ShopCategory
         return $this->id;
     }
 
-    /**
-     * @return string
-     */
     public function getTitle(): string
     {
         return $this->title;
     }
 
-    /**
-     * @param string $title
-     */
     public function setTitle(string $title): void
     {
         $this->title = $title;
     }
 
-    /**
-     * @return string
-     */
     public function getSlug(): string
     {
         return $this->slug;
     }
 
-    /**
-     * @param string $slug
-     */
     public function setSlug(string $slug): void
     {
         $this->slug = $slug;
@@ -121,17 +107,11 @@ class ShopCategory
         return $this->products;
     }
 
-    /**
-     * @param ShopProduct $product
-     */
     public function addProduct(ShopProduct $product): void
     {
         $this->products[] = $product;
     }
 
-    /**
-     * @param ShopProduct $product
-     */
     public function removeProduct(ShopProduct $product): void
     {
         $this->products->removeElement($product);

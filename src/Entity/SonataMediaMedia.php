@@ -13,13 +13,15 @@ use Sonata\MediaBundle\Entity\BaseMedia;
 class SonataMediaMedia extends BaseMedia
 {
     /**
+     * @var int
+     *
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
      */
     protected $id;
 
-    public function getId()
+    public function getId(): int
     {
         return $this->id;
     }

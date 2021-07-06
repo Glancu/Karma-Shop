@@ -158,28 +158,27 @@ class ClientUser implements UserInterface
         return $this->id;
     }
 
+    /**
+     * @return null|string
+     */
     public function getFirstName(): ?string
     {
         return $this->firstName;
     }
 
-    public function setFirstName(string $firstName): self
+    public function setFirstName(string $firstName): void
     {
         $this->firstName = $firstName;
-
-        return $this;
     }
 
-    public function getLastName(): ?string
+    public function getLastName(): string
     {
         return $this->lastName;
     }
 
-    public function setLastName(string $lastName): self
+    public function setLastName(string $lastName): void
     {
         $this->lastName = $lastName;
-
-        return $this;
     }
 
     public function getEmail(): ?string
@@ -187,11 +186,9 @@ class ClientUser implements UserInterface
         return $this->email;
     }
 
-    public function setEmail(string $email): self
+    public function setEmail(string $email): void
     {
         $this->email = $email;
-
-        return $this;
     }
 
     public function getPassword(): ?string
@@ -199,11 +196,9 @@ class ClientUser implements UserInterface
         return $this->password;
     }
 
-    public function setPassword(string $password): self
+    public function setPassword(string $password): void
     {
         $this->password = $password;
-
-        return $this;
     }
 
     public function getPhoneNumber(): ?string
@@ -211,11 +206,9 @@ class ClientUser implements UserInterface
         return $this->phoneNumber;
     }
 
-    public function setPhoneNumber(string $phoneNumber): self
+    public function setPhoneNumber(string $phoneNumber): void
     {
         $this->phoneNumber = $phoneNumber;
-
-        return $this;
     }
 
     public function getPostalCode(): ?string
@@ -223,11 +216,9 @@ class ClientUser implements UserInterface
         return $this->postalCode;
     }
 
-    public function setPostalCode(string $postalCode): self
+    public function setPostalCode(string $postalCode): void
     {
         $this->postalCode = $postalCode;
-
-        return $this;
     }
 
     public function getCity(): ?string
@@ -235,11 +226,9 @@ class ClientUser implements UserInterface
         return $this->city;
     }
 
-    public function setCity(string $city): self
+    public function setCity(string $city): void
     {
         $this->city = $city;
-
-        return $this;
     }
 
     public function getCountry(): ?string
@@ -247,11 +236,9 @@ class ClientUser implements UserInterface
         return $this->country;
     }
 
-    public function setCountry(string $country): self
+    public function setCountry(string $country): void
     {
         $this->country = $country;
-
-        return $this;
     }
 
     public function getStreet(): ?string
@@ -259,11 +246,9 @@ class ClientUser implements UserInterface
         return $this->street;
     }
 
-    public function setStreet(string $street): self
+    public function setStreet(string $street): void
     {
         $this->street = $street;
-
-        return $this;
     }
 
     /**

@@ -49,9 +49,6 @@ class Newsletter
      */
     private string $email = '';
 
-    /**
-     * Newsletter constructor.
-     */
     public function __construct(string $email, bool $dataProcessingAgreement = false, string $name = null)
     {
         $this->__EnableTraitConstructor();
@@ -62,49 +59,31 @@ class Newsletter
         $this->name = $name;
     }
 
-    /**
-     * @return string
-     */
     public function __toString(): string
     {
         return $this->email;
     }
 
-    /**
-     * @return int|null
-     */
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    /**
-     * @return string|null
-     */
     public function getName(): ?string
     {
         return $this->name;
     }
 
-    /**
-     * @param string|null $name
-     */
     public function setName(?string $name): void
     {
         $this->name = $name;
     }
 
-    /**
-     * @return string
-     */
     public function getEmail(): string
     {
         return $this->email;
     }
 
-    /**
-     * @param string $email
-     */
     public function setEmail(string $email): void
     {
         $this->email = $email;

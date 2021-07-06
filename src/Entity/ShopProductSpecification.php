@@ -56,9 +56,6 @@ class ShopProductSpecification {
         return $this->value;
     }
 
-    /**
-     * @return int|null
-     */
     public function getId(): ?int
     {
         return $this->id;
@@ -72,25 +69,16 @@ class ShopProductSpecification {
         return $this->shopProductSpecificationType;
     }
 
-    /**
-     * @param ShopProductSpecificationType $shopProductSpecificationType
-     */
     public function setShopProductSpecificationType(ShopProductSpecificationType $shopProductSpecificationType): void
     {
         $this->shopProductSpecificationType = $shopProductSpecificationType;
     }
 
-    /**
-     * @return string
-     */
     public function getValue(): string
     {
         return $this->value;
     }
 
-    /**
-     * @param string $value
-     */
     public function setValue(string $value): void
     {
         $this->value = $value;

@@ -61,41 +61,26 @@ class ShopDelivery {
         return $this->name;
     }
 
-    /**
-     * @return int|null
-     */
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    /**
-     * @return string
-     */
     public function getName(): string
     {
         return $this->name;
     }
 
-    /**
-     * @param string $name
-     */
     public function setName(string $name): void
     {
         $this->name = $name;
     }
 
-    /**
-     * @return bool
-     */
     public function isFreeDelivery(): bool
     {
         return $this->freeDelivery;
     }
 
-    /**
-     * @param bool $freeDelivery
-     */
     public function setFreeDelivery(bool $freeDelivery): void
     {
         $this->freeDelivery = $freeDelivery;
