@@ -17,7 +17,6 @@ use Symfony\Component\Validator\Constraints as Assert;
 class Comment
 {
     use CreatedAtTrait, EnableTrait, UuidTrait {
-        CreatedAtTrait::__construct as private __CreatedAtTraitConstructor;
         UuidTrait::__construct as private __UuidTraitConstructor;
     }
 
@@ -71,7 +70,6 @@ class Comment
 
     public function __construct(string $name, string $email, string $text, ?string $subject = '', bool $enable = true)
     {
-        $this->__CreatedAtTraitConstructor();
         $this->__UuidTraitConstructor();
         $this->name = $name;
         $this->email = $email;

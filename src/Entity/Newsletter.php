@@ -17,7 +17,6 @@ class Newsletter
 {
     use EnableTrait, CreatedAtTrait, DataProcessingAgreement {
         EnableTrait::__construct as private __EnableTraitConstructor;
-        CreatedAtTrait::__construct as private __CreatedAtTraitConstructor;
         DataProcessingAgreement::__construct as private __DPAConstructor;
     }
 
@@ -52,7 +51,6 @@ class Newsletter
     public function __construct(string $email, bool $dataProcessingAgreement = false, string $name = null)
     {
         $this->__EnableTraitConstructor();
-        $this->__CreatedAtTraitConstructor();
         $this->__DPAConstructor();
         $this->email = $email;
         $this->dataProcessingAgreement = $dataProcessingAgreement;

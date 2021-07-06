@@ -22,7 +22,6 @@ use Symfony\Component\Validator\Constraints as Assert;
 class ShopProduct
 {
     use CreatedAtTrait, EnableTrait, UuidTrait, PriceTrait {
-        CreatedAtTrait::__construct as private __CreatedAtTraitConstructor;
         EnableTrait::__construct as private __EnableTraitConstructor;
         UuidTrait::__construct as private __UuidTraitConstructor;
     }
@@ -165,7 +164,6 @@ class ShopProduct
         $shopProductSpecifications,
         ShopDelivery $shopDelivery
     ) {
-        $this->__CreatedAtTraitConstructor();
         $this->__UuidTraitConstructor();
         $this->name = $name;
         $this->priceNet = $priceNet;

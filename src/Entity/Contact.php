@@ -16,7 +16,6 @@ use Symfony\Component\Validator\Constraints as Assert;
 class Contact
 {
     use CreatedAtTrait, DataProcessingAgreement {
-        CreatedAtTrait::__construct as private __CreatedAtTraitConstructor;
         DataProcessingAgreement::__construct as private __DPAConstructor;
     }
 
@@ -80,7 +79,6 @@ class Contact
         string $message,
         bool $dataProcessingAgreement = false
     ) {
-        $this->__CreatedAtTraitConstructor();
         $this->__DPAConstructor();
         $this->name = $name;
         $this->email = $email;

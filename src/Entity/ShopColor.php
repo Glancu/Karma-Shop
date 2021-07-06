@@ -19,7 +19,6 @@ class ShopColor
 {
     use EnableTrait, CreatedAtTrait, UuidTrait {
         EnableTrait::__construct as private __EnableTraitConstructor;
-        CreatedAtTrait::__construct as private __CreatedAtTraitConstructor;
         UuidTrait::__construct as private __UuidTraitConstructor;
     }
 
@@ -63,7 +62,6 @@ class ShopColor
     public function __construct(string $name, bool $enable = true)
     {
         $this->__EnableTraitConstructor();
-        $this->__CreatedAtTraitConstructor();
         $this->__UuidTraitConstructor();
         $this->name = $name;
         $this->enable = $enable;

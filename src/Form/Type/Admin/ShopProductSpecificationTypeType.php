@@ -9,6 +9,7 @@ use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Form\FormInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class ShopProductSpecificationTypeType extends AbstractType
@@ -28,7 +29,10 @@ class ShopProductSpecificationTypeType extends AbstractType
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults(array(
-            'data_class' => ShopProductSpecification::class
+            'data_class' => ShopProductSpecification::class,
+            'empty_data' => function(FormInterface $form) {
+                return new ShopProductSpecification($form->get('shopProductSpecificationType')->getData(), $form->get('value')->getData());
+            }
         ));
     }
 }

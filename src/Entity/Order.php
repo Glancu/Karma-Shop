@@ -19,7 +19,6 @@ use Doctrine\ORM\Mapping as ORM;
 class Order
 {
     use CreatedAtTrait, UuidTrait, PriceTrait {
-        CreatedAtTrait::__construct as private __CreatedAtTraitConstructor;
         UuidTrait::__construct as private __UuidTraitConstructor;
     }
 
@@ -79,7 +78,6 @@ class Order
 
     public function __construct()
     {
-        $this->__CreatedAtTraitConstructor();
         $this->__UuidTraitConstructor();
         $this->blockPay = false;
         $this->products = new ArrayCollection();

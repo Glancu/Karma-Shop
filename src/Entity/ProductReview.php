@@ -18,7 +18,6 @@ class ProductReview
 {
     use EnableTrait, CreatedAtTrait {
         EnableTrait::__construct as private __EnableTraitConstructor;
-        CreatedAtTrait::__construct as private __CreatedAtTraitConstructor;
     }
 
     /**
@@ -97,7 +96,6 @@ class ProductReview
         bool $enable = false,
         ?string $phoneNumber = null
     ) {
-        $this->__CreatedAtTraitConstructor();
         $this->name = $name;
         $this->email = $email;
         $this->rating = $rating;

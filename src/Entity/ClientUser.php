@@ -17,7 +17,6 @@ use Symfony\Component\Validator\Constraints as Assert;
 class ClientUser implements UserInterface
 {
     use CreatedAtTrait, UuidTrait {
-        CreatedAtTrait::__construct as private __CreatedAtTraitConstructor;
         UuidTrait::__construct as private __UuidTraitConstructor;
     }
 
@@ -134,7 +133,6 @@ class ClientUser implements UserInterface
         string $country,
         string $street
     ) {
-        $this->__CreatedAtTraitConstructor();
         $this->__UuidTraitConstructor();
         $this->firstName = $firstName;
         $this->lastName = $lastName;
