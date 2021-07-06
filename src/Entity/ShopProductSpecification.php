@@ -17,21 +17,23 @@ class ShopProductSpecification {
     }
 
     /**
+     * @var int|null
+     *
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
      */
-    private int $id;
+    private ?int $id = null;
 
     /**
-     * @var ShopProductSpecificationType
+     * @var ShopProductSpecificationType|null
      *
      * @Groups("shop_product_specification_type")
      *
      * @ORM\ManyToOne(targetEntity="App\Entity\ShopProductSpecificationType")
      * @ORM\JoinColumn(name="shop_product_specification_id", referencedColumnName="id", nullable=false)
      */
-    private ShopProductSpecificationType $shopProductSpecificationType;
+    private ?ShopProductSpecificationType $shopProductSpecificationType = null;
 
     /**
      * @var string
@@ -40,11 +42,13 @@ class ShopProductSpecification {
      *
      * @ORM\Column(type="string")
      */
-    private string $value;
+    private string $value = '';
 
-    public function __construct()
+    public function __construct(ShopProductSpecificationType $shopProductSpecificationType, string $value)
     {
         $this->__UuidTraitConstructor();
+        $this->shopProductSpecificationType = $shopProductSpecificationType;
+        $this->value = $value;
     }
 
     public function __toString(): string
@@ -53,17 +57,17 @@ class ShopProductSpecification {
     }
 
     /**
-     * @return int
+     * @return int|null
      */
-    public function getId(): int
+    public function getId(): ?int
     {
         return $this->id;
     }
 
     /**
-     * @return ShopProductSpecificationType
+     * @return ShopProductSpecificationType|null
      */
-    public function getShopProductSpecificationType(): ShopProductSpecificationType
+    public function getShopProductSpecificationType(): ?ShopProductSpecificationType
     {
         return $this->shopProductSpecificationType;
     }

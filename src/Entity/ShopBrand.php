@@ -8,6 +8,7 @@ use App\Traits\EnableTrait;
 use App\Traits\UuidTrait;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\ORM\PersistentCollection;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Serializer\Annotation\Groups;
 
@@ -24,20 +25,26 @@ class ShopBrand
     }
 
     /**
+     * @var int|null
+     *
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
      */
-    private int $id;
+    private ?int $id = null;
 
     /**
+     * @var string
+     *
      * @Groups("shop_brand")
      *
      * @ORM\Column(name="title", type="string", length=255)
      */
-    private string $title;
+    private string $title = '';
 
     /**
+     * @var string
+     *
      * @Groups("shop_brand")
      *
      * @Gedmo\Slug(fields={"title"}, updatable=true, separator="-", unique=true)
@@ -47,6 +54,8 @@ class ShopBrand
     private string $slug;
 
     /**
+     * @var ArrayCollection|PersistentCollection
+     *
      * @ORM\OneToMany(targetEntity="App\Entity\ShopProduct", mappedBy="shopBrand")
      */
     private $products;
@@ -54,11 +63,13 @@ class ShopBrand
     /**
      * ShopBrand constructor.
      */
-    public function __construct()
+    public function __construct(string $title, bool $enable = true)
     {
         $this->__EnableTraitConstructor();
         $this->__CreatedAtTraitConstructor();
         $this->__UuidTraitConstructor();
+        $this->title = $title;
+        $this->enable = $enable;
         $this->products = new ArrayCollection();
     }
 
@@ -108,7 +119,7 @@ class ShopBrand
     }
 
     /**
-     * @return null|ArrayCollection
+     * @return ArrayCollection|PersistentCollection
      */
     public function getProducts()
     {

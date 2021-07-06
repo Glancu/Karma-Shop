@@ -22,11 +22,13 @@ class Newsletter
     }
 
     /**
+     * @var int|null
+     *
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
      */
-    private int $id;
+    private ?int $id = null;
 
     /**
      * @var string|null
@@ -45,16 +47,19 @@ class Newsletter
      *
      * @ORM\Column()
      */
-    private string $email;
+    private string $email = '';
 
     /**
      * Newsletter constructor.
      */
-    public function __construct()
+    public function __construct(string $email, bool $dataProcessingAgreement = false, string $name = null)
     {
         $this->__EnableTraitConstructor();
         $this->__CreatedAtTraitConstructor();
         $this->__DPAConstructor();
+        $this->email = $email;
+        $this->dataProcessingAgreement = $dataProcessingAgreement;
+        $this->name = $name;
     }
 
     /**
@@ -66,9 +71,9 @@ class Newsletter
     }
 
     /**
-     * @return int
+     * @return int|null
      */
-    public function getId(): int
+    public function getId(): ?int
     {
         return $this->id;
     }

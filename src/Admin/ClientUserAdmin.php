@@ -6,6 +6,7 @@ use Sonata\AdminBundle\Admin\AbstractAdmin;
 use Sonata\AdminBundle\Datagrid\DatagridMapper;
 use Sonata\AdminBundle\Datagrid\ListMapper;
 use Sonata\AdminBundle\Form\FormMapper;
+use Sonata\AdminBundle\Route\RouteCollection;
 use Sonata\AdminBundle\Show\ShowMapper;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
@@ -69,5 +70,11 @@ final class ClientUserAdmin extends AbstractAdmin
                    ->add('city', null, ['label' => 'City'])
                    ->add('country', null, ['label' => 'Country'])
                    ->add('street', null, ['label' => 'Street']);
+    }
+
+    protected function configureRoutes(RouteCollection $collectionMapper): void
+    {
+        $collectionMapper
+            ->remove('create');
     }
 }

@@ -19,11 +19,13 @@ class ShopDelivery {
     }
 
     /**
+     * @var int|null
+     *
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
      */
-    private int $id;
+    private ?int $id = null;
 
     /**
      * @var string
@@ -35,7 +37,7 @@ class ShopDelivery {
      *
      * @ORM\Column(type="string")
      */
-    private string $name;
+    private string $name = '';
 
     /**
      * @var bool
@@ -44,11 +46,14 @@ class ShopDelivery {
      *
      * @ORM\COlumn(type="boolean")
      */
-    private bool $freeDelivery;
+    private bool $freeDelivery = false;
 
-    public function __construct() {
+    public function __construct(string $name, int $priceNet, int $priceGross, bool $freeDelivery = false) {
         $this->__UuidTraitConstructor();
-        $this->freeDelivery = false;
+        $this->name = $name;
+        $this->priceNet = $priceNet;
+        $this->priceGross = $priceGross;
+        $this->freeDelivery = $freeDelivery;
     }
 
     public function __toString(): string
@@ -57,9 +62,9 @@ class ShopDelivery {
     }
 
     /**
-     * @return int
+     * @return int|null
      */
-    public function getId(): int
+    public function getId(): ?int
     {
         return $this->id;
     }

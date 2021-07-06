@@ -3,6 +3,7 @@
 namespace App\Admin;
 
 use App\Entity\AdminUser;
+use App\Form\DataMapper\AdminUserDataMapper;
 use Sonata\AdminBundle\Admin\AbstractAdmin;
 use Sonata\AdminBundle\Datagrid\DatagridMapper;
 use Sonata\AdminBundle\Datagrid\ListMapper;
@@ -23,18 +24,31 @@ final class AdminUserAdmin extends AbstractAdmin
 
     protected function configureFormFields(FormMapper $formMapper): void
     {
-        $formMapper->add('email', EmailType::class, ['label' => 'E-mail'])
-                   ->add('username', TextType::class, ['label' => 'Username'])
+        $objectExists = $this->getSubject() && $this->getSubject()->getId();
+
+        $formMapper->add('email', EmailType::class, [
+                        'label' => 'E-mail',
+                        'disabled' => $objectExists
+                    ])
+                   ->add('username', TextType::class, [
+                       'label' => 'Username',
+                       'disabled' => $objectExists
+                   ])
                    ->add('password', RepeatedType::class, [
                        'type' => PasswordType::class,
                        'first_options' => ['label' => 'Password'],
-                       'second_options' => ['label' => 'Password confirmation']
+                       'second_options' => ['label' => 'Password confirmation'],
+                       'required' => !$objectExists
                    ]);
+
+        $builder = $formMapper->getFormBuilder();
+        $builder->setDataMapper(new AdminUserDataMapper());
     }
 
     protected function configureDatagridFilters(DatagridMapper $datagridMapper): void
     {
-        $datagridMapper->add('email', null, ['label' => 'E-mail'])->add('username', null, ['label' => 'Username']);
+        $datagridMapper->add('email', null, ['label' => 'E-mail'])
+                       ->add('username', null, ['label' => 'Username']);
     }
 
     protected function configureListFields(ListMapper $listMapper): void
@@ -61,17 +75,35 @@ final class AdminUserAdmin extends AbstractAdmin
     /**
      * @param AdminUser $adminUser
      */
-    public function prePersist($adminUser): void {
-        $plainPassword = $adminUser->getPassword();
-        $container = $this->getConfigurationPool()->getContainer();
-        if($container) {
-            $encoder = $container->get('security.password_encoder');
-            if($encoder) {
-                $encoded = $encoder->encodePassword($adminUser, $plainPassword);
+    public function prePersist($adminUser): void
+    {
+        $this->updatePassword($adminUser);
+    }
 
-                $adminUser->setPassword($encoded);
-                $adminUser->setRoles(['ROLE_ADMIN']);
+    /**
+     * @param AdminUser $adminUser
+     */
+    public function preUpdate($adminUser): void
+    {
+        $this->updatePassword($adminUser);
+    }
+
+    private function updatePassword(AdminUser $adminUser): void {
+        $plainPassword = $adminUser->getPassword();
+        if($plainPassword) {
+            $adminUser->setPassword($this->encodePassword($adminUser, $plainPassword));
+        }
+    }
+
+    private function encodePassword(AdminUser $adminUser, string $plainPassword): string
+    {
+        $container = $this->getConfigurationPool()->getContainer();
+        if ($container) {
+            $encoder = $container->get('security.password_encoder');
+            if ($encoder) {
+                return $encoder->encodePassword($adminUser, $plainPassword);
             }
         }
+        return '';
     }
 }

@@ -23,7 +23,7 @@ class ShopProductSpecificationType {
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
      */
-    private int $id;
+    private ?int $id = null;
 
     /**
      * @var string
@@ -35,7 +35,7 @@ class ShopProductSpecificationType {
      *
      * @ORM\Column(type="string")
      */
-    private string $name;
+    private string $name = '';
 
     /**
      * @var integer
@@ -44,11 +44,12 @@ class ShopProductSpecificationType {
      *
      * @ORM\Column(type="smallint")
      */
-    private int $position;
+    private int $position = 0;
 
-    public function __construct()
+    public function __construct(string $name)
     {
         $this->__UuidTraitConstructor();
+        $this->name = $name;
     }
 
     public function __toString(): string
@@ -57,9 +58,9 @@ class ShopProductSpecificationType {
     }
 
     /**
-     * @return int
+     * @return int|null
      */
-    public function getId(): int
+    public function getId(): ?int
     {
         return $this->id;
     }

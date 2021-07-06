@@ -61,7 +61,7 @@ class Order
     private ?DateTime $updatedAt;
 
     /**
-     * @ORM\ManyToMany(targetEntity="App\Entity\ShopProduct", inversedBy="orders")
+     * @ORM\ManyToMany(targetEntity="App\Entity\ShopProduct")
      */
     private ArrayCollection $products;
 

@@ -11,7 +11,7 @@ trait EnableTrait
      *
      * @ORM\Column(type="boolean")
      */
-    private bool $enable;
+    private bool $enable = true;
 
     /**
      * EnableTrait constructor.

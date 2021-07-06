@@ -21,13 +21,13 @@ class Contact
     }
 
     /**
-     * @var int
+     * @var int|null
      *
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
      */
-    private int $id;
+    private ?int $id = null;
 
     /**
      * @var string
@@ -36,7 +36,7 @@ class Contact
      *
      * @ORM\Column()
      */
-    private string $name;
+    private string $name = '';
 
     /**
      * @var string
@@ -48,7 +48,7 @@ class Contact
      *
      * @ORM\Column()
      */
-    private string $email;
+    private string $email = '';
 
     /**
      * @var string
@@ -58,7 +58,7 @@ class Contact
      *
      * @ORM\Column()
      */
-    private string $subject;
+    private string $subject = '';
 
     /**
      * @var string
@@ -68,14 +68,25 @@ class Contact
      *
      * @ORM\Column(type="text")
      */
-    private string $message;
+    private string $message = '';
 
     /**
      * Contact constructor.
      */
-    public function __construct() {
+    public function __construct(
+        string $name,
+        string $email,
+        string $subject,
+        string $message,
+        bool $dataProcessingAgreement = false
+    ) {
         $this->__CreatedAtTraitConstructor();
         $this->__DPAConstructor();
+        $this->name = $name;
+        $this->email = $email;
+        $this->subject = $subject;
+        $this->message = $message;
+        $this->dataProcessingAgreement = $dataProcessingAgreement;
     }
 
     /**

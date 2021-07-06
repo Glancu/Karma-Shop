@@ -2,6 +2,7 @@
 
 namespace App\Admin;
 
+use App\Form\DataMapper\ShopProductDataMapper;
 use App\Form\Type\Admin\ShopProductSpecificationTypeType;
 use App\Service\MoneyService;
 use FOS\CKEditorBundle\Form\Type\CKEditorType;
@@ -12,11 +13,10 @@ use Sonata\AdminBundle\Form\FormMapper;
 use Sonata\AdminBundle\Form\Type\CollectionType;
 use Sonata\AdminBundle\Form\Type\ModelType;
 use Sonata\AdminBundle\Show\ShowMapper;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\MoneyType;
-use Symfony\Component\Form\Extension\Core\Type\NumberType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
-use Symfony\Component\Intl\NumberFormatter\NumberFormatter;
 
 final class ShopProductAdmin extends AbstractAdmin
 {
@@ -40,6 +40,10 @@ final class ShopProductAdmin extends AbstractAdmin
                        'scale' => 2,
                        'divisor' => MoneyService::PRICE_DIVIDE_MULTIPLY
                    ])
+                   ->add('enable', CheckboxType::class, [
+                       'label' => 'Enable',
+                       'required' => false
+                   ])
                    ->add('quantity', IntegerType::class, ['label' => 'Quantity'])
                    ->add('shopBrand', null, ['label' => 'Brand'])
                    ->add('shopCategory', null, ['label' => 'Category'])
@@ -61,6 +65,9 @@ final class ShopProductAdmin extends AbstractAdmin
                        'entry_type' => ShopProductSpecificationTypeType::class
                    ], ['edit' => 'inline', 'inline' => 'table'])
                    ->end();
+
+        $builder = $formMapper->getFormBuilder();
+        $builder->setDataMapper(new ShopProductDataMapper());
     }
 
     protected function configureDatagridFilters(DatagridMapper $datagridMapper): void

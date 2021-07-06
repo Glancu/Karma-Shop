@@ -2,6 +2,7 @@
 
 namespace App\Admin;
 
+use App\Form\DataMapper\ShopDeliveryDataMapper;
 use App\Service\MoneyService;
 use Sonata\AdminBundle\Admin\AbstractAdmin;
 use Sonata\AdminBundle\Datagrid\DatagridMapper;
@@ -22,6 +23,8 @@ final class ShopDeliveryAdmin extends AbstractAdmin
 
     protected function configureFormFields(FormMapper $formMapper): void
     {
+        $objectExists = $this->getSubject() && $this->getSubject()->getId();
+
         $formMapper->add('name', TextType::class, ['label' => 'Name'])
                    ->add('freeDelivery', CheckboxType::class, [
                        'label' => 'Free delivery',
@@ -29,16 +32,19 @@ final class ShopDeliveryAdmin extends AbstractAdmin
                    ])
                    ->add('priceNet', MoneyType::class, [
                        'label' => 'Price net',
-                       'required' => false,
+                       'required' => !$objectExists,
                        'scale' => 2,
                        'divisor' => MoneyService::PRICE_DIVIDE_MULTIPLY
                    ])
                    ->add('priceGross', MoneyType::class, [
                        'label' => 'Price gross',
-                       'required' => false,
+                       'required' => !$objectExists,
                        'scale' => 2,
                        'divisor' => MoneyService::PRICE_DIVIDE_MULTIPLY
                    ]);
+
+        $builder = $formMapper->getFormBuilder();
+        $builder->setDataMapper(new ShopDeliveryDataMapper());
     }
 
     protected function configureDatagridFilters(DatagridMapper $datagridMapper): void

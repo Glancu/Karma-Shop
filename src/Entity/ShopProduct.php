@@ -8,9 +8,9 @@ use App\Traits\EnableTrait;
 use App\Traits\PriceTrait;
 use App\Traits\UuidTrait;
 use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use App\Repository\ShopProductRepository;
+use Doctrine\ORM\PersistentCollection;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -19,7 +19,8 @@ use Symfony\Component\Validator\Constraints as Assert;
  * @ORM\Table(name="shop_products")
  * @ORM\Entity(repositoryClass=ShopProductRepository::class)
  */
-class ShopProduct {
+class ShopProduct
+{
     use CreatedAtTrait, EnableTrait, UuidTrait, PriceTrait {
         CreatedAtTrait::__construct as private __CreatedAtTraitConstructor;
         EnableTrait::__construct as private __EnableTraitConstructor;
@@ -27,11 +28,13 @@ class ShopProduct {
     }
 
     /**
+     * @var int|null
+     *
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
      */
-    private int $id;
+    private ?int $id = null;
 
     /**
      * @var string
@@ -43,7 +46,7 @@ class ShopProduct {
      *
      * @ORM\Column(type="string")
      */
-    private string $name;
+    private string $name = '';
 
     /**
      * @var string
@@ -57,13 +60,15 @@ class ShopProduct {
     private string $slug;
 
     /**
+     * @Assert\Positive
+     *
      * @var integer
      *
      * @Groups("shop_product")
      *
      * @ORM\Column(type="smallint")
      */
-    private int $quantity;
+    private int $quantity = 1;
 
     /**
      * @var string
@@ -72,30 +77,30 @@ class ShopProduct {
      *
      * @ORM\Column(type="text")
      */
-    private string $description;
+    private string $description = '';
 
     /**
-     * @var ShopBrand
+     * @var ShopBrand|null
      *
      * @Groups("shop_brand")
      *
      * @ORM\ManyToOne(targetEntity="App\Entity\ShopBrand", inversedBy="products")
      * @ORM\JoinColumn(name="brand_id", referencedColumnName="id", nullable=false)
      */
-    private ShopBrand $shopBrand;
+    private ?ShopBrand $shopBrand = null;
 
     /**
-     * @var ShopCategory
+     * @var ShopCategory|null
      *
      * @Groups("shop_category")
      *
      * @ORM\ManyToOne(targetEntity="App\Entity\ShopCategory", inversedBy="products")
      * @ORM\JoinColumn(name="shop_category_id", referencedColumnName="id", nullable=false)
      */
-    private ShopCategory $shopCategory;
+    private ?ShopCategory $shopCategory = null;
 
     /**
-     * @var ArrayCollection
+     * @var ArrayCollection|PersistentCollection
      *
      * @Groups("shop_product_specification")
      *
@@ -108,17 +113,17 @@ class ShopProduct {
     private $shopProductSpecifications;
 
     /**
-     * @var ShopDelivery
+     * @var ShopDelivery|null
      *
      * @Groups("shop_delivery")
      *
      * @ORM\ManyToOne(targetEntity="App\Entity\ShopDelivery")
      * @ORM\JoinColumn(name="shop_delivery_id", referencedColumnName="id", nullable=false)
      */
-    private ShopDelivery $shopDelivery;
+    private ?ShopDelivery $shopDelivery = null;
 
     /**
-     * @var ArrayCollection
+     * @var ArrayCollection|PersistentCollection
      *
      * @ORM\ManyToMany(targetEntity="App\Entity\SonataMediaMedia")
      * @ORM\JoinTable(name="shop_products_images",
@@ -129,7 +134,7 @@ class ShopProduct {
     private $images;
 
     /**
-     * @var ArrayCollection
+     * @var ArrayCollection|PersistentCollection
      *
      * @Groups("product_review")
      *
@@ -137,11 +142,6 @@ class ShopProduct {
      * @ORM\JoinTable(name="shop_products_product_reviews")
      */
     private $reviews;
-
-    /**
-     * @ORM\ManyToMany(targetEntity=Order::class, mappedBy="products")
-     */
-    private $orders;
 
     /**
      * @var ShopColor
@@ -153,16 +153,32 @@ class ShopProduct {
      */
     private $shopColors;
 
-    public function __construct()
-    {
+    public function __construct(
+        string $name,
+        int $priceNet,
+        int $priceGross,
+        int $quantity,
+        string $description,
+        bool $enable = true,
+        ShopBrand $shopBrand,
+        ShopCategory $shopCategory,
+        $shopProductSpecifications,
+        ShopDelivery $shopDelivery
+    ) {
         $this->__CreatedAtTraitConstructor();
-        $this->__EnableTraitConstructor();
         $this->__UuidTraitConstructor();
-        $this->quantity = 1;
-        $this->shopProductSpecifications = new ArrayCollection();
+        $this->name = $name;
+        $this->priceNet = $priceNet;
+        $this->priceGross = $priceGross;
+        $this->quantity = $quantity;
+        $this->description = $description;
+        $this->shopBrand = $shopBrand;
+        $this->shopCategory = $shopCategory;
+        $this->shopProductSpecifications = $shopProductSpecifications;
+        $this->shopDelivery = $shopDelivery;
+        $this->enable = $enable;
         $this->images = new ArrayCollection();
         $this->reviews = new ArrayCollection();
-        $this->orders = new ArrayCollection();
         $this->shopColors = new ArrayCollection();
     }
 
@@ -175,9 +191,9 @@ class ShopProduct {
     }
 
     /**
-     * @return int
+     * @return int|null
      */
-    public function getId(): int
+    public function getId(): ?int
     {
         return $this->id;
     }
@@ -204,14 +220,6 @@ class ShopProduct {
     public function getSlug(): string
     {
         return $this->slug;
-    }
-
-    /**
-     * @param string $slug
-     */
-    public function setSlug(string $slug): void
-    {
-        $this->slug = $slug;
     }
 
     /**
@@ -263,9 +271,9 @@ class ShopProduct {
     }
 
     /**
-     * @return ShopCategory
+     * @return ShopCategory|null
      */
-    public function getShopCategory(): ShopCategory
+    public function getShopCategory(): ?ShopCategory
     {
         return $this->shopCategory;
     }
@@ -279,7 +287,7 @@ class ShopProduct {
     }
 
     /**
-     * @return ArrayCollection
+     * @return ArrayCollection|PersistentCollection
      */
     public function getShopProductSpecifications()
     {
@@ -303,9 +311,9 @@ class ShopProduct {
     }
 
     /**
-     * @return ShopDelivery
+     * @return ShopDelivery|null
      */
-    public function getShopDelivery(): ShopDelivery
+    public function getShopDelivery(): ?ShopDelivery
     {
         return $this->shopDelivery;
     }
@@ -319,7 +327,7 @@ class ShopProduct {
     }
 
     /**
-     * @return ArrayCollection
+     * @return ArrayCollection|PersistentCollection
      */
     public function getImages()
     {
@@ -343,7 +351,7 @@ class ShopProduct {
     }
 
     /**
-     * @return ArrayCollection
+     * @return ArrayCollection|PersistentCollection
      */
     public function getReviews()
     {
@@ -364,34 +372,6 @@ class ShopProduct {
     public function removeReview(Comment $review): void
     {
         $this->reviews->removeElement($review);
-    }
-
-    /**
-     * @return Collection|Order[]
-     */
-    public function getOrders(): Collection
-    {
-        return $this->orders;
-    }
-
-    public function addOrder(Order $order): self
-    {
-        if (!$this->orders->contains($order)) {
-            $this->orders[] = $order;
-            $order->addProduct($this);
-        }
-
-        return $this;
-    }
-
-    public function removeOrder(Order $order): self
-    {
-        if ($this->orders->contains($order)) {
-            $this->orders->removeElement($order);
-            $order->removeProduct($this);
-        }
-
-        return $this;
     }
 
     /**

@@ -2,6 +2,7 @@
 
 namespace App\Admin;
 
+use App\Form\DataMapper\ShopColorDataMapper;
 use Sonata\AdminBundle\Admin\AbstractAdmin;
 use Sonata\AdminBundle\Datagrid\DatagridMapper;
 use Sonata\AdminBundle\Datagrid\ListMapper;
@@ -22,6 +23,9 @@ final class ShopColorAdmin extends AbstractAdmin
     {
         $formMapper->add('name', TextType::class, ['label' => 'Name'])
                    ->add('enable', CheckboxType::class, ['label' => 'Enable', 'required' => false]);
+
+        $builder = $formMapper->getFormBuilder();
+        $builder->setDataMapper(new ShopColorDataMapper());
     }
 
     protected function configureDatagridFilters(DatagridMapper $datagridMapper): void

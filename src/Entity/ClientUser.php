@@ -7,6 +7,7 @@ use App\Traits\CreatedAtTrait;
 use App\Traits\UuidTrait;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\ORM\PersistentCollection;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -21,27 +22,35 @@ class ClientUser implements UserInterface
     }
 
     /**
+     * @var int|null
+     *
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
      */
-    private int $id;
+    private ?int $id = 0;
 
     /**
+     * @var string
+     *
      * @Assert\NotBlank()
      *
      * @ORM\Column(type="string", length=255)
      */
-    private string $firstName;
+    private string $firstName = '';
 
     /**
+     * @var string
+     *
      * @Assert\NotBlank()
      *
      * @ORM\Column(type="string", length=255)
      */
-    private string $lastName;
+    private string $lastName = '';
 
     /**
+     * @var string
+     *
      * @Assert\NotBlank()
      * @Assert\Email(
      *     message = "The email '{{ value }}' is not a valid email."
@@ -49,62 +58,99 @@ class ClientUser implements UserInterface
      *
      * @ORM\Column(type="string", length=255)
      */
-    private string $email;
+    private string $email = '';
 
     /**
+     * @var string
+     *
      * @Assert\NotBlank(
      *     message = "The password cannot be empty."
      * )
      *
      * @ORM\Column(type="string", length=255)
      */
-    public string $password;
+    public string $password = '';
 
     /**
+     * @var string
+     *
      * @Assert\NotBlank()
      *
      * @ORM\Column(type="string", length=255)
      */
-    private string $phoneNumber;
+    private string $phoneNumber = '';
 
     /**
+     * @var string
+     *
      * @Assert\NotBlank()
      *
      * @ORM\Column(type="string", length=10)
      */
-    private string $postalCode;
+    private string $postalCode = '';
 
     /**
+     * @var string
+     *
      * @Assert\NotBlank()
      *
      * @ORM\Column(type="string", length=100)
      */
-    private string $city;
+    private string $city = '';
 
     /**
+     * @var string
+     *
      * @Assert\NotBlank()
      *
      * @ORM\Column(type="string", length=100)
      */
-    private string $country;
+    private string $country = '';
 
     /**
+     * @var string
+     *
      * @Assert\NotBlank()
      *
      * @ORM\Column(type="string", length=255)
      */
-    private string $street;
+    private string $street = '';
 
     /**
+     * @var ArrayCollection|PersistentCollection
+     *
      * @ORM\ManyToMany(targetEntity="App\Entity\Order", mappedBy="user")
      */
     private $orders;
 
-    public function __construct()
-    {
+    public function __construct(
+        string $firstName,
+        string $lastName,
+        string $email,
+        string $encodedPassword,
+        string $phoneNumber,
+        string $postalCode,
+        string $city,
+        string $country,
+        string $street
+    ) {
         $this->__CreatedAtTraitConstructor();
         $this->__UuidTraitConstructor();
+        $this->firstName = $firstName;
+        $this->lastName = $lastName;
+        $this->email = $email;
+        $this->password = $encodedPassword;
+        $this->phoneNumber = $phoneNumber;
+        $this->postalCode = $postalCode;
+        $this->city = $city;
+        $this->country = $country;
+        $this->street = $street;
         $this->orders = new ArrayCollection();
+    }
+
+    public function __toString(): string
+    {
+        return $this->firstName . ' ' . $this->lastName;
     }
 
     public function getId(): ?int
@@ -221,7 +267,7 @@ class ClientUser implements UserInterface
     }
 
     /**
-     * @return null|ArrayCollection
+     * @return ArrayCollection|PersistentCollection
      */
     public function getOrders()
     {

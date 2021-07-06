@@ -22,13 +22,13 @@ class Comment
     }
 
     /**
-     * @var int
+     * @var int|null
      *
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
      */
-    private int $id;
+    private ?int $id = null;
 
     /**
      * @var string
@@ -38,7 +38,7 @@ class Comment
      *
      * @ORM\Column(type="string")
      */
-    private string $name;
+    private string $name = '';
 
     /**
      * @var string
@@ -50,14 +50,14 @@ class Comment
      *
      * @ORM\Column(type="string")
      */
-    private string $email;
+    private string $email = '';
 
     /**
      * @var string|null
      *
      * @ORM\Column(type="string", nullable=true)
      */
-    private ?string $subject;
+    private ?string $subject = null;
 
     /**
      * @var string
@@ -67,12 +67,17 @@ class Comment
      *
      * @ORM\Column(type="text")
      */
-    private string $text;
+    private string $text = '';
 
-    public function __construct()
+    public function __construct(string $name, string $email, string $text, ?string $subject = '', bool $enable = true)
     {
         $this->__CreatedAtTraitConstructor();
         $this->__UuidTraitConstructor();
+        $this->name = $name;
+        $this->email = $email;
+        $this->text = $text;
+        $this->subject = $subject;
+        $this->enable = $enable;
     }
 
     public function __toString(): string
@@ -81,9 +86,9 @@ class Comment
     }
 
     /**
-     * @return int
+     * @return int|null
      */
-    public function getId(): int
+    public function getId(): ?int
     {
         return $this->id;
     }

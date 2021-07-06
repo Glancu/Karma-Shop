@@ -8,6 +8,7 @@ use App\Traits\EnableTrait;
 use App\Traits\UuidTrait;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\ORM\PersistentCollection;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Serializer\Annotation\Groups;
 
@@ -23,20 +24,27 @@ class ShopColor
     }
 
     /**
+     * @var int|null
+     *
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
      */
-    private int $id;
+    private ?int $id = null;
 
     /**
+     * @var string
+     *
      * @Groups("shop_color")
      *
      * @ORM\Column(type="string", length=255)
      */
-    private string $name;
+    private string $name = '';
 
     /**
+     *
+     * @var string
+     *
      * @Groups("shop_color")
      *
      * @Gedmo\Slug(fields={"name"}, updatable=true, separator="-", unique=true)
@@ -46,6 +54,8 @@ class ShopColor
     private string $slug;
 
     /**
+     * @var ArrayCollection|PersistentCollection
+     *
      * @ORM\ManyToMany(targetEntity="App\Entity\ShopProduct", mappedBy="shopColors")
      */
     private $products;
@@ -53,11 +63,13 @@ class ShopColor
     /**
      * ShopColor constructor.
      */
-    public function __construct()
+    public function __construct(string $name, bool $enable = true)
     {
         $this->__EnableTraitConstructor();
         $this->__CreatedAtTraitConstructor();
         $this->__UuidTraitConstructor();
+        $this->name = $name;
+        $this->enable = $enable;
         $this->products = new ArrayCollection();
     }
 

@@ -8,6 +8,7 @@ use App\Traits\CreatedAtTrait;
 use App\Traits\EnableTrait;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\ORM\PersistentCollection;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -21,11 +22,13 @@ class ProductReview
     }
 
     /**
+     * @var int|null
+     *
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
      */
-    private int $id;
+    private ?int $id = null;
 
     /**
      * @var string
@@ -35,7 +38,7 @@ class ProductReview
      *
      * @ORM\Column(type="string")
      */
-    private string $name;
+    private string $name = '';
 
     /**
      * @var string
@@ -47,7 +50,7 @@ class ProductReview
      *
      * @ORM\Column(type="string")
      */
-    private string $email;
+    private string $email = '';
 
     /**
      * @var int
@@ -58,7 +61,7 @@ class ProductReview
      *
      * @ORM\Column(type="smallint")
      */
-    private int $rating;
+    private int $rating = 0;
 
     /**
      * @var null|string
@@ -67,7 +70,7 @@ class ProductReview
      *
      * @ORM\Column(type="string", nullable=true)
      */
-    private ?string $phoneNumber;
+    private ?string $phoneNumber = null;
 
     /**
      * @var string
@@ -77,17 +80,30 @@ class ProductReview
      *
      * @ORM\Column(type="text")
      */
-    private string $message;
+    private string $message = '';
 
     /**
+     * @var ArrayCollection|PersistentCollection
+     *
      * @ORM\ManyToMany(targetEntity="App\Entity\ShopProduct", mappedBy="reviews")
      */
     private $products;
 
-    public function __construct()
-    {
-        $this->enable = false;
+    public function __construct(
+        string $name,
+        string $email,
+        int $rating,
+        string $message,
+        bool $enable = false,
+        ?string $phoneNumber = null
+    ) {
         $this->__CreatedAtTraitConstructor();
+        $this->name = $name;
+        $this->email = $email;
+        $this->rating = $rating;
+        $this->message = $message;
+        $this->enable = $enable;
+        $this->phoneNumber = $phoneNumber;
         $this->products = new ArrayCollection();
     }
 
@@ -97,19 +113,11 @@ class ProductReview
     }
 
     /**
-     * @return int
+     * @return int|null
      */
-    public function getId(): int
+    public function getId(): ?int
     {
         return $this->id;
-    }
-
-    /**
-     * @param int $id
-     */
-    public function setId(int $id): void
-    {
-        $this->id = $id;
     }
 
     /**

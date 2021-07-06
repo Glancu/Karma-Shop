@@ -2,6 +2,7 @@
 
 namespace App\Admin;
 
+use App\Form\DataMapper\ShopProductSpecificationTypeDataMapper;
 use Sonata\AdminBundle\Admin\AbstractAdmin;
 use Sonata\AdminBundle\Datagrid\DatagridMapper;
 use Sonata\AdminBundle\Datagrid\ListMapper;
@@ -20,6 +21,9 @@ final class ShopProductSpecificationTypeAdmin extends AbstractAdmin
     protected function configureFormFields(FormMapper $formMapper): void
     {
         $formMapper->add('name', null, ['label' => 'Name']);
+
+        $builder = $formMapper->getFormBuilder();
+        $builder->setDataMapper(new ShopProductSpecificationTypeDataMapper());
     }
 
     protected function configureDatagridFilters(DatagridMapper $datagridMapper): void

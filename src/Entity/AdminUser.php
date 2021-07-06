@@ -13,13 +13,17 @@ use Symfony\Component\Validator\Constraints as Assert;
 class AdminUser implements UserInterface
 {
     /**
+     * @var int|null
+     *
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
      */
-    private int $id;
+    private ?int $id = null;
 
     /**
+     * @var string
+     *
      * @Assert\NotBlank()
      * @Assert\Email(
      *     message = "The email '{{ value }}' is not a valid email."
@@ -27,28 +31,42 @@ class AdminUser implements UserInterface
      *
      * @ORM\Column(type="string", length=180, unique=true)
      */
-    private string $email;
+    private string $email = '';
 
     /**
+     * @var string
+     *
      * @Assert\NotBlank()
      *
      * @ORM\Column(type="string", length=255, unique=true)
      */
-    private string $username;
+    private string $username = '';
 
     /**
+     * @var array
+     *
      * @ORM\Column(type="json")
      */
-    private array $roles = [];
+    private array $roles;
 
     /**
+     * @var string
+     *
      * @Assert\NotBlank(
      *     message = "The password cannot be empty."
      * )
      *
      * @ORM\Column(type="string", length=255)
      */
-    private $password;
+    private string $password = '';
+
+    public function __construct(string $email, string $username, string $hashedPassword, array $roles = [])
+    {
+        $this->email = $email;
+        $this->username = $username;
+        $this->password = $hashedPassword;
+        $this->roles = $roles;
+    }
 
     /**
      * @return string
@@ -74,14 +92,6 @@ class AdminUser implements UserInterface
     }
 
     /**
-     * @param string $email
-     */
-    public function setEmail(string $email): void
-    {
-        $this->email = $email;
-    }
-
-    /**
      * @return string
      */
     public function getUsername(): string
@@ -89,13 +99,6 @@ class AdminUser implements UserInterface
         return $this->username;
     }
 
-    /**
-     * @param string $username
-     */
-    public function setUsername(string $username): void
-    {
-        $this->username = $username;
-    }
     /**
      * @see UserInterface
      */
