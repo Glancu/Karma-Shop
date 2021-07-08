@@ -3,9 +3,9 @@
 namespace App\Entity;
 
 use App\Repository\OrderRepository;
-use App\Traits\CreatedAtTrait;
-use App\Traits\PriceTrait;
-use App\Traits\UuidTrait;
+use App\Entity\Traits\CreatedAtTrait;
+use App\Entity\Traits\PriceTrait;
+use App\Entity\Traits\UuidTrait;
 use DateTime;
 use DateTimeInterface;
 use Doctrine\Common\Collections\ArrayCollection;

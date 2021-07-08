@@ -4,8 +4,8 @@ declare(strict_types=1);
 namespace App\Entity;
 
 use App\Repository\ContactRepository;
-use App\Traits\CreatedAtTrait;
-use App\Traits\DataProcessingAgreement;
+use App\Entity\Traits\CreatedAtTrait;
+use App\Entity\Traits\DataProcessingAgreement;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 

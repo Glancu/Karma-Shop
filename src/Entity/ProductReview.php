@@ -4,8 +4,8 @@ declare(strict_types=1);
 namespace App\Entity;
 
 use App\Repository\ProductReviewRepository;
-use App\Traits\CreatedAtTrait;
-use App\Traits\EnableTrait;
+use App\Entity\Traits\CreatedAtTrait;
+use App\Entity\Traits\EnableTrait;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\PersistentCollection;

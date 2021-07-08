@@ -3,10 +3,10 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
-use App\Traits\CreatedAtTrait;
-use App\Traits\EnableTrait;
-use App\Traits\PriceTrait;
-use App\Traits\UuidTrait;
+use App\Entity\Traits\CreatedAtTrait;
+use App\Entity\Traits\EnableTrait;
+use App\Entity\Traits\PriceTrait;
+use App\Entity\Traits\UuidTrait;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use App\Repository\ShopProductRepository;

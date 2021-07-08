@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace App\Traits;
+namespace App\Entity\Traits;
 
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
