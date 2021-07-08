@@ -55,21 +55,18 @@ class ShopController
     ): Response {
         $em = $this->entityManager;
         $form = $this->form;
-        $productReview = new ProductReview();
-
-        $name = $request->get('name');
-        $email = $request->get('email');
-        $rating = (int)$request->get('rating');
-        $phoneNumber = $request->get('phoneNumber');
-        $message = $request->get('message');
 
         $data = [
-            'name' => $name,
-            'email' => $email,
-            'rating' => $rating,
-            'phoneNumber' => $phoneNumber,
-            'message' => $message
+            'name' => $request->get('name'),
+            'email' => $request->get('email'),
+            'rating' => (int)$request->get('rating'),
+            'phoneNumber' => $request->get('phoneNumber'),
+            'message' => $request->get('message')
         ];
+
+        $productReview = new ProductReview($data['name'], $data['email'], $data['rating'],
+            $data['message'], false, $data['phoneNumber']
+        );
 
         $productReviewForm = $form->create(ProductReviewType::class, $productReview);
         $productReviewForm->handleRequest($request);
@@ -78,18 +75,12 @@ class ShopController
         $errors = $validator->validate($productReview);
 
         if ($productReviewForm->isSubmitted() && $productReviewForm->isValid()) {
-            $productReview->setName($name);
-            $productReview->setEmail($email);
-            $productReview->setRating($rating);
-            $productReview->setPhoneNumber($phoneNumber);
-            $productReview->setMessage($message);
-
             $em->persist($productReview);
             $em->flush();
 
             $return = $serializer->serialize($productReview, 'json');
 
-            return new Response($return);
+            return new Response($return, 201);
         }
 
         $errorsList = ['error' => true, 'message' => []];
@@ -103,6 +94,6 @@ class ShopController
 
         $return = $serializer->serialize($errorsList, 'json');
 
-        return new Response($return);
+        return new Response($return, 422);
     }
 }

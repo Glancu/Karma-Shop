@@ -102,7 +102,7 @@ class ClientUserController
 
                 $return = $serializer->serialize($errorsList, 'json');
 
-                return new Response($return);
+                return new Response($return, 422);
             }
         }
 
@@ -112,7 +112,7 @@ class ClientUserController
 
             $jsonData = $serializeDataResponse->getClientUserData($clientUser);
 
-            return new Response($jsonData);
+            return new Response($jsonData, 201);
         }
 
         $errorsList = ['error' => true, 'message' => []];
@@ -126,7 +126,7 @@ class ClientUserController
 
         $return = $serializer->serialize($errorsList, 'json');
 
-        return new Response($return);
+        return new Response($return, 422);
     }
 
     /**

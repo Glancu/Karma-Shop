@@ -78,7 +78,7 @@ class ContactController
 
             $return = $serializer->serialize($contact, 'json');
 
-            return new Response($return);
+            return new Response($return, 201);
         }
 
         $errorsList = ['error' => true, 'message' => []];
@@ -92,6 +92,6 @@ class ContactController
 
         $return = $serializer->serialize($errorsList, 'json');
 
-        return new Response($return);
+        return new Response($return, 422);
     }
 }

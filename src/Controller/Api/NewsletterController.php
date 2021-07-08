@@ -78,7 +78,7 @@ class NewsletterController
 
                 $return = $serializer->serialize($errorsList, 'json');
 
-                return new Response($return);
+                return new Response($return, 422);
             }
         }
 
@@ -88,7 +88,7 @@ class NewsletterController
 
             $createdObjectJson = $serializer->serialize($newsletter, 'json');
 
-            return new Response($createdObjectJson);
+            return new Response($createdObjectJson, 201);
         }
 
         $errorsList = ['error' => true, 'message' => []];
@@ -102,6 +102,6 @@ class NewsletterController
 
         $return = $serializer->serialize($errorsList, 'json');
 
-        return new Response($return);
+        return new Response($return, 422);
     }
 }
