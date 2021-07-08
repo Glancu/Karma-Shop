@@ -66,7 +66,6 @@ class ClientUserController
     ): Response {
         $em = $this->entityManager;
         $form = $this->form;
-        $clientUser = new ClientUser();
 
         $data = [
             'firstName' => $request->request->get('firstName'),
@@ -80,10 +79,14 @@ class ClientUserController
             'street' => $request->request->get('street')
         ];
 
-        if(isset($data['password'])) {
-            $encodedPassword = $userPasswordEncoder->encodePassword($clientUser, $data['password']);
-            $data['password'] = $encodedPassword;
-        }
+        $clientUser = new ClientUser($data['firstName'], $data['lastName'], $data['email'],
+            '', $data['phoneNumber'], $data['postalCode'],
+            $data['city'], $data['country'], $data['street']
+        );
+
+        $encodedPassword = $userPasswordEncoder->encodePassword($clientUser, $data['password']);
+        $clientUser->setPassword($encodedPassword);
+        $data['password'] = $encodedPassword;
 
         $form = $form->create(CreateClientUserFormType::class, $clientUser);
         $form->handleRequest($request);

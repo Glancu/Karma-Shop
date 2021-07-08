@@ -55,13 +55,14 @@ class NewsletterController
     ): Response {
         $em = $this->entityManager;
         $form = $this->form;
-        $newsletter = new Newsletter();
 
         $data = [
             'name' => $request->request->get('name'),
             'email' => $request->request->get('email'),
-            'dataProcessingAgreement' => $request->request->get('dataProcessingAgreement'),
+            'dataProcessingAgreement' => (bool)$request->request->get('dataProcessingAgreement'),
         ];
+
+        $newsletter = new Newsletter($data['email'], $data['dataProcessingAgreement'], $data['name']);
 
         $newsletterForm = $form->create(NewsletterType::class, $newsletter);
         $newsletterForm->handleRequest($request);

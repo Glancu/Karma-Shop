@@ -55,15 +55,16 @@ class ContactController
     ): Response {
         $em = $this->entityManager;
         $form = $this->form;
-        $contact = new Contact();
 
         $data = [
             'name' => $request->request->get('name'),
             'email' => $request->request->get('email'),
             'subject' => $request->request->get('subject'),
             'message' => $request->request->get('message'),
-            'dataProcessingAgreement' => $request->request->get('dataProcessingAgreement')
+            'dataProcessingAgreement' => (bool)$request->request->get('dataProcessingAgreement')
         ];
+
+        $contact = new Contact($data['name'], $data['email'], $data['subject'], $data['message'], $data['dataProcessingAgreement']);
 
         $contactForm = $form->create(ContactType::class, $contact);
         $contactForm->handleRequest($request);
