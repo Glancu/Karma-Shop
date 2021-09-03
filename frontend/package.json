@@ -9,7 +9,7 @@
     "@testing-library/user-event": "^7.1.2",
     "axios": "^0.21.1",
     "customize-cra": "^1.0.0",
-    "immer": "^8.0.1",
+    "immer": "^9.0.6",
     "jquery": "^3.5.1",
     "node-fetch": "^2.6.1",
     "node-forge": "^0.10.0",
