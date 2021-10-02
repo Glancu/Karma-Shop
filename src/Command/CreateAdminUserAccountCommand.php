@@ -13,9 +13,8 @@ use Symfony\Component\Console\Question\Question;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
-class CreateAdminUserAccount extends Command
+class CreateAdminUserAccountCommand extends Command
 {
-    // the name of the command (the part after "bin/console")
     protected static $defaultName = 'app:create-admin-account';
 
     private EntityManagerInterface $entityManager;
@@ -91,7 +90,7 @@ class CreateAdminUserAccount extends Command
         }
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output): int
+    protected function execute(InputInterface $input, OutputInterface $output): void
     {
         $em = $this->entityManager;
         $userPasswordEncoder = $this->userPasswordEncoder;
@@ -107,9 +106,7 @@ class CreateAdminUserAccount extends Command
             '',
         ]);
 
-        $adminUser = new AdminUser();
-        $adminUser->setUsername($username);
-        $adminUser->setEmail($email);
+        $adminUser = new AdminUser($email, $username, '');
         $adminUser->setRoles(['ROLE_ADMIN']);
 
         $encodedPassword = $userPasswordEncoder->encodePassword($adminUser, $password);
@@ -125,7 +122,5 @@ class CreateAdminUserAccount extends Command
         $em->flush();
 
         $output->writeln("User ${username} has been created!");
-
-        return 0;
     }
 }

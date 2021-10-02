@@ -47,12 +47,6 @@ services:
     tags:
       - { name: sonata.admin, manager_type: orm, group: Users, label: Clients }
 
-  admin.shop.delivery:
-    class: App\Admin\ShopDeliveryAdmin
-    arguments: [ ~, App\Entity\ShopDelivery, ~ ]
-    tags:
-      - { name: sonata.admin, manager_type: orm, group: Shop, label: Delivery }
-
   admin.shop.product_specification:
     class: App\Admin\ShopProductSpecificationAdmin
     arguments: [ ~, App\Entity\ShopProductSpecification, ~ ]

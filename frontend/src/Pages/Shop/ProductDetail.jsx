@@ -2,55 +2,434 @@ import React, { Component } from 'react';
 import BaseTemplate from '../../Components/BaseTemplate';
 import { Link } from 'react-router-dom';
 import OwlCarousel from 'react-owl-carousel';
-
-import imgCategorySP1 from '../../../public/assets/img/category/s-p1.jpg';
-
-import imgProductReview1 from '../../../public/assets/img/product/review-1.png';
-import imgProductReview2 from '../../../public/assets/img/product/review-2.png';
-import imgProductReview3 from '../../../public/assets/img/product/review-3.png';
-
-import imgR1 from '../../../public/assets/img/r1.jpg';
-import imgR2 from '../../../public/assets/img/r2.jpg';
-import imgR3 from '../../../public/assets/img/r3.jpg';
-import imgR5 from '../../../public/assets/img/r5.jpg';
-import imgR6 from '../../../public/assets/img/r6.jpg';
-import imgR7 from '../../../public/assets/img/r7.jpg';
-import imgR9 from '../../../public/assets/img/r9.jpg';
-import imgR10 from '../../../public/assets/img/r10.jpg';
-import imgR11 from '../../../public/assets/img/r11.jpg';
-
-import imgCategoryC5 from '../../../public/assets/img/category/c5.jpg';
+import axios from 'axios';
 import DealsRelatedProducts from '../../Components/DealsRelatedProducts';
+import Loader from '../../Components/Loader';
+import ShoppingCart from '../../Components/Shop/ShoppingCart';
+import { toast } from 'react-toastify';
+import CONFIG from '../../config';
+import ValidateEmail from '../../Components/ValidateEmail';
+import ProductDetailComment from '../../Components/Shop/ProductDetailComment';
 
 class ProductDetail extends Component {
-    increaseItemCountPlus() {
-        const sstEl = document.getElementById('sst');
-        const sttValue = sstEl.value;
-        if(!isNaN(sttValue))  {
-            sstEl.value++;
+    constructor(props) {
+        super(props);
+        this.state = {
+            product: null,
+            notFoundProduct: false,
+            loader: true,
+            productReviewForm: {
+                name: '',
+                email: '',
+                message: '',
+                dataProcessingAgreement: false
+            },
+            commentForm: {
+                name: '',
+                email: '',
+                message: '',
+                dataProcessingAgreement: false
+            }
+        }
+
+        this.increaseItemCount = this.increaseItemCount.bind(this);
+        this.decreaseItemCount = this.decreaseItemCount.bind(this);
+        this.addProductToCart = this.addProductToCart.bind(this);
+        this.setReviewValueToState = this.setReviewValueToState.bind(this);
+        this.submitReviewComment = this.submitReviewComment.bind(this);
+        this.setAddCommentValueToState = this.setAddCommentValueToState.bind(this);
+        this.submitComment = this.submitComment.bind(this);
+
+        this.addReviewMessageRef = React.createRef();
+        this.addCommentMessageRef = React.createRef();
+    }
+
+    componentDidMount() {
+        const _this = this;
+        const slug = this.props.match.params.slug;
+        if(slug) {
+            axios.get(`/api/products/product/${slug}`)
+                .then(result => {
+                    if(result.status === 200) {
+                        if(result.data) {
+                            this.state.product = result.data;
+                            this.state.notFoundProduct = false;
+
+                            setTimeout(() => {
+                                _this.setState({loader: false});
+                            }, 1000);
+                        } else {
+                            this.setState({notFoundProduct: true});
+                        }
+                    } else {
+                        this.setState({notFoundProduct: true});
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                    this.setState({notFoundProduct: true});
+                });
+        }
+
+        setTimeout(() => {
+            const {product} = this.state;
+            const productQuantity = product.quantity;
+
+            const quantityInputEl = document.getElementById('productQuantity');
+            if(quantityInputEl && product) {
+                quantityInputEl.addEventListener('change', function() {
+                    if(parseInt(this.value) < 1) {
+                        quantityInputEl.value = 1;
+                    } else if(parseInt(this.value) > productQuantity) {
+                        quantityInputEl.value = productQuantity;
+                    }
+                });
+            }
+        }, 2000);
+    }
+
+    increaseItemCount() {
+        const {product} = this.state;
+        const productQuantity = product.quantity;
+
+        const quantityInputEl = document.getElementById('productQuantity');
+        const quantityInputElValue = quantityInputEl.value;
+        if(!isNaN(quantityInputElValue) && quantityInputElValue < productQuantity)  {
+            quantityInputEl.value++;
+        } else {
+            quantityInputEl.value = productQuantity;
         }
     }
 
-    increaseItemCountMinus() {
-        const sstEl = document.getElementById('sst');
-        const sttValue = sstEl.value;
-        if(!isNaN(sttValue) && sttValue > 1)  {
-            sstEl.value--;
+    decreaseItemCount() {
+        const quantityInputEl = document.getElementById('productQuantity');
+        const quantityInputElValue = quantityInputEl.value;
+        if(!isNaN(quantityInputElValue) && quantityInputElValue > 1)  {
+            quantityInputEl.value--;
+        } else if(quantityInputElValue < 1) {
+            quantityInputEl.value = 1;
         }
+    }
+
+    addProductToCart() {
+        const {product} = this.state;
+
+        const quantityInputEl = document.getElementById('productQuantity');
+        if(product && quantityInputEl) {
+            ShoppingCart.addProductToCart(product, parseInt(quantityInputEl.value));
+
+            toast.info('Product was add to cart!', {autoClose: 2000});
+
+            quantityInputEl.value = 1;
+        }
+    }
+
+    setReviewValueToState(e) {
+        const {productReviewForm} = this.state;
+
+        productReviewForm[e.target.getAttribute('name')] = e.target.value;
+
+        this.state.productReviewForm = productReviewForm;
+    }
+
+    submitReviewComment(e) {
+        e.preventDefault();
+        const messageEl = this.addReviewMessageRef.current;
+
+        const {productReviewForm} = this.state;
+        if(!productReviewForm.name) {
+            messageEl.textContent = 'Name cannot be null.'
+            messageEl.classList = 'form-error-message';
+            return;
+        }
+
+        if(!productReviewForm.email) {
+            messageEl.textContent = 'Email cannot be null.'
+            messageEl.classList = 'form-error-message';
+            return;
+        }
+
+        if(!ValidateEmail(productReviewForm.email)) {
+            messageEl.textContent = 'Email is not valid.'
+            messageEl.classList = 'form-error-message';
+            return;
+        }
+
+        if(!productReviewForm.message) {
+            messageEl.textContent = 'Message cannot be null.'
+            messageEl.classList = 'form-error-message';
+            return;
+        }
+
+        const ratingValue = document.querySelector('.rate input:checked') && document.querySelector('.rate input:checked').value;
+        if(ratingValue === null) {
+            messageEl.textContent = 'Select your rating before submit review.'
+            messageEl.classList = 'form-error-message';
+            return;
+        }
+
+        if(!productReviewForm.dataProcessingAgreement) {
+            messageEl.textContent = 'You need to approve the regulations before submit.'
+            messageEl.classList = 'form-error-message';
+            return;
+        }
+
+        const errorMessageCustom = 'Something went wrong. Try again.';
+
+        const formData = new FormData();
+        formData.append('name', productReviewForm.name);
+        formData.append('email', productReviewForm.email);
+        formData.append('subject', productReviewForm.subject);
+        formData.append('message', productReviewForm.message);
+        formData.append('rating', parseInt(ratingValue));
+        formData.append('dataProcessingAgreement', dataProcessingAgreement);
+        formData.append('productUuid', this.state.product.uuid);
+
+        axios.post('/api/product-review/create', formData)
+            .then(result => {
+                if(result.status === 201) {
+                    const data = result.data;
+                    if(!data.error && data.uuid) {
+                        this.state.productReviewForm = {
+                            name: '',
+                            email: '',
+                            message: '',
+                            dataProcessingAgreement: false
+                        };
+
+                        messageEl.textContent = 'Review was add, but it must be accepted by administrator.'
+                        messageEl.classList = 'form-notice-message';
+
+                        document.getElementById('add_product_review_form').reset();
+                    } else if(data.error && data.message) {
+                        messageEl.textContent = data.message
+                        messageEl.classList = 'form-error-message';
+                    } else {
+                        messageEl.textContent = errorMessageCustom;
+                        messageEl.classList = 'form-error-message';
+                    }
+                } else {
+                    messageEl.textContent = errorMessageCustom;
+                    messageEl.classList = 'form-error-message';
+                }
+            }).catch(() => {
+            messageEl.textContent = errorMessageCustom;
+            messageEl.classList = 'form-error-message';
+        });
+    }
+
+    setAddCommentValueToState(e) {
+        const {commentForm} = this.state;
+
+        commentForm[e.target.getAttribute('name')] = e.target.value;
+
+        this.state.commentForm = commentForm;
+    }
+
+    submitComment(e) {
+        e.preventDefault();
+        const messageEl = this.addCommentMessageRef.current;
+
+        const {commentForm} = this.state;
+        if(!commentForm.name) {
+            messageEl.textContent = 'Name cannot be null.'
+            messageEl.classList = 'form-error-message';
+            return;
+        }
+
+        if(!commentForm.email) {
+            messageEl.textContent = 'Email cannot be null.'
+            messageEl.classList = 'form-error-message';
+            return;
+        }
+
+        if(!ValidateEmail(commentForm.email)) {
+            messageEl.textContent = 'Email is not valid.'
+            messageEl.classList = 'form-error-message';
+            return;
+        }
+
+        if(!commentForm.message) {
+            messageEl.textContent = 'Message cannot be null.'
+            messageEl.classList = 'form-error-message';
+            return;
+        }
+
+        if(!commentForm.dataProcessingAgreement) {
+            messageEl.textContent = 'You need to approve the regulations before submit.'
+            messageEl.classList = 'form-error-message';
+            return;
+        }
+
+        const errorMessageCustom = 'Something went wrong. Try again.';
+
+        const formData = new FormData();
+        formData.append('name', commentForm.name);
+        formData.append('email', commentForm.email);
+        formData.append('message', commentForm.message);
+        formData.append('dataProcessingAgreement', dataProcessingAgreement);
+        formData.append('productUuid', this.state.product.uuid);
+
+        axios.post('/api/comments/create', formData)
+            .then(result => {
+                if(result.status === 201) {
+                    const data = result.data;
+                    if(!data.error && data.uuid) {
+                        this.state.commentForm = {
+                            name: '',
+                            email: '',
+                            message: '',
+                            dataProcessingAgreement: false
+                        };
+
+                        messageEl.textContent = 'Comment was add, but it must be accepted by administrator.'
+                        messageEl.classList = 'form-notice-message';
+
+                        document.getElementById('add_comment_form').reset();
+                    } else if(data.error && data.message) {
+                        messageEl.textContent = data.message
+                        messageEl.classList = 'form-error-message';
+                    } else {
+                        messageEl.textContent = errorMessageCustom;
+                        messageEl.classList = 'form-error-message';
+                    }
+                } else {
+                    messageEl.textContent = errorMessageCustom;
+                    messageEl.classList = 'form-error-message';
+                }
+            }).catch(() => {
+            messageEl.textContent = errorMessageCustom;
+            messageEl.classList = 'form-error-message';
+        });
     }
 
     render() {
+        const currencySymbol = CONFIG.shop.currencySymbol;
+        const slug = this.props.match.params.slug;
+        const {product, notFoundProduct, loader} = this.state;
+
+        if(notFoundProduct || !product || loader) {
+            return (
+                <BaseTemplate>
+                    <section className="banner-area organic-breadcrumb">
+                        <div className="container">
+                            <div className="breadcrumb-banner d-flex flex-wrap align-items-center justify-content-end">
+                                <div className="col-first">
+                                    <h1>Product: {slug}</h1>
+                                    <nav className="d-flex align-items-center">
+                                        <Link to={'/'}>Home<span className="lnr lnr-arrow-right"/></Link>
+                                        <Link to={'/shop'}>Shop<span className="lnr lnr-arrow-right"/></Link>
+                                        <p>{slug}</p>
+                                    </nav>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <div className="product_image_area">
+                        <div className="container">
+                            <div className="row s_product_inner">
+                                <h1 className='ml-auto mr-auto'>
+                                    {notFoundProduct ?
+                                        'Product was not found.' :
+                                        <Loader isLoading={loader} />
+                                    }
+                                </h1>
+                            </div>
+                        </div>
+                    </div>
+                </BaseTemplate>
+            );
+        }
+
+        const specifications = () => {
+            return product.shopProductSpecifications.map((item) => {
+                return (
+                    <tr key={item.uuid}>
+                        <td>
+                            <h5>{item.name}</h5>
+                        </td>
+                        <td>
+                            <h5>{item.value}</h5>
+                        </td>
+                    </tr>
+                )
+            })
+        };
+
+        const carouselImages = () => {
+            return product.images.map((image, key) => {
+                return (
+                    <div className="single-prd-item" key={key}>
+                        <img className="img-fluid" src={image.url} alt={image.name}/>
+                    </div>
+                );
+            });
+        }
+
+        const productReviewsLength = product.reviews.length;
+        let overallReviewsStars = {
+            1: 0,
+            2: 0,
+            3: 0,
+            4: 0,
+            5: 0
+        }
+
+        const overallReviews = () => {
+            if(productReviewsLength === 0) {
+                return '0.0';
+            }
+
+            let reviews = 0;
+
+            product.reviews.map((review) => {
+                reviews += review.rating;
+            });
+
+            return (reviews / productReviewsLength).toFixed(1);
+        }
+
+        product.reviews.map((review) => {
+            overallReviewsStars[review.rating] = overallReviewsStars[review.rating] + 1;
+        });
+
+        const renderReviewsComments = () => {
+            return product.reviews.map((review) => {
+                return (
+                    <ProductDetailComment key={review.uuid}
+                                          name={review.name}
+                                          date={review.createdAt}
+                                          message={review.message}
+                                          rating={review.rating}
+                    />
+                )
+            });
+        }
+
+        const renderComments = () => {
+            return product.comments.map((comment) => {
+                return (
+                    <ProductDetailComment key={comment.uuid}
+                                          name={comment.name}
+                                          date={comment.createdAt}
+                                          message={comment.text}
+                    />
+                )
+            });
+        }
+
         return (
             <BaseTemplate>
                 <section className="banner-area organic-breadcrumb">
                     <div className="container">
                         <div className="breadcrumb-banner d-flex flex-wrap align-items-center justify-content-end">
                             <div className="col-first">
-                                <h1>Product Details Page</h1>
+                                <h1>Product: {slug}</h1>
                                 <nav className="d-flex align-items-center">
                                     <Link to={'/'}>Home<span className="lnr lnr-arrow-right"/></Link>
-                                    <a href="#">Shop<span className="lnr lnr-arrow-right"/></a>
-                                    <a href="single-product.html">product-details</a>
+                                    <Link to={'/shop'}>Shop<span className="lnr lnr-arrow-right"/></Link>
+                                    <p>{slug}</p>
                                 </nav>
                             </div>
                         </div>
@@ -69,51 +448,56 @@ class ProductDetail extends Component {
                                              nav={false}
                                              dots={true}
                                 >
-                                    <div className="single-prd-item">
-                                        <img className="img-fluid" src={imgCategorySP1} alt=""/>
-                                    </div>
-                                    <div className="single-prd-item">
-                                        <img className="img-fluid" src={imgCategorySP1} alt=""/>
-                                    </div>
-                                    <div className="single-prd-item">
-                                        <img className="img-fluid" src={imgCategorySP1} alt=""/>
-                                    </div>
+                                    {carouselImages()}
                                 </OwlCarousel>
                             </div>
                             <div className="col-lg-5 offset-lg-1">
                                 <div className="s_product_text">
-                                    <h3>Faded SkyBlu Denim Jeans</h3>
-                                    <h2>$149.99</h2>
+                                    <h3>{product.name}</h3>
+                                    <h2>{currencySymbol} {product.priceGross}</h2>
                                     <ul className="list">
-                                        <li><a className="active" href="#"><span>Category</span> : Household</a></li>
-                                        <li><a href="#"><span>Availibility</span> : In Stock</a></li>
+                                        <li>
+                                            <span>Brand: </span>
+                                            <Link className="active" to={`/shop?brand=${product.shopBrand.slug}`}>
+                                                {product.shopBrand.title}
+                                            </Link>
+                                        </li>
+                                        <li>
+                                            <span>Category: </span>
+                                            <Link className="active" to={`/shop/category/${product.shopCategory.slug}`}>
+                                                {product.shopCategory.title}
+                                            </Link>
+                                        </li>
+                                        <li>
+                                            <span>Quantity: {product.quantity}</span>
+                                        </li>
                                     </ul>
-                                    <p>Mill Oil is an innovative oil filled radiator with the most modern technology. If
-                                        you are looking for
-                                        something that can make your interior look awesome, and at the same time give
-                                        you the pleasant warm feeling
-                                        during the winter.</p>
+                                    <div dangerouslySetInnerHTML={
+                                        { __html: product.description.length > 70 ?
+                                                product.description.substring(0, 70) + '...' :
+                                                product.description
+                                        }
+                                    } />
                                     <div className="product_count">
                                         <label htmlFor="qty">Quantity:</label>
                                         <input type="text"
                                                name="qty"
-                                               id="sst"
-                                               maxLength="12"
-                                               // value="1"
+                                               id="productQuantity"
+                                               maxLength={product.quantity}
                                                defaultValue="1"
                                                title="Quantity:"
                                                className="input-text qty"/>
                                         <button className="increase items-count"
-                                                onClick={this.increaseItemCountPlus}
+                                                onClick={this.increaseItemCount}
                                                 type="button"><i className="lnr lnr-chevron-up"/></button>
                                         <button className="reduced items-count"
-                                                onClick={this.increaseItemCountMinus}
+                                                onClick={this.decreaseItemCount}
                                                 type="button"><i className="lnr lnr-chevron-down"/></button>
                                     </div>
                                     <div className="card_area d-flex align-items-center">
-                                        <a className="primary-btn" href="#">Add to Cart</a>
-                                        <a className="icon_btn" href="#"><i className="lnr lnr lnr-diamond"/></a>
-                                        <a className="icon_btn" href="#"><i className="lnr lnr lnr-heart"/></a>
+                                        <button className="primary-btn border-0" onClick={() => this.addProductToCart()}>
+                                            Add to Cart
+                                        </button>
                                     </div>
                                 </div>
                             </div>
@@ -175,103 +559,13 @@ class ProductDetail extends Component {
                         </ul>
                         <div className="tab-content" id="myTabContent">
                             <div className="tab-pane fade" id="home" role="tabpanel" aria-labelledby="home-tab">
-                                <p>Beryl Cook is one of Britain’s most talented and amusing artists .Beryl’s pictures
-                                    feature women of all shapes
-                                    and sizes enjoying themselves .Born between the two world wars, Beryl Cook
-                                    eventually left Kendrick School in
-                                    Reading at the age of 15, where she went to secretarial school and then into an
-                                    insurance office. After moving to
-                                    London and then Hampton, she eventually married her next door neighbour from
-                                    Reading, John Cook. He was an
-                                    officer in the Merchant Navy and after he left the sea in 1956, they bought a pub
-                                    for a year before John took a
-                                    job in Southern Rhodesia with a motor company. Beryl bought their young son a box of
-                                    watercolours, and when
-                                    showing him how to use it, she decided that she herself quite enjoyed painting. John
-                                    subsequently bought her a
-                                    child’s painting set for her birthday and it was with this that she produced her
-                                    first significant work, a
-                                    half-length portrait of a dark-skinned lady with a vacant expression and large
-                                    drooping breasts. It was aptly
-                                    named ‘Hangover’ by Beryl’s husband and</p>
-                                <p>It is often frustrating to attempt to plan meals that are designed for one. Despite
-                                    this fact, we are seeing
-                                    more and more recipe books and Internet websites that are dedicated to the act of
-                                    cooking for one. Divorce and
-                                    the death of spouses or grown children leaving for college are all reasons that
-                                    someone accustomed to cooking for
-                                    more than one would suddenly need to learn how to adjust all the cooking practices
-                                    utilized before into a
-                                    streamlined plan of cooking that is more efficient for one person creating less</p>
+                                <div dangerouslySetInnerHTML={{ __html: product.description }} />
                             </div>
                             <div className="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="profile-tab">
                                 <div className="table-responsive">
                                     <table className="table">
                                         <tbody>
-                                        <tr>
-                                            <td>
-                                                <h5>Width</h5>
-                                            </td>
-                                            <td>
-                                                <h5>128mm</h5>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>
-                                                <h5>Height</h5>
-                                            </td>
-                                            <td>
-                                                <h5>508mm</h5>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>
-                                                <h5>Depth</h5>
-                                            </td>
-                                            <td>
-                                                <h5>85mm</h5>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>
-                                                <h5>Weight</h5>
-                                            </td>
-                                            <td>
-                                                <h5>52gm</h5>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>
-                                                <h5>Quality checking</h5>
-                                            </td>
-                                            <td>
-                                                <h5>yes</h5>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>
-                                                <h5>Freshness Duration</h5>
-                                            </td>
-                                            <td>
-                                                <h5>03days</h5>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>
-                                                <h5>When packeting</h5>
-                                            </td>
-                                            <td>
-                                                <h5>Without touch of hand</h5>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>
-                                                <h5>Each Box contains</h5>
-                                            </td>
-                                            <td>
-                                                <h5>60pcs</h5>
-                                            </td>
-                                        </tr>
+                                        {specifications()}
                                         </tbody>
                                     </table>
                                 </div>
@@ -280,74 +574,24 @@ class ProductDetail extends Component {
                                 <div className="row">
                                     <div className="col-lg-6">
                                         <div className="comment_list">
-                                            <div className="review_item">
-                                                <div className="media">
-                                                    <div className="d-flex">
-                                                        <img src={imgProductReview1} alt=""/>
-                                                    </div>
-                                                    <div className="media-body">
-                                                        <h4>Blake Ruiz</h4>
-                                                        <h5>12th Feb, 2018 at 05:56 pm</h5>
-                                                        <a className="reply_btn" href="#">Reply</a>
-                                                    </div>
-                                                </div>
-                                                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do
-                                                    eiusmod tempor incididunt ut labore et
-                                                    dolore magna aliqua. Ut enim ad minim veniam, quis nostrud
-                                                    exercitation ullamco laboris nisi ut aliquip ex ea
-                                                    commodo</p>
-                                            </div>
-                                            <div className="review_item reply">
-                                                <div className="media">
-                                                    <div className="d-flex">
-                                                        <img src={imgProductReview2} alt=""/>
-                                                    </div>
-                                                    <div className="media-body">
-                                                        <h4>Blake Ruiz</h4>
-                                                        <h5>12th Feb, 2018 at 05:56 pm</h5>
-                                                        <a className="reply_btn" href="#">Reply</a>
-                                                    </div>
-                                                </div>
-                                                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do
-                                                    eiusmod tempor incididunt ut labore et
-                                                    dolore magna aliqua. Ut enim ad minim veniam, quis nostrud
-                                                    exercitation ullamco laboris nisi ut aliquip ex ea
-                                                    commodo</p>
-                                            </div>
-                                            <div className="review_item">
-                                                <div className="media">
-                                                    <div className="d-flex">
-                                                        <img src={imgProductReview3} alt=""/>
-                                                    </div>
-                                                    <div className="media-body">
-                                                        <h4>Blake Ruiz</h4>
-                                                        <h5>12th Feb, 2018 at 05:56 pm</h5>
-                                                        <a className="reply_btn" href="#">Reply</a>
-                                                    </div>
-                                                </div>
-                                                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do
-                                                    eiusmod tempor incididunt ut labore et
-                                                    dolore magna aliqua. Ut enim ad minim veniam, quis nostrud
-                                                    exercitation ullamco laboris nisi ut aliquip ex ea
-                                                    commodo</p>
-                                            </div>
+                                            {renderComments()}
                                         </div>
                                     </div>
                                     <div className="col-lg-6">
                                         <div className="review_box">
                                             <h4>Post a comment</h4>
                                             <form className="row contact_form"
-                                                  // action="contact_process.php"
-                                                  method="post"
-                                                  id="contactForm"
-                                                  noValidate="novalidate">
+                                                  id="add_comment_form"
+                                                  onSubmit={this.submitComment}>
                                                 <div className="col-md-12">
                                                     <div className="form-group">
                                                         <input type="text"
                                                                className="form-control"
                                                                id="name"
                                                                name="name"
-                                                               placeholder="Your Full name"/>
+                                                               placeholder="Your Full name"
+                                                               required={true}
+                                                                  onChange={this.setAddCommentValueToState}/>
                                                     </div>
                                                 </div>
                                                 <div className="col-md-12">
@@ -356,16 +600,9 @@ class ProductDetail extends Component {
                                                                className="form-control"
                                                                id="email"
                                                                name="email"
-                                                               placeholder="Email Address"/>
-                                                    </div>
-                                                </div>
-                                                <div className="col-md-12">
-                                                    <div className="form-group">
-                                                        <input type="text"
-                                                               className="form-control"
-                                                               id="number"
-                                                               name="number"
-                                                               placeholder="Phone Number"/>
+                                                               placeholder="Email Address"
+                                                               required={true}
+                                                                  onChange={this.setAddCommentValueToState}/>
                                                     </div>
                                                 </div>
                                                 <div className="col-md-12">
@@ -374,8 +611,25 @@ class ProductDetail extends Component {
                                                                   name="message"
                                                                   id="message"
                                                                   rows="1"
-                                                                  placeholder="Message"/>
+                                                                  placeholder="Message"
+                                                                  required={true}
+                                                                  onChange={this.setAddCommentValueToState}/>
                                                     </div>
+                                                </div>
+                                                <div className="col-md-12 form-group">
+                                                    <input type="checkbox"
+                                                           id="dataProcessingAgreement"
+                                                           name="dataProcessingAgreement"
+                                                           className="form-control"
+                                                           onChange={this.setAddCommentValueToState}
+                                                           required={true}
+                                                    />
+                                                    <label htmlFor="dataProcessingAgreement">
+                                                        I accept sales regulations and confirm acquaintance with Privacy Policy
+                                                    </label>
+                                                </div>
+                                                <div className="col-md-12 text-right">
+                                                    <p ref={this.addCommentMessageRef} />
                                                 </div>
                                                 <div className="col-md-12 text-right">
                                                     <button type="submit"
@@ -398,67 +652,69 @@ class ProductDetail extends Component {
                                             <div className="col-6">
                                                 <div className="box_total">
                                                     <h5>Overall</h5>
-                                                    <h4>4.0</h4>
-                                                    <h6>(03 Reviews)</h6>
+                                                    <h4>
+                                                        {overallReviews()}
+                                                    </h4>
+                                                    <h6>({productReviewsLength} Reviews)</h6>
                                                 </div>
                                             </div>
                                             <div className="col-6">
                                                 <div className="rating_list">
-                                                    <h3>Based on 3 Reviews</h3>
+                                                    <h3>Based on {productReviewsLength} Reviews</h3>
                                                     <ul className="list">
                                                         <li>
-                                                            <a href="#">
+                                                            <a>
                                                                 5 Star
                                                                 <i className="fa fa-star"/>
                                                                 <i className="fa fa-star"/>
                                                                 <i className="fa fa-star"/>
                                                                 <i className="fa fa-star"/>
                                                                 <i className="fa fa-star"/>
-                                                                01
+                                                                ({String(overallReviewsStars[5]).padStart(2, '0')})
                                                             </a>
                                                         </li>
                                                         <li>
-                                                            <a href="#">
+                                                            <a>
                                                                 4 Star
                                                                 <i className="fa fa-star"/>
                                                                 <i className="fa fa-star"/>
                                                                 <i className="fa fa-star"/>
                                                                 <i className="fa fa-star"/>
-                                                                <i className="fa fa-star"/>
-                                                                01
+                                                                <i className="fa fa-star-o"/>
+                                                                ({String(overallReviewsStars[4]).padStart(2, '0')})
                                                             </a>
                                                         </li>
                                                         <li>
-                                                            <a href="#">
+                                                            <a>
                                                                 3 Star
                                                                 <i className="fa fa-star"/>
                                                                 <i className="fa fa-star"/>
                                                                 <i className="fa fa-star"/>
-                                                                <i className="fa fa-star"/>
-                                                                <i className="fa fa-star"/>
-                                                                01
+                                                                <i className="fa fa-star-o"/>
+                                                                <i className="fa fa-star-o"/>
+                                                                ({String(overallReviewsStars[3]).padStart(2, '0')})
                                                             </a>
                                                         </li>
                                                         <li>
-                                                            <a href="#">
+                                                            <a>
                                                                 2 Star
                                                                 <i className="fa fa-star"/>
                                                                 <i className="fa fa-star"/>
-                                                                <i className="fa fa-star"/>
-                                                                <i className="fa fa-star"/>
-                                                                <i className="fa fa-star"/>
-                                                                01
+                                                                <i className="fa fa-star-o"/>
+                                                                <i className="fa fa-star-o"/>
+                                                                <i className="fa fa-star-o"/>
+                                                                ({String(overallReviewsStars[2]).padStart(2, '0')})
                                                             </a>
                                                         </li>
                                                         <li>
-                                                            <a href="#">
+                                                            <a>
                                                                 1 Star
                                                                 <i className="fa fa-star"/>
-                                                                <i className="fa fa-star"/>
-                                                                <i className="fa fa-star"/>
-                                                                <i className="fa fa-star"/>
-                                                                <i className="fa fa-star"/>
-                                                                01
+                                                                <i className="fa fa-star-o"/>
+                                                                <i className="fa fa-star-o"/>
+                                                                <i className="fa fa-star-o"/>
+                                                                <i className="fa fa-star-o"/>
+                                                                ({String(overallReviewsStars[1]).padStart(2, '0')})
                                                             </a>
                                                         </li>
                                                     </ul>
@@ -466,86 +722,31 @@ class ProductDetail extends Component {
                                             </div>
                                         </div>
                                         <div className="review_list">
-                                            <div className="review_item">
-                                                <div className="media">
-                                                    <div className="d-flex">
-                                                        <img src={imgProductReview1} alt=""/>
-                                                    </div>
-                                                    <div className="media-body">
-                                                        <h4>Blake Ruiz</h4>
-                                                        <i className="fa fa-star"/>
-                                                        <i className="fa fa-star"/>
-                                                        <i className="fa fa-star"/>
-                                                        <i className="fa fa-star"/>
-                                                        <i className="fa fa-star"/>
-                                                    </div>
-                                                </div>
-                                                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do
-                                                    eiusmod tempor incididunt ut labore et
-                                                    dolore magna aliqua. Ut enim ad minim veniam, quis nostrud
-                                                    exercitation ullamco laboris nisi ut aliquip ex ea
-                                                    commodo</p>
-                                            </div>
-                                            <div className="review_item">
-                                                <div className="media">
-                                                    <div className="d-flex">
-                                                        <img src={imgProductReview2} alt=""/>
-                                                    </div>
-                                                    <div className="media-body">
-                                                        <h4>Blake Ruiz</h4>
-                                                        <i className="fa fa-star"/>
-                                                        <i className="fa fa-star"/>
-                                                        <i className="fa fa-star"/>
-                                                        <i className="fa fa-star"/>
-                                                        <i className="fa fa-star"/>
-                                                    </div>
-                                                </div>
-                                                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do
-                                                    eiusmod tempor incididunt ut labore et
-                                                    dolore magna aliqua. Ut enim ad minim veniam, quis nostrud
-                                                    exercitation ullamco laboris nisi ut aliquip ex ea
-                                                    commodo</p>
-                                            </div>
-                                            <div className="review_item">
-                                                <div className="media">
-                                                    <div className="d-flex">
-                                                        <img src={imgProductReview3} alt=""/>
-                                                    </div>
-                                                    <div className="media-body">
-                                                        <h4>Blake Ruiz</h4>
-                                                        <i className="fa fa-star"/>
-                                                        <i className="fa fa-star"/>
-                                                        <i className="fa fa-star"/>
-                                                        <i className="fa fa-star"/>
-                                                        <i className="fa fa-star"/>
-                                                    </div>
-                                                </div>
-                                                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do
-                                                    eiusmod tempor incididunt ut labore et
-                                                    dolore magna aliqua. Ut enim ad minim veniam, quis nostrud
-                                                    exercitation ullamco laboris nisi ut aliquip ex ea
-                                                    commodo</p>
-                                            </div>
+                                            {renderReviewsComments()}
                                         </div>
                                     </div>
                                     <div className="col-lg-6">
                                         <div className="review_box">
                                             <h4>Add a Review</h4>
-                                            <p>Your Rating:</p>
-                                            <ul className="list">
-                                                <li><a href="#"><i className="fa fa-star"/></a></li>
-                                                <li><a href="#"><i className="fa fa-star"/></a></li>
-                                                <li><a href="#"><i className="fa fa-star"/></a></li>
-                                                <li><a href="#"><i className="fa fa-star"/></a></li>
-                                                <li><a href="#"><i className="fa fa-star"/></a></li>
-                                            </ul>
-                                            <p>Outstanding</p>
                                             <form className="row contact_form"
-                                                  // action="contact_process.php"
-                                                  method="post"
-                                                  id="contactForm"
-                                                  noValidate="novalidate"
-                                            >
+                                                  id="add_product_review_form"
+                                                  onSubmit={this.submitReviewComment}>
+                                                <div className="col-md-12">
+                                                    <p>Your Rating:</p>
+                                                    <div className="rate">
+                                                        <input type="radio" id="star5" name="rate" value="5"/>
+                                                        <label htmlFor="star5">5 stars</label>
+                                                        <input type="radio" id="star4" name="rate" value="4"/>
+                                                        <label htmlFor="star4">4 stars</label>
+                                                        <input type="radio" id="star3" name="rate" value="3"/>
+                                                        <label htmlFor="star3">3 stars</label>
+                                                        <input type="radio" id="star2" name="rate" value="2"/>
+                                                        <label htmlFor="star2">2 stars</label>
+                                                        <input type="radio" id="star1" name="rate" value="1"/>
+                                                        <label htmlFor="star1">1 star</label>
+                                                    </div>
+                                                    <p>Outstanding</p>
+                                                </div>
                                                 <div className="col-md-12">
                                                     <div className="form-group">
                                                         <input type="text"
@@ -553,8 +754,8 @@ class ProductDetail extends Component {
                                                                id="name"
                                                                name="name"
                                                                placeholder="Your Full name"
-                                                            // onfocus="this.placeholder = ''"
-                                                            // onblur="this.placeholder = 'Your Full name'"
+                                                               onChange={(e) => this.setReviewValueToState(e)}
+                                                               required={true}
                                                         />
                                                     </div>
                                                 </div>
@@ -565,20 +766,8 @@ class ProductDetail extends Component {
                                                                id="email"
                                                                name="email"
                                                                placeholder="Email Address"
-                                                            // onfocus="this.placeholder = ''"
-                                                            // onblur="this.placeholder = 'Email Address'"
-                                                        />
-                                                    </div>
-                                                </div>
-                                                <div className="col-md-12">
-                                                    <div className="form-group">
-                                                        <input type="text"
-                                                               className="form-control"
-                                                               id="number"
-                                                               name="number"
-                                                               placeholder="Phone Number"
-                                                            // onfocus="this.placeholder = ''"
-                                                            // onblur="this.placeholder = 'Phone Number'"
+                                                               onChange={(e) => this.setReviewValueToState(e)}
+                                                               required={true}
                                                         />
                                                     </div>
                                                 </div>
@@ -589,10 +778,25 @@ class ProductDetail extends Component {
                                                                   id="message"
                                                                   rows="1"
                                                                   placeholder="Review"
-                                                            // onfocus="this.placeholder = ''"
-                                                            // onblur="this.placeholder = 'Review'"
+                                                                  onChange={(e) => this.setReviewValueToState(e)}
+                                                                  required={true}
                                                         />
                                                     </div>
+                                                </div>
+                                                <div className="col-md-12 form-group">
+                                                    <input type="checkbox"
+                                                           id="dataProcessingAgreement"
+                                                           name="dataProcessingAgreement"
+                                                           className="form-control"
+                                                           onChange={this.setReviewValueToState}
+                                                           required={true}
+                                                    />
+                                                    <label htmlFor="dataProcessingAgreement">
+                                                        I accept sales regulations and confirm acquaintance with Privacy Policy
+                                                    </label>
+                                                </div>
+                                                <div className="col-md-12 text-right">
+                                                    <p ref={this.addReviewMessageRef} />
                                                 </div>
                                                 <div className="col-md-12 text-right">
                                                     <button type="submit"

@@ -23,8 +23,12 @@ class ShopProductRepository extends ServiceEntityRepository
     }
 
     /**
-     * @throws NonUniqueResultException
+     * @param array $parameters
+     *
+     * @return int
+     *
      * @throws NoResultException
+     * @throws NonUniqueResultException
      */
     public function getCountProductsByParameters(array $parameters): int
     {
@@ -106,5 +110,36 @@ class ShopProductRepository extends ServiceEntityRepository
         }
 
         return $queryBuilder;
+    }
+
+    public function findByNameLike(string $name): array
+    {
+        $queryBuilder = $this->createQueryBuilder('sp')
+            ->where('sp.name LIKE :name')
+            ->setParameter('name', '%'.$name.'%')
+            ->setMaxResults(4);
+
+        return $queryBuilder
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
+     * @param string $uuid
+     *
+     * @return ShopProduct|null
+     *
+     * @throws NonUniqueResultException
+     */
+    public function findActiveByUuid(string $uuid): ?ShopProduct
+    {
+        $queryBuilder = $this->createQueryBuilder('sp')
+            ->where('sp.enable = 1')
+            ->andWhere('sp.uuid = :uuid')
+            ->setParameter('uuid', $uuid);
+
+        return $queryBuilder
+            ->getQuery()
+            ->getOneOrNullResult();
     }
 }

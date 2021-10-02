@@ -8,9 +8,11 @@ use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\EnableTrait;
 use App\Entity\Traits\UuidTrait;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
+ * @ORM\Table(name="comments")
  * @ORM\Entity(repositoryClass=CommentRepository::class)
  * @ORM\HasLifecycleCallbacks()
  */
@@ -31,6 +33,8 @@ class Comment
 
     /**
      * @var string
+     *
+     * @Groups("comment")
      *
      * @Assert\NotBlank()
      * @Assert\Length(min="3")
@@ -61,6 +65,8 @@ class Comment
     /**
      * @var string
      *
+     * @Groups("comment")
+     *
      * @Assert\NotBlank()
      * @Assert\Length(min="3")
      *
@@ -68,7 +74,7 @@ class Comment
      */
     private string $text = '';
 
-    public function __construct(string $name, string $email, string $text, ?string $subject = '', bool $enable = true)
+    public function __construct(string $name, string $email, string $text, ?string $subject = '', bool $enable = false)
     {
         $this->__UuidTraitConstructor();
         $this->name = $name;

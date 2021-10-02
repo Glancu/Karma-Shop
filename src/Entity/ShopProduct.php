@@ -112,16 +112,6 @@ class ShopProduct
     private $shopProductSpecifications;
 
     /**
-     * @var ShopDelivery|null
-     *
-     * @Groups("shop_delivery")
-     *
-     * @ORM\ManyToOne(targetEntity="App\Entity\ShopDelivery")
-     * @ORM\JoinColumn(name="shop_delivery_id", referencedColumnName="id", nullable=false)
-     */
-    private ?ShopDelivery $shopDelivery = null;
-
-    /**
      * @var ArrayCollection|PersistentCollection
      *
      * @ORM\ManyToMany(targetEntity="App\Entity\SonataMediaMedia")
@@ -152,17 +142,29 @@ class ShopProduct
      */
     private $shopColors;
 
+    /**
+     * @var ArrayCollection|PersistentCollection
+     *
+     * @Groups("comment")
+     *
+     * @ORM\ManyToMany(targetEntity="App\Entity\Comment")
+     * @ORM\JoinTable(name="shop_products_comments",
+     *      joinColumns={@ORM\JoinColumn(name="shop_product_id", referencedColumnName="id")},
+     *      inverseJoinColumns={@ORM\JoinColumn(name="comment_id", referencedColumnName="id", unique=true)}
+     * )
+     */
+    private $comments;
+
     public function __construct(
         string $name,
         int $priceNet,
         int $priceGross,
         int $quantity,
         string $description,
-        bool $enable = true,
         ShopBrand $shopBrand,
         ShopCategory $shopCategory,
         $shopProductSpecifications,
-        ShopDelivery $shopDelivery
+        bool $enable = true
     ) {
         $this->__UuidTraitConstructor();
         $this->name = $name;
@@ -173,11 +175,11 @@ class ShopProduct
         $this->shopBrand = $shopBrand;
         $this->shopCategory = $shopCategory;
         $this->shopProductSpecifications = $shopProductSpecifications;
-        $this->shopDelivery = $shopDelivery;
         $this->enable = $enable;
         $this->images = new ArrayCollection();
         $this->reviews = new ArrayCollection();
         $this->shopColors = new ArrayCollection();
+        $this->comments = new ArrayCollection();
     }
 
     public function __toString(): string
@@ -263,16 +265,6 @@ class ShopProduct
         $this->shopProductSpecifications->removeElement($shopProductSpecification);
     }
 
-    public function getShopDelivery(): ?ShopDelivery
-    {
-        return $this->shopDelivery;
-    }
-
-    public function setShopDelivery(ShopDelivery $shopDelivery): void
-    {
-        $this->shopDelivery = $shopDelivery;
-    }
-
     /**
      * @return ArrayCollection|PersistentCollection
      */
@@ -299,12 +291,12 @@ class ShopProduct
         return $this->reviews;
     }
 
-    public function addReview(Comment $review): void
+    public function addReview(ProductReview $review): void
     {
         $this->reviews[] = $review;
     }
 
-    public function removeReview(Comment $review): void
+    public function removeReview(ProductReview $review): void
     {
         $this->reviews->removeElement($review);
     }
@@ -322,5 +314,29 @@ class ShopProduct
     public function removeShopColor(ShopColor $color): void
     {
         $this->shopColors->removeElement($color);
+    }
+
+    /**
+     * @return ArrayCollection|PersistentCollection
+     */
+    public function getComments()
+    {
+        return $this->comments;
+    }
+
+    /**
+     * @param Comment $comment
+     */
+    public function addComment(Comment $comment): void
+    {
+        $this->comments[] = $comment;
+    }
+
+    /**
+     * @param Comment $comment
+     */
+    public function removeComment(Comment $comment): void
+    {
+        $this->comments->removeElement($comment);
     }
 }

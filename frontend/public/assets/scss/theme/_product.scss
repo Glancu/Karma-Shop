@@ -482,13 +482,14 @@
 		right: 20px;
 		top: 50%;
 		transform: translateY(-50%);
-		div{
+		button{
 			height: 5px;
 			width: 20px;
 			background: #dddddd;
 			margin: 5px;
 			display: block;
 			content: "";
+			border: 0;
 			border-radius: 50px;
 			&.active{
 				width: 30px;
@@ -898,6 +899,11 @@
 					padding-bottom: 30px;
 					vertical-align: middle;
 					align-self: center;
+
+					&:last-child {
+						width: 100px;
+					}
+
 					.media{
 						.d-flex{
 							padding-right: 30px;
@@ -1133,6 +1139,7 @@
 	color: $title-color;
 	text-transform: uppercase;
 	font-weight: 500;
+	white-space: nowrap;
 }
 /* End Cart Area css
 ============================================================================================ */
@@ -1349,32 +1356,23 @@
 		padding-bottom: 15px;
 	}
 	.list{
-		li{
-			a{
-				font-size: 14px;
-				color: $text-color;
-				font-weight: normal;
-				border-bottom: 1px solid #eeeeee;
-				display: block;
-				line-height: 42px;
-				span{
-					float: right;
-				}
-				.middle{
-					float: none;
-					width: 50px;
-					text-align: right;
-					display: inline-block;
-					margin-left: 30px;
-					color: $title-color;
-				}
+		li {
+			font-size: 14px;
+			color: $text-color;
+			font-weight: normal;
+			border-bottom: 1px solid #eeeeee;
+			display: block;
+			line-height: 42px;
+			span{
+				float: right;
 			}
-			&:nth-child(4){
-				a{
-					.middle{
-						margin-left: 48px;
-					}
-				}
+			.middle{
+				float: none;
+				width: 50px;
+				text-align: right;
+				display: inline-block;
+				margin-left: 30px;
+				color: $title-color;
 			}
 		}
 	}
@@ -1820,4 +1818,73 @@
 
 .radion_btn input[type=radio]:checked ~ label{
     color: #000;
+}
+
+.product-title {
+	color: #222222;
+}
+
+.search-list {
+	position: relative;
+	background: white;
+	padding: 15px 5px 0 5px;
+	text-align: left;
+
+	.single-item {
+		margin-bottom: 10px;
+
+		.text {
+			display: inline-block;
+			vertical-align: top;
+			margin-left: 5px;
+
+			a {
+				color: #777777;
+
+				&:hover {
+					color: #007bff;
+				}
+			}
+		}
+	}
+}
+
+.rate {
+	display: inline-block;
+	vertical-align: bottom;
+
+	&:not(:checked) > input {
+		display: none;
+	}
+
+	&:not(:checked) > label {
+		float: right;
+		width: 1em;
+		overflow: hidden;
+		white-space: nowrap;
+		cursor: pointer;
+		font-size: 18px;
+		color: #ccc;
+	}
+
+	&:not(:checked) > label:before {
+		content: '★ ';
+	}
+
+	> input:checked ~ label {
+		color: #ffc700;
+	}
+
+	&:not(:checked) > label:hover,
+	&:not(:checked) > label:hover ~ label {
+		color: #deb217;
+	}
+
+	> input:checked + label:hover,
+	> input:checked + label:hover ~ label,
+	> input:checked ~ label:hover,
+	> input:checked ~ label:hover ~ label,
+	> label:hover ~ input:checked ~ label {
+		color: #c59b08;
+	}
 }

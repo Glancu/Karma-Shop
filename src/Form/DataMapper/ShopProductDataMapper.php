@@ -20,9 +20,9 @@ class ShopProductDataMapper extends BaseDataMapper implements DataMapperInterfac
         if ($viewData->getId() === null) {
             $viewData = new ShopProduct($parameters['name'], $parameters['priceNet'],
                 $parameters['priceGross'], $parameters['quantity'],
-                $parameters['description'], $parameters['enable'], $parameters['shopBrand'],
+                $parameters['description'], $parameters['shopBrand'],
                 $parameters['shopCategory'], $parameters['shopProductSpecifications'],
-                $parameters['shopDelivery']);
+                $parameters['enable']);
         } else {
             $viewData->setName($parameters['name']);
             $viewData->setPriceNet($parameters['priceNet']);
@@ -31,14 +31,13 @@ class ShopProductDataMapper extends BaseDataMapper implements DataMapperInterfac
             $viewData->setDescription($parameters['description']);
             $viewData->setShopBrand($parameters['shopBrand']);
             $viewData->setShopCategory($parameters['shopCategory']);
-            $viewData->setShopDelivery($parameters['shopDelivery']);
             $viewData->setEnable($parameters['enable']);
 
-            if(is_array($parameters['shopProductSpecifications'])) {
-                foreach($parameters['shopProductSpecifications'] as $productSpecification) {
+            if (is_array($parameters['shopProductSpecifications'])) {
+                foreach ($parameters['shopProductSpecifications'] as $productSpecification) {
                     $viewData->addShopProductSpecification($productSpecification);
                 }
-            } elseif($parameters['shopProductSpecifications'] instanceof ShopProductSpecification) {
+            } elseif ($parameters['shopProductSpecifications'] instanceof ShopProductSpecification) {
                 $viewData->addShopProductSpecification($parameters['shopProductSpecifications']);
             }
         }

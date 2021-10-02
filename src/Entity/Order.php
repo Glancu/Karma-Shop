@@ -2,19 +2,18 @@
 
 namespace App\Entity;
 
-use App\Repository\OrderRepository;
 use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\PriceTrait;
 use App\Entity\Traits\UuidTrait;
+use App\Repository\OrderRepository;
 use DateTime;
-use DateTimeInterface;
 use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\ORM\PersistentCollection;
 
 /**
  * @ORM\Entity(repositoryClass=OrderRepository::class)
- * @ORM\Table(name="`order`")
+ * @ORM\Table(name="orders")
  */
 class Order
 {
@@ -23,6 +22,8 @@ class Order
     }
 
     /**
+     * @var int
+     *
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
@@ -30,58 +31,74 @@ class Order
     private int $id;
 
     /**
-     * @ORM\Column(type="integer")
+     * @var null|DateTime
+     *
+     * @ORM\Column(name="updated_at", type="datetime", nullable=true)
      */
-    private int $methodPay; // @TODO Create function with const
+    private ?DateTime $updatedAt = null;
 
     /**
-     * @ORM\Column(type="boolean")
+     * @var ArrayCollection|PersistentCollection
+     *
+     * @ORM\ManyToMany(targetEntity="App\Entity\ShopProduct")
      */
-    private bool $blockPay;
+    private $products;
 
     /**
-     * @ORM\Column(type="integer")
+     * @var ClientUser
+     *
+     * @ORM\ManyToOne(targetEntity="App\Entity\ClientUser", inversedBy="orders")
+     * @ORM\JoinColumn(name="client_id", referencedColumnName="id")
      */
-    private int $status; // @TODO Create function with const
+    private ClientUser $user;
 
     /**
-     * @ORM\Column(type="string", length=255, nullable=true)
+     * @ORM\Embedded(class="App\Entity\OrderPersonalDataInfo")
      */
-    private ?string $discount;
+    private OrderPersonalDataInfo $orderPersonalDataInfo;
 
     /**
+     * @ORM\Embedded(class="App\Entity\OrderAddress")
+     */
+    private OrderAddress $orderAddress;
+
+    /**
+     * @var string|null
+     *
      * @ORM\Column(name="additional_information", type="text", nullable=true)
      */
     private ?string $additionalInformation;
 
     /**
-     * @ORM\Column(type="datetime", nullable=true)
+     * @var int
+     *
+     * @ORM\Column(name="method_pay", type="integer")
      */
-    private ?DateTime $updatedAt;
+    private int $methodPayment;
 
     /**
-     * @ORM\ManyToMany(targetEntity="App\Entity\ShopProduct")
+     * @var int
+     *
+     * @ORM\Column(name="status_payment", type="smallint")
      */
-    private ArrayCollection $products;
+    private int $statusPayment;
 
-    /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\ShopDelivery")
-     * @ORM\JoinColumn(nullable=false)
-     */
-    private ShopDelivery $delivery;
-
-    /**
-     * @ORM\ManyToMany(targetEntity="App\Entity\ClientUser", inversedBy="orders")
-     * @ORM\JoinTable(name="orders_client_users")
-     */
-    private $user;
-
-    public function __construct()
-    {
+    public function __construct(
+        ClientUser $clientUser,
+        OrderPersonalDataInfo $orderPersonalDataInfo,
+        OrderAddress $orderAddress,
+        int $methodPayment,
+        $products,
+        ?string $additionalInformation = null
+    ) {
         $this->__UuidTraitConstructor();
-        $this->blockPay = false;
-        $this->products = new ArrayCollection();
-        $this->user = new ArrayCollection();
+        $this->statusPayment = self::STATUS_PAYMENT_NEW;
+        $this->orderPersonalDataInfo = $orderPersonalDataInfo;
+        $this->orderAddress = $orderAddress;
+        $this->user = $clientUser;
+        $this->methodPayment = $methodPayment;
+        $this->addShopProductsArr($products);
+        $this->additionalInformation = $additionalInformation;
     }
 
     public function getId(): ?int
@@ -89,131 +106,190 @@ class Order
         return $this->id;
     }
 
-    public function getMethodPay(): ?int
+    /**
+     * @return int
+     */
+    public function getMethodPayment(): int
     {
-        return $this->methodPay;
+        return $this->methodPayment;
     }
 
-    public function setMethodPay(int $methodPay): self
+    /**
+     * @param int $methodPayment
+     */
+    public function setMethodPayment(int $methodPayment): void
     {
-        $this->methodPay = $methodPay;
-
-        return $this;
+        $this->methodPayment = $methodPayment;
     }
 
-    public function isBlockPay(): bool
+    /**
+     * @return int
+     */
+    public function getStatusPayment(): int
     {
-        return $this->blockPay;
+        return $this->statusPayment;
     }
 
-    public function setBlockPay(bool $blockPay): void
+    /**
+     * @param int $statusPayment
+     */
+    public function setStatusPayment(int $statusPayment): void
     {
-        $this->blockPay = $blockPay;
+        $this->statusPayment = $statusPayment;
     }
 
-    public function getStatus(): ?int
-    {
-        return $this->status;
-    }
-
-    public function setStatus(int $status): self
-    {
-        $this->status = $status;
-
-        return $this;
-    }
-
-    public function getDiscount(): ?string
-    {
-        return $this->discount;
-    }
-
-    public function setDiscount(?string $discount): self
-    {
-        $this->discount = $discount;
-
-        return $this;
-    }
-
-    public function getAdditionalInformation(): ?string
-    {
-        return $this->additionalInformation;
-    }
-
-    public function setAdditionalInformation(?string $additionalInformation): self
-    {
-        $this->additionalInformation = $additionalInformation;
-
-        return $this;
-    }
-
-    public function getUpdatedAt(): ?DateTimeInterface
+    /**
+     * @return DateTime|null
+     */
+    public function getUpdatedAt(): ?DateTime
     {
         return $this->updatedAt;
     }
 
-    public function setUpdatedAt(?DateTimeInterface $updatedAt): self
+    /**
+     * @param DateTime $updatedAt
+     */
+    public function setUpdatedAt(DateTime $updatedAt): void
     {
         $this->updatedAt = $updatedAt;
-
-        return $this;
     }
 
+    /**
+     * @return ArrayCollection|PersistentCollection
+     */
     public function getProducts()
     {
         return $this->products;
     }
 
-    public function addProduct(ShopProduct $product): self
+    /**
+     * @param ShopProduct $shopProduct
+     */
+    public function addShopProduct(ShopProduct $shopProduct): void
     {
-        if (!$this->products->contains($product)) {
-            $this->products[] = $product;
-        }
-
-        return $this;
+        $this->products[] = $shopProduct;
     }
 
-    public function removeProduct(ShopProduct $product): self
+    /**
+     * @param ShopProduct $shopProduct
+     */
+    public function removeShopProduct(ShopProduct $shopProduct): void
     {
-        if ($this->products->contains($product)) {
-            $this->products->removeElement($product);
-        }
-
-        return $this;
+        $this->products->removeElement($shopProduct);
     }
 
-    public function getDelivery(): ?ShopDelivery
-    {
-        return $this->delivery;
-    }
-
-    public function setDelivery(ShopDelivery $delivery): self
-    {
-        $this->delivery = $delivery;
-
-        return $this;
-    }
-
-    public function getUser()
+    /**
+     * @return ClientUser
+     */
+    public function getUser(): ClientUser
     {
         return $this->user;
     }
 
-    public function addUser(ClientUser $user): self
+    /**
+     * @param ClientUser $user
+     */
+    public function setUser(ClientUser $user): void
     {
-        if (!$this->user->contains($user)) {
-            $this->user[] = $user;
-        }
-
-        return $this;
+        $this->user = $user;
     }
 
-    public function removeUser(ClientUser $user): self
+    /**
+     * @return string|null
+     */
+    public function getAdditionalInformation(): ?string
     {
-        if ($this->user->contains($user)) {
-            $this->user->removeElement($user);
-        }
+        return $this->additionalInformation;
+    }
 
-        return $this;
+    /**
+     * @param string|null $additionalInformation
+     */
+    public function setAdditionalInformation(?string $additionalInformation): void
+    {
+        $this->additionalInformation = $additionalInformation;
+    }
+
+    /**
+     * @return OrderPersonalDataInfo
+     */
+    public function getOrderPersonalDataInfo(): OrderPersonalDataInfo
+    {
+        return $this->orderPersonalDataInfo;
+    }
+
+    /**
+     * @param OrderPersonalDataInfo $orderPersonalDataInfo
+     */
+    public function setOrderPersonalDataInfo(OrderPersonalDataInfo $orderPersonalDataInfo): void
+    {
+        $this->orderPersonalDataInfo = $orderPersonalDataInfo;
+    }
+
+    /**
+     * @return OrderAddress
+     */
+    public function getOrderAddress(): OrderAddress
+    {
+        return $this->orderAddress;
+    }
+
+    /**
+     * @param OrderAddress $orderAddress
+     */
+    public function setOrderAddress(OrderAddress $orderAddress): void
+    {
+        $this->orderAddress = $orderAddress;
+    }
+
+    /**
+     * CUSTOM
+     */
+
+    public const METHOD_PAYMENT_TYPE_ONLINE = 1;
+    public const METHOD_PAYMENT_TYPE_PAYPAL = 2;
+
+    public static function getMethodPaymentsArr(): array
+    {
+        return [
+            self::METHOD_PAYMENT_TYPE_ONLINE => 'Online',
+            self::METHOD_PAYMENT_TYPE_PAYPAL => 'PayPal'
+        ];
+    }
+
+    public function getMethodPaymentStr(): ?string
+    {
+        return $this->methodPayment ? self::getMethodPaymentsArr()[$this->methodPayment] : null;
+    }
+
+    public static function getMethodPaymentInt(string $methodPayment):int
+    {
+        return array_search(trim($methodPayment), self::getMethodPaymentsArr());
+    }
+
+    public const STATUS_PAYMENT_NEW = 1;
+    public const STATUS_PAYMENT_PAID = 2;
+
+    public function getStatusPaymentsArr(): array
+    {
+        return [
+            self::STATUS_PAYMENT_NEW => 'New',
+            self::STATUS_PAYMENT_PAID => 'Paid'
+        ];
+    }
+
+    public function getStatusPaymentStr(): ?string
+    {
+        return $this->statusPayment ? $this->getStatusPaymentsArr()[$this->statusPayment] : null;
+    }
+
+    private function addShopProductsArr($products): void
+    {
+        /**
+         * @var ShopProduct $product
+         */
+        foreach ($products as $product) {
+            $this->addShopProduct($product);
+        }
     }
 }

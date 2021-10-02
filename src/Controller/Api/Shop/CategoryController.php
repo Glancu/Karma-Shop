@@ -3,9 +3,9 @@ declare(strict_types=1);
 
 namespace App\Controller\Api\Shop;
 
+use App\Repository\ShopCategoryRepository;
 use App\Service\SerializeDataResponse;
-use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -17,41 +17,37 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class CategoryController
 {
-    private EntityManagerInterface $entityManager;
     private SerializeDataResponse $serializeDataResponse;
+    private ShopCategoryRepository $shopCategoryRepository;
 
     /**
      * CategoryController constructor.
      *
-     * @param EntityManagerInterface $entityManager
      * @param SerializeDataResponse $serializeDataResponse
+     * @param ShopCategoryRepository $shopCategoryRepository
      */
     public function __construct(
-        EntityManagerInterface $entityManager,
-        SerializeDataResponse $serializeDataResponse
+        SerializeDataResponse $serializeDataResponse,
+        ShopCategoryRepository $shopCategoryRepository
     )
     {
-        $this->entityManager = $entityManager;
         $this->serializeDataResponse = $serializeDataResponse;
+        $this->shopCategoryRepository = $shopCategoryRepository;
     }
 
     /**
      * @Route("/list", name="shop_categories_list", methods={"GET"})
      *
-     * @return Response
+     * @return JsonResponse
      */
-    public function getCategoriesList(): Response
+    public function getCategoriesList(): JsonResponse
     {
-        $em = $this->entityManager;
         $serializer = $this->serializeDataResponse;
 
-        $items = $em->getRepository('App:ShopCategory')->findBy(
+        $items = $this->shopCategoryRepository->findBy(
             ['enable' => true],
             ['id' => 'DESC']);
 
-        $response = new Response($serializer->getCategoriesList($items));
-        $response->headers->set('Content-Type', 'application/json');
-
-        return $response;
+        return JsonResponse::fromJsonString($serializer->getCategoriesList($items));
     }
 }

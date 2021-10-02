@@ -3,9 +3,9 @@ declare(strict_types=1);
 
 namespace App\Controller\Api\Shop;
 
+use App\Repository\ShopColorRepository;
 use App\Service\SerializeDataResponse;
-use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -17,41 +17,37 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class ColorController
 {
-    private EntityManagerInterface $entityManager;
     private SerializeDataResponse $serializeDataResponse;
+    private ShopColorRepository $shopColorRepository;
 
     /**
      * ColorController constructor.
      *
-     * @param EntityManagerInterface $entityManager
      * @param SerializeDataResponse $serializeDataResponse
+     * @param ShopColorRepository $shopColorRepository
      */
     public function __construct(
-        EntityManagerInterface $entityManager,
-        SerializeDataResponse $serializeDataResponse
+        SerializeDataResponse $serializeDataResponse,
+        ShopColorRepository $shopColorRepository
     )
     {
-        $this->entityManager = $entityManager;
         $this->serializeDataResponse = $serializeDataResponse;
+        $this->shopColorRepository = $shopColorRepository;
     }
 
     /**
      * @Route("/list", name="shop_colors_list", methods={"GET"})
      *
-     * @return Response
+     * @return JsonResponse
      */
-    public function getCategoriesList(): Response
+    public function getCategoriesList(): JsonResponse
     {
-        $em = $this->entityManager;
         $serializer = $this->serializeDataResponse;
 
-        $items = $em->getRepository('App:ShopColor')->findBy(
+        $items = $this->shopColorRepository->findBy(
             ['enable' => true],
             ['id' => 'DESC']);
 
-        $response = new Response($serializer->getColorsList($items));
-        $response->headers->set('Content-Type', 'application/json');
-
-        return $response;
+        return JsonResponse::fromJsonString($serializer->getColorsList($items));
     }
 }

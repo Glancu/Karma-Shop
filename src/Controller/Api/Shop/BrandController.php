@@ -3,9 +3,9 @@ declare(strict_types=1);
 
 namespace App\Controller\Api\Shop;
 
+use App\Repository\ShopBrandRepository;
 use App\Service\SerializeDataResponse;
-use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -17,41 +17,37 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class BrandController
 {
-    private EntityManagerInterface $entityManager;
     private SerializeDataResponse $serializeDataResponse;
+    private ShopBrandRepository $shopBrandRepository;
 
     /**
      * BrandController constructor.
      *
-     * @param EntityManagerInterface $entityManager
      * @param SerializeDataResponse $serializeDataResponse
+     * @param ShopBrandRepository $shopBrandRepository
      */
     public function __construct(
-        EntityManagerInterface $entityManager,
-        SerializeDataResponse $serializeDataResponse
+        SerializeDataResponse $serializeDataResponse,
+        ShopBrandRepository $shopBrandRepository
     )
     {
-        $this->entityManager = $entityManager;
         $this->serializeDataResponse = $serializeDataResponse;
+        $this->shopBrandRepository = $shopBrandRepository;
     }
 
     /**
      * @Route("/list", name="shop_brands_list", methods={"GET"})
      *
-     * @return Response
+     * @return JsonResponse
      */
-    public function getBrandsList(): Response
+    public function getBrandsList(): JsonResponse
     {
-        $em = $this->entityManager;
         $serializer = $this->serializeDataResponse;
 
-        $items = $em->getRepository('App:ShopBrand')->findBy(
+        $items = $this->shopBrandRepository->findBy(
             ['enable' => true],
             ['id' => 'DESC']);
 
-        $response = new Response($serializer->getBrandsList($items));
-        $response->headers->set('Content-Type', 'application/json');
-
-        return $response;
+        return JsonResponse::fromJsonString($serializer->getBrandsList($items));
     }
 }

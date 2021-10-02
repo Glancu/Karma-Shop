@@ -9,14 +9,13 @@ import ProductDetail from './Pages/Shop/ProductDetail';
 import Checkout from './Pages/Shop/Checkout';
 import Cart from './Pages/Shop/Cart';
 import Confirmation from './Pages/Shop/Confirmation';
-import Tracking from './Pages/Shop/Tracking';
 import List from './Pages/Blog/List';
 import Show from './Pages/Blog/Show';
 import Login from './Pages/User/Login';
 import Logout from './Pages/User/Logout';
 import Register from './Pages/User/Register';
-import Elements from './Pages/Elements';
 import ScrollToTop from './Components/ScrollToTop';
+import ShoppingCart from './Components/Shop/ShoppingCart';
 
 const App = () => (
     <Router>
@@ -26,14 +25,15 @@ const App = () => (
 
             <Route path='/contact' component={Contact} />
 
-            <Route path='/shop/product' component={ProductDetail} />
-            <Route path='/shop/checkout' component={Checkout} />
+            <Route path='/shop/product/:slug' component={ProductDetail} />
+
+            <ShopCheckoutRoute path='/shop/checkout' component={Checkout} />
+
             <Route path='/shop/cart' component={Cart} />
             <Route path='/shop/confirmation' component={Confirmation} />
-            <Route path='/shop/tracking' component={Tracking} />
             <Route path='/shop/page/:page' component={ProductsList} />
             <Route path='/shop/category/:slug' component={Category} />
-            <Route path='/shop' component={ProductsList} />
+            <Route exact path='/shop' component={ProductsList} />
 
             <Route path='/blog/:id' component={Show} />
             <Route path='/blog' component={List} />
@@ -42,8 +42,6 @@ const App = () => (
             <Route path='/logout' component={Logout} />
             <Route path='/register' component={Register} />
 
-            <Route path='/elements' component={Elements} />
-
             <Route component={NotFound} />
         </Switch>
     </Router>
@@ -51,6 +49,16 @@ const App = () => (
 
 const HomepageRoute = ({component: Component, ...rest}) => {
     if(rest.path !== rest.location.pathname) {
+        return <Redirect to='/' />
+    }
+
+    return <Route {...rest} render={(props) => (
+        <Component {...props} />
+    )} />
+};
+
+const ShopCheckoutRoute = ({component: Component, ...rest}) => {
+    if(ShoppingCart.getCountProducts() === 0) {
         return <Redirect to='/' />
     }
 

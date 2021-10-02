@@ -48,8 +48,6 @@ final class ShopProductAdmin extends AbstractAdmin
                    ->add('shopBrand', null, ['label' => 'Brand'])
                    ->add('shopCategory', null, ['label' => 'Category'])
                    ->add('shopColors', null, ['label' => 'Colors'])
-                   ->add('shopDelivery', null, ['label' => 'Delivery'])
-                   ->add('description', CKEditorType::class, ['label' => 'Description'])
                    ->end()
                    ->with('Images')
                    ->add('images', ModelType::class, [
@@ -118,7 +116,6 @@ final class ShopProductAdmin extends AbstractAdmin
                    ->add('shopBrand', null, ['label' => 'Brand'])
                    ->add('shopCategory', null, ['label' => 'Category'])
                    ->add('shopColors', null, ['label' => 'Colors'])
-                   ->add('shopDelivery', null, ['label' => 'Delivery'])
                    ->add('description', 'html', ['label' => 'Description'])
                    ->end()
                    ->with('Images')

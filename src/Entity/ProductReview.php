@@ -3,12 +3,14 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
+use App\Entity\Traits\UuidTrait;
 use App\Repository\ProductReviewRepository;
 use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\EnableTrait;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\PersistentCollection;
+use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -16,8 +18,9 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 class ProductReview
 {
-    use EnableTrait, CreatedAtTrait {
+    use EnableTrait, CreatedAtTrait, UuidTrait {
         EnableTrait::__construct as private __EnableTraitConstructor;
+        UuidTrait::__construct as private __UuidTraitConstructor;
     }
 
     /**
@@ -32,6 +35,8 @@ class ProductReview
     /**
      * @var string
      *
+     * @Groups("product_review")
+     *
      * @Assert\NotBlank()
      * @Assert\Length(min="3")
      *
@@ -41,6 +46,8 @@ class ProductReview
 
     /**
      * @var string
+     *
+     * @Groups("product_review")
      *
      * @Assert\NotBlank()
      * @Assert\Email(
@@ -54,6 +61,8 @@ class ProductReview
     /**
      * @var int
      *
+     * @Groups("product_review")
+     *
      * @Assert\NotBlank()
      * @Assert\GreaterThan(0)
      * @Assert\LessThanOrEqual(5)
@@ -63,16 +72,9 @@ class ProductReview
     private int $rating = 0;
 
     /**
-     * @var null|string
-     *
-     * @Assert\Length(min="9")
-     *
-     * @ORM\Column(type="string", nullable=true)
-     */
-    private ?string $phoneNumber = null;
-
-    /**
      * @var string
+     *
+     * @Groups("product_review")
      *
      * @Assert\NotBlank()
      * @Assert\Length(min="10")
@@ -93,15 +95,14 @@ class ProductReview
         string $email,
         int $rating,
         string $message,
-        bool $enable = false,
-        ?string $phoneNumber = null
+        bool $enable = false
     ) {
+        $this->__UuidTraitConstructor();
         $this->name = $name;
         $this->email = $email;
         $this->rating = $rating;
         $this->message = $message;
         $this->enable = $enable;
-        $this->phoneNumber = $phoneNumber;
         $this->products = new ArrayCollection();
     }
 
@@ -143,16 +144,6 @@ class ProductReview
     public function setRating(int $rating): void
     {
         $this->rating = $rating;
-    }
-
-    public function getPhoneNumber(): ?string
-    {
-        return $this->phoneNumber;
-    }
-
-    public function setPhoneNumber(?string $phoneNumber): void
-    {
-        $this->phoneNumber = $phoneNumber;
     }
 
     public function getMessage(): string

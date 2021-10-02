@@ -94,11 +94,11 @@ class Login extends Component {
                     localStorage.setItem(process.env.LOGIN_TOKEN_STORAGE_PREFIX, token);
 
                     const locationReferrer = this.state.locationReferrer;
-                    if(locationReferrer) {
-                        return this.props.history.push(locationReferrer)
-                    }
 
-                    return this.props.history.push('/');
+                    return locationReferrer ?
+                        this.props.history.push(locationReferrer) :
+                        this.props.history.push('/');
+
                 } else {
                     this.setState({errorMessage: errorMessageStr, noticeMessage: ''});
                 }
@@ -144,14 +144,12 @@ class Login extends Component {
                             <div className="col-lg-6">
                                 <div className="login_form_inner">
                                     <h3>Log in to enter</h3>
-                                    { errorMessage ?
-                                        <span className="form-error-message">{errorMessage}</span> :
-                                        null
+                                    { errorMessage &&
+                                        <span className="form-error-message">{errorMessage}</span>
                                     }
 
-                                    { noticeMessage ?
-                                        <span className="form-notice-message">{noticeMessage}</span> :
-                                        null
+                                    { noticeMessage &&
+                                        <span className="form-notice-message">{noticeMessage}</span>
                                     }
 
                                     <form className="row login_form"
@@ -159,7 +157,7 @@ class Login extends Component {
                                           onSubmit={this.handleSubmit}
                                     >
                                         <div className="col-md-12 form-group">
-                                            {errors.email > 0 &&
+                                            {errors.email &&
                                                 <span className='error-message-input'>{errors.email}</span>}
                                             <input type="text"
                                                    className="form-control"
@@ -171,7 +169,7 @@ class Login extends Component {
                                             />
                                         </div>
                                         <div className="col-md-12 form-group">
-                                            {errors.password > 0 &&
+                                            {errors.password &&
                                                 <span className='error-message-input'>{errors.password}</span>}
                                             <input type="password"
                                                    className="form-control"

@@ -2,6 +2,7 @@
 
 namespace App\Serializer;
 
+use App\Entity\ProductReview;
 use App\Entity\ShopBrand;
 use App\Entity\ShopCategory;
 use App\Entity\ShopColor;
@@ -36,7 +37,7 @@ class ShopSerializer
         $this->moneyService = $moneyService;
     }
 
-    public function normalizeProductsList(ShopProduct $topic, $format = null, array $context = []): array
+    public function normalizeShopProducts(ShopProduct $topic, $format = null, array $context = []): array
     {
         $moneyService = $this->moneyService;
 
@@ -60,49 +61,55 @@ class ShopSerializer
             foreach ($data['reviews'] as $reviewKey => $review) {
                 if (isset($review['enable']) && $review['enable'] === false) {
                     unset($data['reviews'][$reviewKey]);
+                } else {
+                    /**
+                     * @var ProductReview $reviewObj
+                     */
+                    $reviewObj = $topic->getReviews()->filter(function($reviewObject) use ($review) {
+                        return $reviewObject->getUuid() === $review['uuid'];
+                    })->first();
+                    if($reviewObj && $reviewObj->getCreatedAt()) {
+                        $data['reviews'][$reviewKey]['createdAt'] = $reviewObj->getCreatedAt()->format('d-m-Y H:i:s');
+                    } else {
+                        unset($data['reviews'][$reviewKey]);
+                    }
                 }
             }
+
+            $data['reviews'] = array_values($data['reviews']);
         }
 
         if (isset($data['shopCategory'], $data['shopCategory']['enable']) && $data['shopCategory']['enable'] === false) {
             return [];
         }
 
-        if ($topic->getImages()->count() > 0) {
-            $data['images'] = [];
-        }
-
-        /**
-         * @var SonataMediaMedia $image
-         */
-        foreach ($topic->getImages() as $image) {
-            $request = $this->request->getCurrentRequest();
-            $provider = $this->imageProvider;
-            $format = $provider->getFormatName($image, 'big');
-            $imageUrl = $provider->generatePublicUrl($image, $format);
-
-            $baseUrl = $request ? ($request->getSchemeAndHttpHost() . $request->getBaseUrl()) : '';
-
-            $fullImageUrl = $baseUrl . $imageUrl;
-
-            $data['images'][] = [
-                'name' => $image->getName(),
-                'url' => $fullImageUrl
-            ];
-        }
+        $data['images'] = $this->getUrlImages($topic->getImages());
 
         if(isset($data['priceNet'], $data['priceGross'])) {
-            $data['priceNet'] = $moneyService->convertIntToFloatWithCurrency($data['priceNet']);
-            $data['priceGross'] = $moneyService->convertIntToFloatWithCurrency($data['priceGross']);
+            $data['priceNet'] = $moneyService->convertIntToFloat($data['priceNet']);
+            $data['priceGross'] = $moneyService->convertIntToFloat($data['priceGross']);
         }
 
-        if(isset($data['shopDelivery'], $data['shopDelivery']['priceNet'], $data['shopDelivery']['priceGross'])) {
-            $shopDelivery = $data['shopDelivery'];
+        if (isset($data['comments'])) {
+            foreach ($data['comments'] as $commentKey => $comment) {
+                if (isset($comment['enable']) && $comment['enable'] === false) {
+                    unset($data['comments'][$commentKey]);
+                } else {
+                    /**
+                     * @var ProductReview $commentObj
+                     */
+                    $commentObj = $topic->getComments()->filter(function($commentObject) use ($comment) {
+                        return $commentObject->getUuid() === $comment['uuid'];
+                    })->first();
+                    if($commentObj && $commentObj->getCreatedAt()) {
+                        $data['comments'][$commentKey]['createdAt'] = $commentObj->getCreatedAt()->format('d-m-Y H:i:s');
+                    } else {
+                        unset($data['comments'][$commentKey]);
+                    }
+                }
+            }
 
-            $shopDelivery['priceNet'] = $moneyService->convertIntToFloatWithCurrency($shopDelivery['priceNet']);
-            $shopDelivery['priceGross'] = $moneyService->convertIntToFloatWithCurrency($shopDelivery['priceGross']);
-
-            $data['shopDelivery'] = $shopDelivery;
+            $data['comments'] = array_values($data['comments']);
         }
 
         return $data;
@@ -181,5 +188,39 @@ class ShopSerializer
         $data['countProducts'] = $topic->getCountProducts();
 
         return $data;
+    }
+
+    public function normalizeShopProductSearchList($topic, $format = null, array $context = []): array
+    {
+        $data = $this->normalizer->normalize($topic, $format, $context);
+        $data['image'] = $this->getUrlImages($topic->getImages(), 'small')[0];
+
+        return $data;
+    }
+
+    private function getUrlImages($images, $format = 'big'): array
+    {
+        $imagesArr = [];
+
+        /**
+         * @var SonataMediaMedia $image
+         */
+        foreach ($images as $image) {
+            $request = $this->request->getCurrentRequest();
+            $provider = $this->imageProvider;
+            $format = $provider->getFormatName($image, $format);
+            $imageUrl = $provider->generatePublicUrl($image, $format);
+
+            $baseUrl = $request ? ($request->getSchemeAndHttpHost() . $request->getBaseUrl()) : '';
+
+            $fullImageUrl = $baseUrl . $imageUrl;
+
+            $imagesArr[] = [
+                'name' => $image->getName(),
+                'url' => $fullImageUrl
+            ];
+        }
+
+        return $imagesArr;
     }
 }

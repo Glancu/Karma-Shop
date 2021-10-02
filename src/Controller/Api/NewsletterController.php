@@ -5,12 +5,12 @@ namespace App\Controller\Api;
 
 use App\Entity\Newsletter;
 use App\Form\Type\NewsletterType;
+use App\Service\UserService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Form\FormFactoryInterface;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
@@ -43,24 +43,28 @@ class NewsletterController
      * @Route("/create", name="add_newsletter", methods={"POST"})
      *
      * @param Request $request
-     * @param SerializerInterface $serializer
      * @param ValidatorInterface $validator
      *
-     * @return Response
+     * @return JsonResponse
      */
     public function createNewsletter(
         Request $request,
-        SerializerInterface $serializer,
         ValidatorInterface $validator
-    ): Response {
+    ): JsonResponse {
         $em = $this->entityManager;
         $form = $this->form;
 
         $data = [
-            'name' => $request->request->get('name'),
-            'email' => $request->request->get('email'),
+            'name' => htmlspecialchars((string)$request->request->get('name'), ENT_QUOTES),
+            'email' => htmlspecialchars((string)$request->request->get('email'), ENT_QUOTES),
             'dataProcessingAgreement' => (bool)$request->request->get('dataProcessingAgreement'),
         ];
+
+        if(!UserService::validateEmail($data['email'])) {
+            $errorsList = ['error' => true, 'message' => 'Email is not valid.'];
+
+            return new JsonResponse($errorsList, 400);
+        }
 
         $newsletter = new Newsletter($data['email'], $data['dataProcessingAgreement'], $data['name']);
 
@@ -76,9 +80,7 @@ class NewsletterController
             if($newsletterObj) {
                 $errorsList = ['error' => true, 'message' => 'User is saved with this email.'];
 
-                $return = $serializer->serialize($errorsList, 'json');
-
-                return new Response($return, 422);
+                return new JsonResponse($errorsList, 400);
             }
         }
 
@@ -86,9 +88,7 @@ class NewsletterController
             $em->persist($newsletter);
             $em->flush();
 
-            $createdObjectJson = $serializer->serialize($newsletter, 'json');
-
-            return new Response($createdObjectJson, 201);
+            return new JsonResponse($newsletter, 201);
         }
 
         $errorsList = ['error' => true, 'message' => []];
@@ -100,8 +100,6 @@ class NewsletterController
             $errorsList['message'][$error->getPropertyPath()] = $error->getMessage();
         }
 
-        $return = $serializer->serialize($errorsList, 'json');
-
-        return new Response($return, 422);
+        return new JsonResponse($errorsList, 400);
     }
 }

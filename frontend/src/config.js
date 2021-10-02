@@ -28,6 +28,7 @@ export default {
             color: null,
             priceFrom: 0,
             priceTo: 2000
-        }
+        },
+        currencySymbol: process.env.CURRENCY_SYMBOL
     }
 }

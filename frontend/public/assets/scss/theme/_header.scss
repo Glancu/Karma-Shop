@@ -167,7 +167,13 @@
 				}
 			}
 		}
+
 		.nav.navbar-nav.navbar-right {
+			.cart-count-products {
+				color: #ffba00;
+				margin-left: 3px;
+			}
+
 			@media (min-width: 991px) {
 				display: -webkit-inline-box;
 			}

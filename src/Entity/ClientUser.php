@@ -33,24 +33,6 @@ class ClientUser implements UserInterface
      * @var string
      *
      * @Assert\NotBlank()
-     *
-     * @ORM\Column(type="string", length=255)
-     */
-    private string $firstName = '';
-
-    /**
-     * @var string
-     *
-     * @Assert\NotBlank()
-     *
-     * @ORM\Column(type="string", length=255)
-     */
-    private string $lastName = '';
-
-    /**
-     * @var string
-     *
-     * @Assert\NotBlank()
      * @Assert\Email(
      *     message = "The email '{{ value }}' is not a valid email."
      * )
@@ -71,84 +53,22 @@ class ClientUser implements UserInterface
     public string $password = '';
 
     /**
-     * @var string
-     *
-     * @Assert\NotBlank()
-     *
-     * @ORM\Column(type="string", length=255)
-     */
-    private string $phoneNumber = '';
-
-    /**
-     * @var string
-     *
-     * @Assert\NotBlank()
-     *
-     * @ORM\Column(type="string", length=10)
-     */
-    private string $postalCode = '';
-
-    /**
-     * @var string
-     *
-     * @Assert\NotBlank()
-     *
-     * @ORM\Column(type="string", length=100)
-     */
-    private string $city = '';
-
-    /**
-     * @var string
-     *
-     * @Assert\NotBlank()
-     *
-     * @ORM\Column(type="string", length=100)
-     */
-    private string $country = '';
-
-    /**
-     * @var string
-     *
-     * @Assert\NotBlank()
-     *
-     * @ORM\Column(type="string", length=255)
-     */
-    private string $street = '';
-
-    /**
      * @var ArrayCollection|PersistentCollection
      *
-     * @ORM\ManyToMany(targetEntity="App\Entity\Order", mappedBy="user")
+     * @ORM\OneToMany(targetEntity="App\Entity\Order", mappedBy="user")
      */
     private $orders;
 
-    public function __construct(
-        string $firstName,
-        string $lastName,
-        string $email,
-        string $encodedPassword,
-        string $phoneNumber,
-        string $postalCode,
-        string $city,
-        string $country,
-        string $street
-    ) {
+    public function __construct(string $email, string $encodedPassword) {
         $this->__UuidTraitConstructor();
-        $this->firstName = $firstName;
-        $this->lastName = $lastName;
         $this->email = $email;
         $this->password = $encodedPassword;
-        $this->phoneNumber = $phoneNumber;
-        $this->postalCode = $postalCode;
-        $this->city = $city;
-        $this->country = $country;
-        $this->street = $street;
         $this->orders = new ArrayCollection();
     }
 
     public function __toString(): string
     {
-        return $this->firstName . ' ' . $this->lastName;
+        return $this->email;
     }
 
     public function getId(): ?int
@@ -159,102 +79,33 @@ class ClientUser implements UserInterface
     /**
      * @return null|string
      */
-    public function getFirstName(): ?string
-    {
-        return $this->firstName;
-    }
-
-    public function setFirstName(string $firstName): void
-    {
-        $this->firstName = $firstName;
-    }
-
-    public function getLastName(): string
-    {
-        return $this->lastName;
-    }
-
-    public function setLastName(string $lastName): void
-    {
-        $this->lastName = $lastName;
-    }
-
     public function getEmail(): ?string
     {
         return $this->email;
     }
 
+    /**
+     * @param string $email
+     */
     public function setEmail(string $email): void
     {
         $this->email = $email;
     }
 
+    /**
+     * @return null|string
+     */
     public function getPassword(): ?string
     {
         return $this->password;
     }
 
+    /**
+     * @param string $password
+     */
     public function setPassword(string $password): void
     {
         $this->password = $password;
-    }
-
-    public function getPhoneNumber(): ?string
-    {
-        return $this->phoneNumber;
-    }
-
-    public function setPhoneNumber(string $phoneNumber): void
-    {
-        $this->phoneNumber = $phoneNumber;
-    }
-
-    public function getPostalCode(): ?string
-    {
-        return $this->postalCode;
-    }
-
-    public function setPostalCode(string $postalCode): void
-    {
-        $this->postalCode = $postalCode;
-    }
-
-    public function getCity(): ?string
-    {
-        return $this->city;
-    }
-
-    public function setCity(string $city): void
-    {
-        $this->city = $city;
-    }
-
-    public function getCountry(): ?string
-    {
-        return $this->country;
-    }
-
-    public function setCountry(string $country): void
-    {
-        $this->country = $country;
-    }
-
-    public function getStreet(): ?string
-    {
-        return $this->street;
-    }
-
-    public function setStreet(string $street): void
-    {
-        $this->street = $street;
-    }
-
-    /**
-     * @return ArrayCollection|PersistentCollection
-     */
-    public function getOrders()
-    {
-        return $this->orders;
     }
 
     /**

@@ -1,6 +1,9 @@
 import React, { Component } from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, Link } from "react-router-dom";
 import $ from 'jquery';
+import ShoppingCart from './Shop/ShoppingCart';
+import { userLoggedIn } from './User/UserInfo';
+import axios from 'axios';
 import '../../public/assets/js/jquery.sticky';
 
 // CSS IMPORT
@@ -19,6 +22,19 @@ import '../../public/assets/css/main.css';
 import imgLogoHeader from '../../public/assets/img/logo.png';
 
 class Header extends Component {
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            userLoggedIn: false,
+            productsSearchBox: [],
+            timer: null
+        };
+
+        this.handleSearchInputChange = this.handleSearchInputChange.bind(this);
+        this.getProducts = this.getProducts.bind(this);
+    }
+
     componentDidMount() {
         $('.sticky-header').sticky();
 
@@ -62,9 +78,80 @@ class Header extends Component {
                 .delay(200)
                 .fadeOut(500);
         });
+
+        userLoggedIn().then((data) => {
+            this.setState({userLoggedIn: data});
+        });
+    }
+
+    getProducts(value) {
+        const _this = this;
+        axios.get(`/api/products/search/${value}`)
+            .then(result => {
+                if(result.status === 200 && result.data.length > 0) {
+                    _this.setState({productsSearchBox: result.data})
+                } else {
+                    _this.setState({productsSearchBox: []})
+                }
+            })
+            .catch(err => {
+                console.error(err);
+            });
+    }
+
+    handleSearchInputChange(e) {
+        let {timer} = this.state;
+        const _this = this;
+        const searchInputValue = e.target.value.replaceAll(' ', '');
+        if(searchInputValue && searchInputValue.length >= 3) {
+            if(timer) {
+                clearTimeout(timer);
+            }
+
+            timer = setTimeout(() => {
+                _this.getProducts(searchInputValue);
+            }, 500);
+
+            this.setState({timer});
+        } else {
+            _this.setState({productsSearchBox: []})
+        }
     }
 
     render() {
+        const {productsSearchBox} = this.state;
+
+        const renderLoginLogout = () => {
+            if(this.state.userLoggedIn) {
+                return (
+                    <li className="nav-item">
+                        <NavLink className="nav-link" to={'/logout'}>Logout</NavLink>
+                    </li>
+                )
+            }
+
+            return (
+                <li className="nav-item">
+                    <NavLink className="nav-link" to={'/login'}>Login</NavLink>
+                </li>
+            )
+        }
+
+        const renderProductsSearchBox = () => {
+            return productsSearchBox.map((product) => {
+                return (
+                    <div className="single-item" key={product.uuid}>
+                        <img src={product.image.url} alt="" height="75"/>
+
+                        <div className="text">
+                            <p><Link to={`/shop/product/${product.slug}`}>{product.name}</Link></p>
+                            <p>€ {product.priceGross}</p>
+                        </div>
+                    </div>
+                )
+            })
+        }
+
         return (
             <header className="header_area sticky-header">
                 <div className="main_menu">
@@ -86,32 +173,8 @@ class Header extends Component {
                                             Home
                                         </NavLink>
                                     </li>
-                                    <li className="nav-item submenu dropdown">
-                                        <NavLink className="nav-link dropdown-toggle"
-                                                 data-toggle="dropdown"
-                                                 role="button"
-                                                 aria-haspopup="true"
-                                                 aria-expanded="false"
-                                                 to={'/shop'}>
-                                            Shop
-                                        </NavLink>
-                                        <ul className="dropdown-menu">
-                                            <li className="nav-item">
-                                                <NavLink className="nav-link" to={'/shop'}>Products</NavLink>
-                                            </li>
-                                            <li className="nav-item">
-                                                <NavLink className="nav-link" to={'/shop/product'}>Product Details</NavLink>
-                                            </li>
-                                            <li className="nav-item">
-                                                <NavLink className="nav-link" to={'/shop/checkout'}>Product Checkout</NavLink>
-                                            </li>
-                                            <li className="nav-item">
-                                                <NavLink className="nav-link" to={'/shop/cart'}>Shopping Cart</NavLink>
-                                            </li>
-                                            <li className="nav-item">
-                                                <NavLink className="nav-link" to={'/shop/confirmation'}>Confirmation</NavLink>
-                                            </li>
-                                        </ul>
+                                    <li className="nav-item">
+                                        <NavLink className="nav-link" to={'/shop'}>Shop</NavLink>
                                     </li>
                                     <li className="nav-item submenu dropdown">
                                         <NavLink className="nav-link dropdown-toggle"
@@ -131,29 +194,17 @@ class Header extends Component {
                                             </li>
                                         </ul>
                                     </li>
-                                    <li className="nav-item submenu dropdown">
-                                        <a href="#" className="nav-link dropdown-toggle" data-toggle="dropdown"
-                                           role="button" aria-haspopup="true"
-                                           aria-expanded="false">Pages</a>
-                                        <ul className="dropdown-menu">
-                                            <li className="nav-item">
-                                                <NavLink className="nav-link" to={'/login'}>Login</NavLink>
-                                            </li>
-                                            <li className="nav-item">
-                                                <NavLink className="nav-link" to={'/shop/tracking'}>Tracking</NavLink>
-                                            </li>
-                                            <li className="nav-item">
-                                                <NavLink className="nav-link" to={'/elements'}>Elements</NavLink>
-                                            </li>
-                                        </ul>
-                                    </li>
                                     <li className="nav-item">
                                         <NavLink className="nav-link" to={'/contact'}>Contact</NavLink>
                                     </li>
+                                    {
+                                        renderLoginLogout()
+                                    }
                                 </ul>
                                 <ul className="nav navbar-nav navbar-right">
                                     <li className="nav-item">
-                                        <a href="#" className="cart"><span className="ti-bag"/></a>
+                                        <Link to={'/shop/cart'} className="cart"><span className="ti-bag"/></Link>
+                                        <span className="cart-count-products">{ShoppingCart.getCountProducts()}</span>
                                     </li>
                                     <li className="nav-item">
                                         <button className="search">
@@ -165,16 +216,24 @@ class Header extends Component {
                         </div>
                     </nav>
                 </div>
-                <div className="search_input" id="search_input_box">
-                    <div className="container">
-                        <form className="d-flex justify-content-between">
-                            <input type="text"
-                                   className="form-control"
-                                   id="search_input"
-                                   placeholder="Search Here"/>
-                            <button type="submit" className="btn"/>
-                            <span className="lnr lnr-cross" id="close_search" title="Close Search"/>
-                        </form>
+                <div className="search-box">
+                    <div className="search_input" id="search_input_box">
+                        <div className="container">
+                            <form className="d-flex justify-content-between">
+                                <input type="text"
+                                       className="form-control"
+                                       id="search_input"
+                                       placeholder="Search Here"
+                                       onKeyUp={this.handleSearchInputChange}/>
+                                <button type="submit" className="btn"/>
+                                <span className="lnr lnr-cross" id="close_search" title="Close Search"/>
+                            </form>
+                        </div>
+
+                        <div className={productsSearchBox.length === 0 ? "search-list hide" : "search-list"}>
+                            <h6 className="text-left">Products:</h6>
+                            {renderProductsSearchBox()}
+                        </div>
                     </div>
                 </div>
             </header>

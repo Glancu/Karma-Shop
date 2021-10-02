@@ -75,7 +75,7 @@ class Footer extends Component {
             formData.append('dataProcessingAgreement', dataProcessingAgreement);
 
             axios.post("/api/newsletter/create", formData).then(result => {
-                if (result.status === 200) {
+                if (result.status === 201) {
                     const data = result.data;
                     if(!data.error) {
                         this.setState({

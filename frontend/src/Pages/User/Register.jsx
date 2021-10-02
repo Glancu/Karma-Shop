@@ -8,26 +8,11 @@ class Register extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            firstName: '',
-            lastName: '',
             email: '',
             password: '',
-            phoneNumber: '',
-            street: '',
-            postalCode: '',
-            city: '',
-            country: '',
             errors: {
-                firstName: '',
-                lastName: '',
                 email: '',
-                password: '',
-                phoneNumber: '',
-                street: '',
-                postalCode: '',
-                city: '',
-                country: '',
-                errorMessage: ''
+                password: ''
             }
         }
 
@@ -37,15 +22,8 @@ class Register extends Component {
 
     handleChange(event) {
         const fields = [
-            'firstName',
-            'lastName',
             'email',
-            'password',
-            'phoneNumber',
-            'street',
-            'postalCode',
-            'city',
-            'country'
+            'password'
         ];
         const { name, value } = event.target;
 
@@ -65,47 +43,19 @@ class Register extends Component {
 
     handleSubmit(event) {
         event.preventDefault();
-        const { email, firstName, lastName, phoneNumber, street, postalCode, city, country, password } = this.state;
+        const { email, password } = this.state;
         let errors = this.state.errors;
 
         // Clear error message while send form
         errors.message = '';
         this.setState({errors});
 
-        errors.firstName = firstName.length < 3 ?
-            'First name must be 3 characters long!' :
-            '';
-
-        errors.lastName = lastName.length < 3 ?
-            'Last name must be 3 characters long!' :
-            '';
-
         errors.email = ValidateEmail(email) ?
             '' :
             'Email is not valid!';
 
         errors.password = password.length < 5 ?
-            'Password must be 5 charasters long!' :
-            '';
-
-        errors.phoneNumber = phoneNumber.length < 3 ?
-            'Phone number must be 3 characters long!' :
-            '';
-
-        errors.street = street.length < 3 ?
-            'Street must be 3 characters long!' :
-            '';
-
-        errors.postalCode = postalCode.length < 3 ?
-            'Postal code must be 3 characters long!' :
-            '';
-
-        errors.city = city.length < 3 ?
-            'City must be 3 characters long!' :
-            '';
-
-        errors.country = country.length < 3 ?
-            'Country must be 3 characters long!' :
+            'Password must be 5 characters long!' :
             '';
 
         this.setState({errors});
@@ -120,15 +70,8 @@ class Register extends Component {
 
         if(errorsCount === 0) {
             const formData = new FormData();
-            formData.append('firstName', firstName);
-            formData.append('lastName', lastName);
             formData.append('email', email);
             formData.append('password', password);
-            formData.append('phoneNumber', phoneNumber);
-            formData.append('street', street);
-            formData.append('postalCode', postalCode);
-            formData.append('city', city);
-            formData.append('country', country);
 
             axios.post("/api/user/create", formData).then(result => {
                 if(result && result.data) {
@@ -164,10 +107,10 @@ class Register extends Component {
                     <div className="container">
                         <div className="breadcrumb-banner d-flex flex-wrap align-items-center justify-content-end">
                             <div className="col-first">
-                                <h1>Login/Register</h1>
+                                <h1>Register</h1>
                                 <nav className="d-flex align-items-center">
                                     <Link to={'/'}>Home<span className="lnr lnr-arrow-right"/></Link>
-                                    <p>Login/Register</p>
+                                    <p>Register</p>
                                 </nav>
                             </div>
                         </div>
@@ -188,35 +131,6 @@ class Register extends Component {
                                     <form className="row register_form"
                                           onSubmit={this.handleSubmit}
                                     >
-                                        <div className="col-md-6 form-group">
-                                            { errors.firstName ?
-                                                <span className='error-message-input'>{errors.firstName}</span> :
-                                                null
-                                            }
-                                            <input type="text"
-                                                   className="form-control"
-                                                   id="firstName"
-                                                   name="firstName"
-                                                   placeholder="First name"
-                                                   value={this.state.value}
-                                                   onChange={this.handleChange}
-                                            />
-                                        </div>
-                                        <div className="col-md-6 form-group">
-                                            { errors.lastName ?
-                                                <span className='error-message-input'>{errors.lastName}</span> :
-                                                null
-                                            }
-                                            <input type="text"
-                                                   className="form-control"
-                                                   id="lastName"
-                                                   name="lastName"
-                                                   placeholder="Last name"
-                                                   value={this.state.value}
-                                                   onChange={this.handleChange}
-                                            />
-                                        </div>
-
                                         <div className="col-md-6 form-group">
                                             { errors.email ?
                                                 <span className='error-message-input'>{errors.email}</span> :
@@ -246,80 +160,6 @@ class Register extends Component {
                                                    onChange={this.handleChange}
                                             />
                                         </div>
-
-                                        <div className="col-md-6 form-group">
-                                            { errors.phoneNumber ?
-                                                <span className='error-message-input'>{errors.phoneNumber}</span> :
-                                                null
-                                            }
-                                            <input type="text"
-                                                   className="form-control"
-                                                   id="phoneNumber"
-                                                   name="phoneNumber"
-                                                   placeholder="Phone number"
-                                                   value={this.state.value}
-                                                   onChange={this.handleChange}
-                                            />
-                                        </div>
-
-                                        <div className="col-md-6 form-group">
-                                            { errors.street ?
-                                                <span className='error-message-input'>{errors.street}</span> :
-                                                null
-                                            }
-                                            <input type="text"
-                                                   className="form-control"
-                                                   id="street"
-                                                   name="street"
-                                                   placeholder="Street"
-                                                   value={this.state.value}
-                                                   onChange={this.handleChange}
-                                            />
-                                        </div>
-                                        <div className="col-md-6 form-group">
-                                            { errors.postalCode ?
-                                                <span className='error-message-input'>{errors.postalCode}</span> :
-                                                null
-                                            }
-                                            <input type="text"
-                                                   className="form-control"
-                                                   id="postalCode"
-                                                   name="postalCode"
-                                                   placeholder="Postal code"
-                                                   value={this.state.value}
-                                                   onChange={this.handleChange}
-                                            />
-                                        </div>
-
-                                        <div className="col-md-6 form-group">
-                                            { errors.city ?
-                                                <span className='error-message-input'>{errors.city}</span> :
-                                                null
-                                            }
-                                            <input type="text"
-                                                   className="form-control"
-                                                   id="city"
-                                                   name="city"
-                                                   placeholder="City"
-                                                   value={this.state.value}
-                                                   onChange={this.handleChange}
-                                            />
-                                        </div>
-                                        <div className="col-md-12 form-group">
-                                            { errors.country ?
-                                                <span className='error-message-input'>{errors.country}</span> :
-                                                null
-                                            }
-                                            <input type="text"
-                                                   className="form-control"
-                                                   id="country"
-                                                   name="country"
-                                                   placeholder="Country"
-                                                   value={this.state.value}
-                                                   onChange={this.handleChange}
-                                            />
-                                        </div>
-
                                         <div className="col-md-12 form-group">
                                             <button type="submit" value="submit" className="primary-btn">
                                                 Register

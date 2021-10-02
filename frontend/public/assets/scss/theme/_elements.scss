@@ -1058,3 +1058,28 @@ h1, h2, h3, h4, h5, h6 {
 .margin-bottom-40 {
 	margin-bottom: 40px;
 }
+
+.text-center {
+	text-align: center;
+}
+
+.hide {
+	display: none;
+}
+
+.error-input {
+	border: 1px solid red !important;
+}
+
+.success-message {
+	color: green;
+}
+
+.error-message {
+	color: red;
+}
+
+.margin-p-normalize {
+	margin-top: 1rem !important;
+	margin-bottom: 1rem !important;
+}

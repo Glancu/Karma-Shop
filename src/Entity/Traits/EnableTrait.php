@@ -3,11 +3,14 @@
 namespace App\Entity\Traits;
 
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 trait EnableTrait
 {
     /**
      * @var bool
+     *
+     * @Groups("enable_trait")
      *
      * @ORM\Column(type="boolean")
      */

@@ -31,7 +31,7 @@ class Contact
     /**
      * @var string
      *
-     * @Assert\NotBlank()
+     * @Assert\NotBlank(message="Name cannot be null")
      *
      * @ORM\Column()
      */
@@ -52,7 +52,7 @@ class Contact
     /**
      * @var string
      *
-     * @Assert\NotBlank()
+     * @Assert\NotBlank(message="Subject cannot be null")
      * @Assert\Length(min="3")
      *
      * @ORM\Column()
@@ -62,7 +62,7 @@ class Contact
     /**
      * @var string
      *
-     * @Assert\NotBlank()
+     * @Assert\NotBlank(message="Message cannot be null")
      * @Assert\Length(min="3")
      *
      * @ORM\Column(type="text")

@@ -5,12 +5,12 @@ namespace App\Controller\Api\Shop;
 
 use App\Entity\ProductReview;
 use App\Form\Type\ProductReviewType;
+use App\Service\UserService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Form\FormFactoryInterface;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
@@ -43,29 +43,37 @@ class ShopController
      * @Route("/product-review/create", name="shop_add_product_reviewt", methods={"POST"})
      *
      * @param Request $request
-     * @param SerializerInterface $serializer
      * @param ValidatorInterface $validator
      *
-     * @return Response
+     * @return JsonResponse
      */
-    public function createContact(
+    public function createProductReview(
         Request $request,
-        SerializerInterface $serializer,
         ValidatorInterface $validator
-    ): Response {
+    ): JsonResponse {
         $em = $this->entityManager;
         $form = $this->form;
 
         $data = [
-            'name' => $request->get('name'),
-            'email' => $request->get('email'),
-            'rating' => (int)$request->get('rating'),
-            'phoneNumber' => $request->get('phoneNumber'),
-            'message' => $request->get('message')
+            'name' => htmlspecialchars((string)$request->get('name'), ENT_QUOTES),
+            'email' => htmlspecialchars((string)$request->get('email'), ENT_QUOTES),
+            'rating' => (int)htmlspecialchars((string)$request->get('rating'), ENT_QUOTES),
+            'phoneNumber' => htmlspecialchars((string)$request->get('phoneNumber'), ENT_QUOTES),
+            'message' => htmlspecialchars((string)$request->get('message'), ENT_QUOTES)
         ];
 
-        $productReview = new ProductReview($data['name'], $data['email'], $data['rating'],
-            $data['message'], false, $data['phoneNumber']
+        if(!UserService::validateEmail($data['email'])) {
+            $errorsList = ['error' => true, 'message' => 'Email is not valid.'];
+
+            return new JsonResponse($errorsList, 400);
+        }
+
+        $productReview = new ProductReview(
+            $data['name'],
+            $data['email'],
+            $data['rating'],
+            $data['message'],
+            false
         );
 
         $productReviewForm = $form->create(ProductReviewType::class, $productReview);
@@ -78,9 +86,7 @@ class ShopController
             $em->persist($productReview);
             $em->flush();
 
-            $return = $serializer->serialize($productReview, 'json');
-
-            return new Response($return, 201);
+            return new JsonResponse($productReview, 201);
         }
 
         $errorsList = ['error' => true, 'message' => []];
@@ -92,8 +98,6 @@ class ShopController
             $errorsList['message'][$error->getPropertyPath()] = $error->getMessage();
         }
 
-        $return = $serializer->serialize($errorsList, 'json');
-
-        return new Response($return, 422);
+        return new JsonResponse($errorsList, 400);
     }
 }

@@ -3,94 +3,87 @@ declare(strict_types=1);
 
 namespace App\Controller\Api\Shop;
 
-use App\Entity\Order;
-use Doctrine\ORM\EntityManagerInterface;
+use App\Form\Type\CreateOrderType;
+use App\Service\OrderService;
+use JsonException;
 use Symfony\Component\Form\FormFactoryInterface;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Serializer\SerializerInterface;
-use Symfony\Component\Validator\ConstraintViolation;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * Class OrderController
  *
  * @package App\Controller
  *
- * @Route("/api/shop/order")
+ * @Route("/api/shop")
  */
 class OrderController
 {
-    private EntityManagerInterface $entityManager;
-
     private FormFactoryInterface $form;
 
     /**
-     * NewsletterController constructor.
+     * OrderController constructor.
      *
-     * @param EntityManagerInterface $entityManager
      * @param FormFactoryInterface $formFactory
      */
-    public function __construct(EntityManagerInterface $entityManager, FormFactoryInterface $formFactory)
+    public function __construct(FormFactoryInterface $formFactory)
     {
-        $this->entityManager = $entityManager;
         $this->form = $formFactory;
     }
 
     /**
-     * @Route("/", name="app_shop_order_create", methods={"POST"})
+     * @Route("/create-order", name="app_shop_order_create", methods={"POST"})
      *
      * @param Request $request
-     * @param SerializerInterface $serializer
-     * @param ValidatorInterface $validator
-     * @return Response
+     * @param OrderService $orderService
+     *
+     * @return JsonResponse
+     *
+     * @throws JsonException
      */
-    public function createOrder(
-        Request $request,
-        SerializerInterface $serializer,
-        ValidatorInterface $validator
-    ): Response {
-        $em = $this->entityManager;
-        $form = $this->form;
-        $order = new Order();
+    public function createOrder(Request $request, OrderService $orderService): JsonResponse {
+        $formService = $this->form;
 
-        $data = [
-            'name' => $request->request->get('name'),
-            'email' => $request->request->get('email'),
-            'dataProcessingAgreement' => $request->request->get('dataProcessingAgreement'),
-        ];
+        $data = $this->getDataFromRequestToCreateOrder($request);
 
-        $orderForm = $form->create(Order::class, $order);
-        $orderForm->handleRequest($request);
-        $orderForm->submit($data);
+        $form = $formService->create(CreateOrderType::class);
+        $form->handleRequest($request);
+        $form->submit($data);
 
-        $errors = $validator->validate($order);
-        if ($orderForm->isSubmitted() && $orderForm->isValid()) {
-            // @TODO Implement it
-
-
-            dump('Implement it');
-            exit;
-//            $em->persist($order);
-//            $em->flush();
-//
-            $createdObjectJson = $serializer->serialize($order, 'json');
-
-            return new Response($createdObjectJson);
+        if($form->isSubmitted() && $form->isValid()) {
+            return $orderService->createOrderAndReturnResponse($data);
         }
 
         $errorsList = ['error' => true, 'message' => []];
 
-        /**
-         * @var ConstraintViolation $error
-         */
-        foreach($errors as $error) {
-            $errorsList['message'][$error->getPropertyPath()] = $error->getMessage();
+        $errorsCount = $form->getErrors(true)->count();
+        if($errorsCount > 0) {
+            $errorsList['message'] = $errorsCount === 1 ?
+                $form->getErrors(true)[0]->getMessage() :
+                'Fill in all the required data';
         }
 
-        $return = $serializer->serialize($errorsList, 'json');
+        return new JsonResponse($errorsList, 400);
+    }
 
-        return new Response($return);
+    /**
+     * @param Request $request
+     *
+     * @return array
+     *
+     * @throws JsonException
+     */
+    private function getDataFromRequestToCreateOrder(Request $request): array
+    {
+        return [
+            'personalData' => json_decode($request->request->get('personalData'), true, 512, JSON_THROW_ON_ERROR),
+            'methodPayment' => htmlspecialchars((string)$request->request->get('methodPayment'), ENT_QUOTES),
+            'isCustomCorrespondence' => (bool)$request->request->get('isCustomCorrespondence'),
+            'products' => $request->request->get('products'),
+            'dataProcessingAgreement' => (bool)$request->request->get('dataProcessingAgreement'),
+            'userToken' => $request->request->get('userToken') !== 'null' ?
+                htmlspecialchars((string)$request->request->get('userToken'), ENT_QUOTES) : null
+        ];
     }
 }

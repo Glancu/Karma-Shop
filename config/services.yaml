@@ -7,7 +7,6 @@ imports:
 # Put parameters here that don't need to change on each machine where the app is deployed
 # https://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
 parameters:
-    currency: '$'
 
 services:
     # default configuration for services in *this* file
@@ -43,4 +42,3 @@ services:
     App\Service\MoneyService: '@app_money_service'
     app_money_service:
         class: App\Service\MoneyService
-        arguments: ['%currency%']

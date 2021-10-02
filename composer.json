@@ -57,6 +57,7 @@
     "twig/extensions": "^1.5"
   },
   "require-dev": {
+    "fzaninotto/faker": "^1.9",
     "roave/security-advisories": "dev-master",
     "symfony/browser-kit": "^4.4",
     "symfony/css-selector": "^4.4",

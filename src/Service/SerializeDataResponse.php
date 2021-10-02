@@ -10,6 +10,7 @@ use App\Entity\ShopColor;
 use App\Entity\ShopProduct;
 use App\Serializer\ShopSerializer;
 use DateTime;
+use DateTimeInterface;
 use RuntimeException;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Exception\ExceptionInterface;
@@ -127,7 +128,7 @@ class SerializeDataResponse
          * @var ShopProduct $product
          */
         foreach ($products as $product) {
-            $data = $this->shopSerializer->normalizeProductsList($product, 'json', [
+            $data = $this->shopSerializer->normalizeShopProducts($product, 'json', [
                 'groups' => [
                     'uuid_trait',
                     'enable_trait',
@@ -153,6 +154,51 @@ class SerializeDataResponse
         ];
 
         return $this->serializer->serialize($return, 'json');
+    }
+
+    public function getSingleProductData(ShopProduct $product): array
+    {
+        return $this->shopSerializer->normalizeShopProducts($product, 'json', [
+            'groups' => [
+                'uuid_trait',
+                'enable_trait',
+                'price_trait',
+                'shop_product',
+                'shop_category',
+                'shop_delivery',
+                'product_review',
+                'shop_product_specification',
+                'shop_product_specification_type',
+                'shop_brand',
+                'shop_color',
+                'comment'
+            ],
+            'datetime_format' => 'Y-m-d H:i:s'
+        ]);
+    }
+
+    public function getProductsSearchData(array $products): string
+    {
+        $items = [];
+
+        /**
+         * @var ShopProduct $product
+         */
+        foreach ($products as $product) {
+            $data = $this->shopSerializer->normalizeShopProductSearchList($product, 'json', [
+                'groups' => [
+                    'uuid_trait',
+                    'enable_trait',
+                    'price_trait',
+                    'shop_product',
+                ],
+                'datetime_format' => 'Y-m-d H:i:s'
+            ]);
+
+            $items[] = $data;
+        }
+
+        return $this->serializer->serialize($items, 'json');
     }
 
     public function getCategoriesList(array $categories): string
@@ -307,6 +353,6 @@ class SerializeDataResponse
      */
     private static function getDateCallback($innerObject): string
     {
-        return $innerObject instanceof DateTime ? $innerObject->format(DateTime::ATOM) : '';
+        return $innerObject instanceof DateTime ? $innerObject->format(DateTimeInterface::ATOM) : '';
     }
 }
