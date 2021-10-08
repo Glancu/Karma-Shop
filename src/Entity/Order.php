@@ -6,10 +6,12 @@ use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\PriceTrait;
 use App\Entity\Traits\UuidTrait;
 use App\Repository\OrderRepository;
+use App\Service\GeneratorStringService;
 use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\PersistentCollection;
+use Exception;
 
 /**
  * @ORM\Entity(repositoryClass=OrderRepository::class)
@@ -53,12 +55,12 @@ class Order
     private ClientUser $user;
 
     /**
-     * @ORM\Embedded(class="App\Entity\OrderPersonalDataInfo")
+     * @ORM\Embedded(class="App\Entity\OrderPersonalDataInfo", columnPrefix=false)
      */
     private OrderPersonalDataInfo $orderPersonalDataInfo;
 
     /**
-     * @ORM\Embedded(class="App\Entity\OrderAddress")
+     * @ORM\Embedded(class="App\Entity\OrderAddress", columnPrefix=false)
      */
     private OrderAddress $orderAddress;
 
@@ -83,6 +85,25 @@ class Order
      */
     private int $statusPayment;
 
+    /**
+     * @var string
+     *
+     * @ORM\Column(type="string", length=15)
+     */
+    private string $orderNumber;
+
+    /**
+     * Order constructor.
+     *
+     * @param ClientUser $clientUser
+     * @param OrderPersonalDataInfo $orderPersonalDataInfo
+     * @param OrderAddress $orderAddress
+     * @param int $methodPayment
+     * @param $products
+     * @param string|null $additionalInformation
+     *
+     * @throws Exception
+     */
     public function __construct(
         ClientUser $clientUser,
         OrderPersonalDataInfo $orderPersonalDataInfo,
@@ -99,6 +120,8 @@ class Order
         $this->methodPayment = $methodPayment;
         $this->addShopProductsArr($products);
         $this->additionalInformation = $additionalInformation;
+        $this->orderNumber = GeneratorStringService::generateString(15);
+        $this->generateTotalPrices();
     }
 
     public function getId(): ?int
@@ -243,6 +266,14 @@ class Order
     }
 
     /**
+     * @return string
+     */
+    public function getOrderNumber(): string
+    {
+        return $this->orderNumber;
+    }
+
+    /**
      * CUSTOM
      */
 
@@ -291,5 +322,21 @@ class Order
         foreach ($products as $product) {
             $this->addShopProduct($product);
         }
+    }
+
+    private function generateTotalPrices(): void {
+        $priceNet = 0;
+        $priceGross = 0;
+
+        /**
+         * @var ShopProduct $product
+         */
+        foreach($this->getProducts() as $product) {
+            $priceNet += $product->getPriceNet();
+            $priceGross += $product->getPriceGross();
+        }
+
+        $this->setPriceNet($priceNet);
+        $this->setPriceGross($priceGross);
     }
 }
