@@ -339,4 +339,21 @@ class Order
         $this->setPriceNet($priceNet);
         $this->setPriceGross($priceGross);
     }
+
+    public static function replaceVariablesForEmail(Order $order, string $text): string
+    {
+        return str_replace(
+            [
+                '%order_number%',
+                '%client_email%',
+                '%method_payment%'
+            ],
+            [
+                $order->getOrderNumber(),
+                $order->getUser()->getEmail(),
+                $order->getMethodPaymentStr()
+            ],
+            $text
+        );
+    }
 }

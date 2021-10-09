@@ -52,7 +52,7 @@ class OrderController
         $form->submit($data);
 
         if($form->isSubmitted() && $form->isValid()) {
-            return $orderService->createOrderAndReturnResponse($data);
+            return $orderService->createOrderAndSendMailAndReturnResponse($data);
         }
 
         $errorsList = ['error' => true, 'message' => []];

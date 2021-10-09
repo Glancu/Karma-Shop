@@ -1,0 +1,65 @@
+<table width="648" border="0" align="center" cellspacing="0" cellpadding="0" style="color: #4C4C4C; font-family: 'Arial',serif; font-size: 13px; line-height: 18px; padding: 0; text-align: left; margin: 0 auto; width: 648px;">
+    <tr>
+        <td	style="margin: 0; padding: 0; vertical-align: top; text-align: left; border: none;">
+            <div align="center" style="margin: 0; padding: 0; width: 648px; text-align: center;">
+                <br>
+                {% set tbodyStylesTD = "background-color: #cccccc; color: #4C4C4C; font-family: 'Arial'; font-size: 13px; line-height: 18px; margin: 0; padding: 5px; vertical-align: middle; font-weight: bold; border-top: 1px solid #dcdcd6; border-right: 1px solid #dcdcd6; border-bottom: 1px solid #dcdcd6;" %}
+                <table border="0" cellspacing="0" cellpadding="0" style="width: 648px;margin: 0 auto;">
+                    <tbody>
+                    <tr>
+                        <td
+                                style="{{ tbodyStylesTD }} border-left: 1px solid #dcdcd6; text-align: center;">Lp.</td>
+                        <td
+                                style="{{ tbodyStylesTD }} border-left: 0 solid #dcdcd6; text-align: left;">Name</td>
+                        <td
+                                style="{{ tbodyStylesTD }} border-left: 0 solid #dcdcd6; text-align: left;">Quantity</td>
+                        <td
+                                style="{{ tbodyStylesTD }} border-left: 0 solid #dcdcd6; text-align: right;">Price net</td>
+
+                        <td
+                                style="{{ tbodyStylesTD }} border-left: 0 solid #dcdcd6; text-align: right;">Price gross</td>
+                    </tr>
+
+                    {% set productTDStyles = "color: #4C4C4C; font-family: 'Arial'; font-size: 13px; line-height: 18px; margin: 0; padding: 5px; vertical-align: middle;" %}
+
+                    {% for product in order.products %}
+                        <tr>
+                            <td
+                                    style="{{ productTDStyles }} border-right: 1px solid #cccccc; border-bottom: 1px solid #cccccc; border-left: 1px solid #cccccc; text-align: center;">
+                                {{ loop.index }}</td>
+                            <td
+                                    style="{{ productTDStyles }} border-right: 1px solid #cccccc; border-bottom: 1px solid #cccccc; border-left: 0 solid #cccccc; text-align: left;">
+                                {{ product.name }}
+                            </td>
+
+                            <td
+                                    style="{{ productTDStyles }} border-right: 1px solid #cccccc; border-bottom: 1px solid #cccccc; border-left: 0 solid #cccccc; text-align: left;">
+                                {{ product.quantity }}</td>
+                            <td
+                                    style="{{ productTDStyles }} border-right: 1px solid #dcdcd6; border-bottom: 1px solid #dcdcd6; border-left: 0 solid #dcdcd6; text-align: right;">
+                                {{ currency_symbol }} {{ product.priceNet|convert_money_to_float }}
+                            </td>
+                            <td style="{{ productTDStyles }} border-right: 1px solid #dcdcd6; border-bottom: 1px solid #dcdcd6; border-left: 0 solid #dcdcd6; text-align: right;">
+                                {{ currency_symbol }} {{ product.priceGross|convert_money_to_float }}
+                            </td>
+                        </tr>
+                    {% endfor %}
+
+                    {% set tdTotalStyles = "background: #ddd8d5; color: #4C4C4C; font-family: 'Arial'; font-size: 16px; line-height: 18px; margin: 0; padding: 5px; text-align: right; vertical-align: middle; border-left: 0 solid #dcdcd6; border-right: 1px solid #dcdcd6; border-bottom: 1px solid #dcdcd6; font-weight: bold;" %}
+                    <tr>
+                        <td colspan="3" style="border-left: 1px solid transparent; border-right: 1px solid #cccccc; border-bottom: 1px solid transparent; color: #4C4C4C; font-family: 'Arial',serif; font-size: 16px; line-height: 18px; margin: 0; padding: 15px 5px 15px; text-align: right; font-weight: bold;">
+                            Total:
+                        </td>
+                        <td style="{{ tdTotalStyles }}">
+                            {{ currency_symbol }} {{ order.priceNet|convert_money_to_float }}
+                        </td>
+                        <td style="{{ tdTotalStyles }}">
+                            {{ currency_symbol }} {{ order.priceGross|convert_money_to_float }}
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </td>
+    </tr>
+</table>

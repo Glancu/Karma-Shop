@@ -42,3 +42,17 @@ services:
     App\Service\MoneyService: '@app_money_service'
     app_money_service:
         class: App\Service\MoneyService
+
+    app.mailer_service:
+        class: App\Service\MailerService
+        arguments: [ '@mailer', '@doctrine.orm.entity_manager', '%env(MAILER_MAIL_FROM)%', '%env(MAILER_MAIL_SENDER)%', '%env(MAILER_MAIL_REPLY_TO)%' ]
+
+    App\Service\MailerService: '@app.mailer_service'
+
+    app.user_service:
+        class: App\Service\UserService
+        arguments: ['@lexik_jwt_authentication.encoder', '@security.password_encoder', '@doctrine.orm.entity_manager']
+
+    App\Service\OrderService:
+        class: App\Service\OrderService
+        arguments: ['@app.user_service', '@doctrine.orm.entity_manager', '@app.mailer_service', '@twig']

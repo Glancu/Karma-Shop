@@ -63,7 +63,7 @@ final class OrderServiceTest extends KernelTestCase
             'userToken' =>  null
         ];
 
-        $order = $orderService->createOrderAndReturnResponse($data);
+        $order = $orderService->createOrderAndSendMailAndReturnResponse($data);
 
         self::assertTrue($order instanceof JsonResponse && $order->getStatusCode() === 201);
     }
