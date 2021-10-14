@@ -164,7 +164,9 @@ class ShopProduct
         ShopBrand $shopBrand,
         ShopCategory $shopCategory,
         $shopProductSpecifications,
-        bool $enable = true
+        $images,
+        bool $enable = true,
+        $colors = []
     ) {
         $this->__UuidTraitConstructor();
         $this->name = $name;
@@ -176,9 +178,9 @@ class ShopProduct
         $this->shopCategory = $shopCategory;
         $this->shopProductSpecifications = $shopProductSpecifications;
         $this->enable = $enable;
-        $this->images = new ArrayCollection();
+        $this->images = $images;
         $this->reviews = new ArrayCollection();
-        $this->shopColors = new ArrayCollection();
+        $this->shopColors = $colors;
         $this->comments = new ArrayCollection();
     }
 

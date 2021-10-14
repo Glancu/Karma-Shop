@@ -48,10 +48,11 @@ class ShopProductSpecificationType {
      */
     private int $position = 0;
 
-    public function __construct(string $name)
+    public function __construct(string $name, int $position = 0)
     {
         $this->__UuidTraitConstructor();
         $this->name = $name;
+        $this->position = $position;
     }
 
     public function __toString(): string

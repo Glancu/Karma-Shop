@@ -62,6 +62,11 @@ final class ShopProductAdmin extends AbstractAdmin
                        'allow_delete' => true,
                        'entry_type' => ShopProductSpecificationTypeType::class
                    ], ['edit' => 'inline', 'inline' => 'table'])
+                    ->end()
+                    ->with('Description')
+                    ->add('description', CKEditorType::class, [
+                        'label' => 'Description'
+                    ])
                    ->end();
 
         $builder = $formMapper->getFormBuilder();
@@ -116,7 +121,6 @@ final class ShopProductAdmin extends AbstractAdmin
                    ->add('shopBrand', null, ['label' => 'Brand'])
                    ->add('shopCategory', null, ['label' => 'Category'])
                    ->add('shopColors', null, ['label' => 'Colors'])
-                   ->add('description', 'html', ['label' => 'Description'])
                    ->end()
                    ->with('Images')
                    ->add('images', null, [
@@ -132,6 +136,9 @@ final class ShopProductAdmin extends AbstractAdmin
                    ->end()
                    ->with('Reviews')
                    ->add('reviews', null, ['label' => 'Reviews', 'route' => ['name' => 'show']])
+                   ->end()
+                   ->with('Description')
+                   ->add('description', 'html', ['label' => 'Description'])
                    ->end();
     }
 }

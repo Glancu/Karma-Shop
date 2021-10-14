@@ -21,7 +21,7 @@ class SonataMediaMedia extends BaseMedia
      */
     protected $id;
 
-    public function getId(): int
+    public function getId(): ?int
     {
         return $this->id;
     }
