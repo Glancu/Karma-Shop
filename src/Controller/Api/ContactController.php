@@ -4,7 +4,9 @@ declare(strict_types=1);
 namespace App\Controller\Api;
 
 use App\Entity\Contact;
+use App\Entity\EmailTemplate;
 use App\Form\Type\ContactType;
+use App\Service\MailerService;
 use App\Service\UserService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Form\FormFactoryInterface;
@@ -44,12 +46,14 @@ class ContactController
      *
      * @param Request $request
      * @param ValidatorInterface $validator
+     * @param MailerService $mailerService
      *
      * @return JsonResponse
      */
     public function createContact(
         Request $request,
-        ValidatorInterface $validator
+        ValidatorInterface $validator,
+        MailerService $mailerService
     ): JsonResponse {
         $em = $this->entityManager;
         $form = $this->form;
@@ -79,6 +83,18 @@ class ContactController
             if ($contactForm->isSubmitted() && $contactForm->isValid()) {
                 $em->persist($contact);
                 $em->flush();
+
+                /**
+                 * @var EmailTemplate $emailTemplate
+                 */
+                $emailTemplate = $em->getRepository('App:EmailTemplate')->findByType(EmailTemplate::TYPE_NEW_CONTACT_TO_ADMIN);
+                if($emailTemplate) {
+                    $mailerService->sendMail(
+                        $emailTemplate->getSubject(),
+                        $emailTemplate->getMessage(),
+                        $mailerService->getAdminEmail()
+                    );
+                }
 
                 return new JsonResponse($contact, 201);
             }
