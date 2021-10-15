@@ -144,4 +144,29 @@ class ProductController
 
         return new JsonResponse($serializer->getSingleProductData($product));
     }
+
+    /**
+     * @Route("/latest", name="app_shop_products_latest", methods={"GET"})
+     *
+     * @return JsonResponse
+     *
+     * @throws JsonException
+     */
+    public function getLatestProducts(): JsonResponse
+    {
+        $productRepository = $this->shopProductRepository;
+        $serializer = $this->serializeDataResponse;
+
+        $countProducts = 8;
+
+        $products = $productRepository->getLatestProducts();
+
+        $productData = $serializer->getProductsData($products, $countProducts);
+
+        if ($countProducts === 0 && !$products) {
+            $productData = json_encode(['errorMessage' => 'Products was not found.'], JSON_THROW_ON_ERROR);
+        }
+
+        return JsonResponse::fromJsonString($productData);
+    }
 }

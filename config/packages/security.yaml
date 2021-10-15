@@ -76,6 +76,7 @@ security:
         - { path: ^/api/contact/create, roles: IS_AUTHENTICATED_ANONYMOUSLY }
 
         - { path: ^/api/products/list, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/api/products/latest, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/api/products/search/*, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/api/products/product/*, roles: IS_AUTHENTICATED_ANONYMOUSLY }
 

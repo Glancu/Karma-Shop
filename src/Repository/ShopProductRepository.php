@@ -56,6 +56,19 @@ class ShopProductRepository extends ServiceEntityRepository
             ->getResult();
     }
 
+    public function getLatestProducts(): array
+    {
+        $queryBuilder = $this->createQueryBuilder('sp')
+            ->where('sp.quantity > 0')
+            ->andWhere('sp.enable = 1')
+            ->orderBy('sp.id', 'DESC')
+            ->setMaxResults(8);
+
+        return $queryBuilder
+            ->getQuery()
+            ->getResult();
+    }
+
     private function getProductsByParameters(array $parameters): QueryBuilder {
         $sortBy = $parameters['sortBy'];
         $sortOrder = $parameters['sortOrder'];
