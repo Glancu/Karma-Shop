@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Component\OrderStatus;
 use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\PriceTrait;
 use App\Entity\Traits\UuidTrait;
@@ -93,6 +94,13 @@ class Order
     private string $orderNumber;
 
     /**
+     * @var int
+     *
+     * @ORM\Column(name="status", type="smallint")
+     */
+    private int $status;
+
+    /**
      * Order constructor.
      *
      * @param ClientUser $clientUser
@@ -122,6 +130,7 @@ class Order
         $this->additionalInformation = $additionalInformation;
         $this->orderNumber = GeneratorStringService::generateString(15);
         $this->generateTotalPrices();
+        $this->status = OrderStatus::STATUS_NEW;
     }
 
     public function getId(): ?int
@@ -271,6 +280,22 @@ class Order
     public function getOrderNumber(): string
     {
         return $this->orderNumber;
+    }
+
+    /**
+     * @return int
+     */
+    public function getStatus(): int
+    {
+        return $this->status;
+    }
+
+    /**
+     * @param int $status
+     */
+    public function setStatus(int $status): void
+    {
+        $this->status = $status;
     }
 
     /**

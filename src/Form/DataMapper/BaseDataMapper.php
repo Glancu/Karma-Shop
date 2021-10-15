@@ -21,7 +21,7 @@ abstract class BaseDataMapper implements \Symfony\Component\Form\DataMapperInter
                 $firstKeyUpper = ucfirst($key);
 
                 $getter = "get${firstKeyUpper}";
-                if($key === 'enable' || $key === 'freeDelivery') {
+                if($key === 'enable') {
                     $getter = "is${firstKeyUpper}";
                 }
 

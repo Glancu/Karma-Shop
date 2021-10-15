@@ -206,7 +206,7 @@ final class OrderService
     private function sendMailToUser(Order $order, string $clientEmail): void
     {
         $emailTemplateUser = $this->entityManager->getRepository('App:EmailTemplate')
-                                                 ->findByType(EmailTemplate::$TYPE_NEW_ORDER_TO_USER);
+                                                 ->findByType(EmailTemplate::TYPE_NEW_ORDER_TO_USER);
         if ($emailTemplateUser) {
             $this->replaceVariableAndSendMail($order, $emailTemplateUser, $clientEmail);
         }
@@ -220,7 +220,7 @@ final class OrderService
     private function sendMailToAdmin(Order $order): void
     {
         $emailTemplateAdmin = $this->entityManager->getRepository('App:EmailTemplate')
-                                                  ->findByType(EmailTemplate::$TYPE_NEW_ORDER_TO_ADMIN);
+                                                  ->findByType(EmailTemplate::TYPE_NEW_ORDER_TO_ADMIN);
         if ($emailTemplateAdmin) {
             $this->replaceVariableAndSendMail($order, $emailTemplateAdmin, $this->mailerService->getAdminEmail());
         }
@@ -233,7 +233,7 @@ final class OrderService
      *
      * @throws Exception
      */
-    private function replaceVariableAndSendMail(Order $order, EmailTemplate $emailTemplate, string $emailTo): void
+    public function replaceVariableAndSendMail(Order $order, EmailTemplate $emailTemplate, string $emailTo): void
     {
         $emailSubject = Order::replaceVariablesForEmail($order, $emailTemplate->getSubject());
         $emailContent = Order::replaceVariablesForEmail($order, $emailTemplate->getMessage());

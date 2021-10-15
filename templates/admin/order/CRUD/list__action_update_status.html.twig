@@ -1,0 +1,19 @@
+</div>
+<div>
+    <a class="btn btn-sm btn-default" href="{{ admin.generateObjectUrl('updateStatus', object, {'status': 'paid'}) }}">
+        <span class="fa fa-check"></span>
+        Paid
+    </a>
+    <a class="btn btn-sm btn-default" href="{{ admin.generateObjectUrl('updateStatus', object, {'status': 'not-paid'}) }}">
+        <span class="fa fa-ban"></span>
+        Not paid
+    </a>
+    <a class="btn btn-sm btn-default" href="{{ admin.generateObjectUrl('updateStatus', object, {'status': 'sent-products'}) }}">
+        <span class="fa fa-shopping-cart"></span>
+        Sent products
+    </a>
+    <a class="btn btn-sm btn-default" href="{{ admin.generateObjectUrl('updateStatus', object, {'status': 'in-progress'}) }}">
+        <span class="fa fa-circle-o-notch"></span>
+        In progress
+    </a>
+</div>

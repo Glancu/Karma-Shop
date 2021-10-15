@@ -20,6 +20,7 @@ final class EmailHistoryAdmin extends AbstractAdmin
         $listMapper->add('id', null, ['label' => 'ID'])
                    ->add('emailTo', null, ['label' => 'Email to'])
                    ->add('subject', null, ['label' => 'Subject'])
+                   ->add('createdAt', null, ['label' => 'Created at'])
                    ->add('_action', null, [
                        'actions' => [
                            'show' => [],
