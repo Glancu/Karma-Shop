@@ -13,15 +13,15 @@ final class OrderStatus
     public static function getStatusesArr(): array
     {
         return [
-            self::STATUS_NEW => '',
-            self::STATUS_NOT_PAID => '',
-            self::STATUS_PAID => '',
-            self::STATUS_SENT_PRODUCTS => '',
-            self::STATUS_IN_PROGRESS => '',
+            self::STATUS_NEW => 'New',
+            self::STATUS_NOT_PAID => 'Not paid',
+            self::STATUS_PAID => 'Paid',
+            self::STATUS_SENT_PRODUCTS => 'Sent products',
+            self::STATUS_IN_PROGRESS => 'In progress',
         ];
     }
 
-    public function getStatusStr(int $status): string
+    public static function getStatusStr(int $status): string
     {
         return self::getStatusesArr()[$status];
     }

@@ -381,4 +381,13 @@ class Order
             $text
         );
     }
+
+    public function getStatusStr(): ?string
+    {
+        if($this->status === null || $this->status === 0) {
+            return null;
+        }
+
+        return OrderStatus::getStatusStr($this->status);
+    }
 }

@@ -73,7 +73,7 @@ services:
 
   admin.comment:
     class: App\Admin\CommentAdmin
-    arguments: [ ~, App\Entity\Comment, ~ ]
+    arguments: [ ~, App\Entity\Comment, App\Controller\Admin\CommentCRUDController ]
     tags:
       - { name: sonata.admin, manager_type: orm, group: Comments, label: Comments, icon: "<i class=\"fa fa-comment\"></i>" }
 

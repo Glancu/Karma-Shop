@@ -37,12 +37,15 @@ final class CommentAdmin extends AbstractAdmin
         $listMapper->add('id', null, ['label' => 'ID'])
                    ->add('name', null, ['label' => 'Name'])
                    ->add('email', null, ['label' => 'E-mail'])
-                   ->add('enable', null, ['label' => 'Enable'])
+                   ->add('enable', null, ['label' => 'Enable', 'editable' => true])
                    ->add('_action', null, [
                        'actions' => [
                            'show' => [],
                            'edit' => [],
                            'delete' => [],
+                           'updateStatus' => [
+                               'template' => 'admin/comment/CRUD/list__action_update_status.html.twig'
+                           ]
                        ]
                    ]);
     }
@@ -62,6 +65,8 @@ final class CommentAdmin extends AbstractAdmin
 
     protected function configureRoutes(RouteCollection $collection): void
     {
-        $collection->remove('create');
+        $collection
+            ->remove('create')
+            ->add('updateStatus', $this->getRouterIdParameter().'update-status');
     }
 }
