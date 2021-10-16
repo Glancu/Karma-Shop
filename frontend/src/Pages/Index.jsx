@@ -171,62 +171,28 @@ class Index extends Component {
             });
         };
 
+        const firstOfLatestProducts = this.state.latestProducts[0];
+
         return (
             <BaseTemplate>
                 <section className="banner-area">
                     <div className="container">
                         <div className="row fullscreen align-items-center justify-content-start">
                             <div className="col-lg-12">
-                                <OwlCarousel className="active-banner-slider owl-carousel"
-                                             items={1}
-                                             autoPlay={false}
-                                             autoplayTimeout={5000}
-                                             loop={true}
-                                             nav={true}
-                                             dots={false}
-                                             navText={[
-                                                 "<img src='assets/img/banner/prev.png'>",
-                                                 "<img src='assets/img/banner/next.png'>"
-                                             ]}
-                                             navClass={[
-                                                 "owl-prev button-without-background",
-                                                 "owl-next button-without-background"
-                                             ]}
-                                >
-                                    <div className="row single-slide align-items-center d-flex">
+                                {firstOfLatestProducts &&
+                                    <div className="row single-slide align-items-center d-flex" key={firstOfLatestProducts.uuid}>
                                         <div className="col-lg-5 col-md-6">
                                             <div className="banner-content">
-                                                <h1>Nike New <br/>Collection!</h1>
-                                                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do
-                                                    eiusmod tempor incididunt ut labore et
-                                                    dolore magna aliqua. Ut enim ad minim veniam, quis nostrud
-                                                    exercitation.</p>
+                                                <h1>New products!</h1>
+                                                <p>Check our new products in shop!</p>
                                                 <div className="add-bag d-flex align-items-center">
-                                                    <a className="add-btn" href=""><span
-                                                        className="lnr lnr-cross"/></a>
-                                                    <span className="add-text text-uppercase">Add to Bag</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div className="col-lg-7">
-                                            <div className="banner-img">
-                                                <img className="img-fluid" src={imgBanner} alt=""/>
-                                            </div>
-                                        </div>
-                                    </div>
+                                                    <Link to={'/shop'} className="add-btn">
+                                                            <span className="lnr lnr-cross"/>
+                                                    </Link>
 
-                                    <div className="row single-slide">
-                                        <div className="col-lg-5">
-                                            <div className="banner-content">
-                                                <h1>Nike New <br/>Collection!</h1>
-                                                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do
-                                                    eiusmod tempor incididunt ut labore et
-                                                    dolore magna aliqua. Ut enim ad minim veniam, quis nostrud
-                                                    exercitation.</p>
-                                                <div className="add-bag d-flex align-items-center">
-                                                    <a className="add-btn" href=""><span
-                                                        className="lnr lnr-cross"/></a>
-                                                    <span className="add-text text-uppercase">Add to Bag</span>
+                                                    <Link to={'/shop'}>
+                                                        <span className="add-text text-uppercase">Shop</span>
+                                                    </Link>
                                                 </div>
                                             </div>
                                         </div>
@@ -236,7 +202,7 @@ class Index extends Component {
                                             </div>
                                         </div>
                                     </div>
-                                </OwlCarousel>
+                                }
                             </div>
                         </div>
                     </div>
