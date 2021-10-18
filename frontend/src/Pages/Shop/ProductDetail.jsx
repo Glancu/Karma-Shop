@@ -3,7 +3,6 @@ import BaseTemplate from '../../Components/BaseTemplate';
 import { Link } from 'react-router-dom';
 import OwlCarousel from 'react-owl-carousel';
 import axios from 'axios';
-import DealsRelatedProducts from '../../Components/DealsRelatedProducts';
 import Loader from '../../Components/Loader';
 import ShoppingCart from '../../Components/Shop/ShoppingCart';
 import { toast } from 'react-toastify';
@@ -814,8 +813,6 @@ class ProductDetail extends Component {
                         </div>
                     </div>
                 </section>
-
-                <DealsRelatedProducts />
             </BaseTemplate>
         )
     }

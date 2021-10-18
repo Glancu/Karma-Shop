@@ -5,7 +5,6 @@ import $ from 'jquery';
 import OwlCarousel from 'react-owl-carousel';
 import '../../public/assets/js/jquery.magnific-popup.min';
 import '../../public/assets/js/countdown';
-import DealsRelatedProducts from '../Components/DealsRelatedProducts';
 import axios from 'axios';
 import CONFIG from '../config';
 import ShoppingCart from '../Components/Shop/ShoppingCart';
@@ -24,8 +23,6 @@ import imgCategory2 from '../../public/assets/img/category/c2.jpg';
 import imgCategory3 from '../../public/assets/img/category/c3.jpg';
 import imgCategory4 from '../../public/assets/img/category/c4.jpg';
 import imgCategory5 from '../../public/assets/img/category/c5.jpg';
-
-import imgProductE1 from '../../public/assets/img/product/e-p1.png';
 
 import imgBrand1 from '../../public/assets/img/brand/1.png';
 import imgBrand2 from '../../public/assets/img/brand/2.png';
@@ -137,10 +134,12 @@ class Index extends Component {
     }
 
     render() {
+        const {latestProducts} = this.state;
+
         const currencySymbol = CONFIG.shop.currencySymbol;
 
-        const latestProducts = () => {
-            return this.state.latestProducts.map((product) => {
+        const latestProductsHTML = () => {
+            return latestProducts.map((product) => {
                 return (
                     <div className="col-lg-3 col-md-6" key={product.uuid}>
                         <div className="single-product">
@@ -170,6 +169,36 @@ class Index extends Component {
                 )
             });
         };
+
+        const exclusiveProductsFromLatestProducts = () => {
+            return latestProducts.map((product) => {
+                return (
+                    <div className="single-exclusive-slider" key={product.uuid}>
+                        <Link to={`/shop/product/${product.slug}`}>
+                            <img className="img-fluid" src={product.images[0].url} alt={product.images[0].name}/>
+                        </Link>
+                        <div className="product-details">
+                            <div className="price">
+                                <h6>{currencySymbol} {product.priceGross}</h6>
+                            </div>
+                            <Link to={`/shop/product/${product.slug}`}>
+                                <h4>{product.name}</h4>
+                            </Link>
+                            <div
+                                className="add-bag d-flex align-items-center justify-content-center">
+                                <Link to={`/shop/product/${product.slug}`} className="add-btn">
+                                    <span className="lnr lnr-move"/>
+                                </Link>
+
+                                <Link to={`/shop/product/${product.slug}`} className="">
+                                    <span className="add-text text-uppercase">View more</span>
+                                </Link>
+                            </div>
+                        </div>
+                    </div>
+                )
+            });
+        }
 
         const firstOfLatestProducts = this.state.latestProducts[0];
 
@@ -335,7 +364,7 @@ class Index extends Component {
                                 </div>
                             </div>
                             <div className="row">
-                                {latestProducts()}
+                                {latestProductsHTML()}
                             </div>
                         </div>
                     </div>
@@ -371,59 +400,33 @@ class Index extends Component {
                                         </div>
                                     </div>
                                 </div>
-                                <a href="" className="primary-btn">Shop Now</a>
+
+                                <Link to={'/shop'} className='primary-btn'>Shop now</Link>
+
                             </div>
                             <div className="col-lg-6 no-padding exclusive-right">
-                                <OwlCarousel className="active-exclusive-product-slider"
-                                             items={1}
-                                             autoPlay={false}
-                                             autoplayTimeout={5000}
-                                             loop={true}
-                                             nav={true}
-                                             dots={false}
-                                             navText={[
-                                                 "<img src='assets/img/product/prev.png'>",
-                                                 "<img src='assets/img/product/next.png'>"
-                                             ]}
-                                             navClass={[
-                                                 "owl-prev button-without-background",
-                                                 "owl-next button-without-background"
-                                             ]}
-                                >
-                                    <div className="single-exclusive-slider">
-                                        <img className="img-fluid" src={imgProductE1} alt=""/>
-                                        <div className="product-details">
-                                            <div className="price">
-                                                <h6>$150.00</h6>
-                                                <h6 className="l-through">$210.00</h6>
-                                            </div>
-                                            <h4>addidas New Hammer sole
-                                                for Sports person</h4>
-                                            <div
-                                                className="add-bag d-flex align-items-center justify-content-center">
-                                                <a className="add-btn" href=""><span className="ti-bag"/></a>
-                                                <span className="add-text text-uppercase">Add to Bag</span>
-                                            </div>
-                                        </div>
-                                    </div>
+                                {
+                                    latestProducts.length &&
 
-                                    <div className="single-exclusive-slider">
-                                        <img className="img-fluid" src={imgProductE1} alt=""/>
-                                        <div className="product-details">
-                                            <div className="price">
-                                                <h6>$150.00</h6>
-                                                <h6 className="l-through">$210.00</h6>
-                                            </div>
-                                            <h4>addidas New Hammer sole
-                                                for Sports person</h4>
-                                            <div
-                                                className="add-bag d-flex align-items-center justify-content-center">
-                                                <a className="add-btn" href=""><span className="ti-bag"/></a>
-                                                <span className="add-text text-uppercase">Add to Bag</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </OwlCarousel>
+                                    <OwlCarousel className="active-exclusive-product-slider"
+                                                 items={1}
+                                                 autoPlay={false}
+                                                 autoplayTimeout={5000}
+                                                 loop={true}
+                                                 nav={true}
+                                                 dots={false}
+                                                 navText={[
+                                                     "<img src='assets/img/product/prev.png'>",
+                                                     "<img src='assets/img/product/next.png'>"
+                                                 ]}
+                                                 navClass={[
+                                                     "owl-prev button-without-background",
+                                                     "owl-next button-without-background"
+                                                 ]}
+                                    >
+                                        {exclusiveProductsFromLatestProducts()}
+                                    </OwlCarousel>
+                                }
                             </div>
                         </div>
                     </div>
@@ -450,8 +453,6 @@ class Index extends Component {
                         </div>
                     </div>
                 </section>
-
-                <DealsRelatedProducts />
             </BaseTemplate>
         );
     }
