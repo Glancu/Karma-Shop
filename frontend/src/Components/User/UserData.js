@@ -12,6 +12,15 @@ export default function removeUserTokensStorage() {
     sessionStorage.removeItem(userStorageLoginRefreshToken);
 }
 
+export function getUserToken() {
+    let userToken = localStorage.getItem(userStorageLoginToken);
+    if(!userToken) {
+        userToken = sessionStorage.getItem(userStorageLoginToken);
+    }
+
+    return userToken;
+}
+
 function refreshUserToken() {
     let userTokenRefreshToken = localStorage.getItem(userStorageLoginRefreshToken);
     if(!userTokenRefreshToken) {
@@ -45,10 +54,7 @@ function refreshUserToken() {
 }
 
 export const userLoggedIn = () => {
-    let userToken = localStorage.getItem(userStorageLoginToken);
-    if(!userToken) {
-        userToken = sessionStorage.getItem(userStorageLoginToken);
-    }
+    const userToken = getUserToken();
     if(userToken) {
         const formData = new FormData();
         formData.append('token', userToken);
@@ -84,10 +90,7 @@ export const userEmail = () => {
 }
 
 export const userData = () => {
-    let userToken = localStorage.getItem(userStorageLoginToken);
-    if(!userToken) {
-        userToken = sessionStorage.getItem(userStorageLoginToken);
-    }
+    const userToken = getUserToken();
     if(userToken) {
         return axios.get("/api/user/data", {
             headers: { Authorization: `Bearer ${userToken}` }

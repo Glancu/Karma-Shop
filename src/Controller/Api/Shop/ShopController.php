@@ -40,7 +40,7 @@ class ShopController
     }
 
     /**
-     * @Route("/product-review/create", name="shop_add_product_reviewt", methods={"POST"})
+     * @Route("/product-review/create", name="shop_add_product_review", methods={"POST"})
      *
      * @param Request $request
      * @param ValidatorInterface $validator

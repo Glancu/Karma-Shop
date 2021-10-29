@@ -18,6 +18,7 @@ import ScrollToTop from './Components/ScrollToTop';
 import ShoppingCart from './Components/Shop/ShoppingCart';
 import ChangePassword from './Pages/User/ChangePassword';
 import ClientPanelRoute from './Routers/ClientPanelRoute';
+import Orders from './Pages/User/Orders';
 
 const App = () => (
     <Router>
@@ -44,6 +45,8 @@ const App = () => (
             <Route path='/logout' component={Logout} />
             <Route path='/register' component={Register} />
             <ClientPanelAppRoute path='/user/panel' component={ChangePassword} />
+            <ClientPanelAppRoute path='/user/orders' component={Orders} />
+
 
             <Route component={NotFound} />
         </Switch>

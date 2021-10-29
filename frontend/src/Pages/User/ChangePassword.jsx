@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
 import BaseTemplate from '../../Components/BaseTemplate';
 import { Link } from 'react-router-dom';
-import removeUserTokensStorage, { userData } from '../../Components/User/UserData';
+import removeUserTokensStorage, { getUserToken, userData } from '../../Components/User/UserData';
 import axios from 'axios';
-import CONFIG from '../../config';
 import { toast } from 'react-toastify';
+import { UserPanelHeader } from '../../Components/User/UserPanelHeader';
 
 class ChangePassword extends Component {
     constructor(props) {
@@ -75,11 +75,7 @@ class ChangePassword extends Component {
             return;
         }
 
-        const userStorageLoginToken = CONFIG.user.storage_login_token;
-        let userToken = localStorage.getItem(userStorageLoginToken);
-        if(!userToken) {
-            userToken = sessionStorage.getItem(userStorageLoginToken);
-        }
+        const userToken = getUserToken();
 
         const config = {
             headers: {
@@ -142,11 +138,7 @@ class ChangePassword extends Component {
                     <div className="container">
                         <div className="row">
                             <div className="col-lg-12">
-                                <div className="header">
-                                    <ul>
-                                        <Link to='/user/panel'><li>Change password</li></Link>
-                                    </ul>
-                                </div>
+                                <UserPanelHeader />
                                 <div className="login_form_inner">
                                     <h3>Change password</h3>
 
