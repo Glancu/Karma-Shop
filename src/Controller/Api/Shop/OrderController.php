@@ -20,7 +20,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
  *
  * @package App\Controller
  *
- * @Route("/api/shop")
+ * @Route("/shop")
  */
 class OrderController
 {

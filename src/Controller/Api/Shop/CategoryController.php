@@ -11,7 +11,7 @@ use Symfony\Component\Routing\Annotation\Route;
 /**
  * Class CategoryController
  *
- * @Route("/api/categories")
+ * @Route("/categories")
  *
  * @package App\Controller\Shop
  */

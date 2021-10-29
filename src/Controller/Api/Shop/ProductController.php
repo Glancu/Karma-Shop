@@ -19,7 +19,7 @@ use Symfony\Component\Routing\Annotation\Route;
  *
  * @package App\Controller\Shop
  *
- * @Route("/api/products")
+ * @Route("/products")
  */
 class ProductController
 {

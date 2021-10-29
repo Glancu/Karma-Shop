@@ -21,7 +21,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
  *
  * @package App\Controller
  *
- * @Route("/api/contact")
+ * @Route("/contact")
  */
 class ContactController
 {

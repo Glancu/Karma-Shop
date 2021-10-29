@@ -11,7 +11,7 @@ use Symfony\Component\Routing\Annotation\Route;
 /**
  * Class ColorController
  *
- * @Route("/api/colors")
+ * @Route("/colors")
  *
  * @package App\Controller\Shop
  */

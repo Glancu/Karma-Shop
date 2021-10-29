@@ -18,7 +18,7 @@ use Symfony\Component\Routing\Annotation\Route;
  *
  * @package App\Controller\Shop
  *
- * @Route("/api/comments")
+ * @Route("/comments")
  */
 class CommentController
 {

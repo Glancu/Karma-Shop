@@ -11,7 +11,7 @@ use Symfony\Component\Routing\Annotation\Route;
 /**
  * Class BrandController
  *
- * @Route("/api/brands")
+ * @Route("/brands")
  *
  * @package App\Controller\Shop
  */

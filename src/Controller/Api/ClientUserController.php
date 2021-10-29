@@ -25,7 +25,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
  *
  * @package App\Controller
  *
- * @Route("/api/user")
+ * @Route("/user")
  */
 class ClientUserController
 {
@@ -118,7 +118,7 @@ class ClientUserController
     }
 
     /**
-     * @Route("/validate_token", name="user_validate_token")
+     * @Route("/validate_token", name="user_validate_token", methods={"GET"})
      *
      * @param Request $request
      * @param UserService $userService
@@ -177,7 +177,7 @@ class ClientUserController
     }
 
     /**
-     * @Route("/get-email", name="user_email_by_token")
+     * @Route("/get-email", name="user_email_by_token", methods={"GET"})
      *
      * @param Request $request
      * @param UserService $userService

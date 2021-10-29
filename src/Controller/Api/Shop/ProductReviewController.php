@@ -18,7 +18,7 @@ use Symfony\Component\Routing\Annotation\Route;
  *
  * @package App\Controller
  *
- * @Route("/api/product-review")
+ * @Route("/product-review")
  */
 class ProductReviewController
 {

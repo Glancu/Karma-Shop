@@ -19,7 +19,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
  *
  * @package App\Controller
  *
- * @Route("/api/newsletter")
+ * @Route("/newsletter")
  */
 class NewsletterController
 {
