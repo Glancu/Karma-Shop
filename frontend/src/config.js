@@ -30,5 +30,9 @@ export default {
             priceTo: 2000
         },
         currencySymbol: process.env.CURRENCY_SYMBOL
+    },
+    user: {
+        storage_login_token: 'user_token',
+        storage_login_refresh_token: 'user_refresh_token',
     }
 }

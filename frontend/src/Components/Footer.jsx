@@ -151,11 +151,11 @@ class Footer extends Component {
                                         </div>
 
                                         <div className="col-md-12 form-group">
-                                            <label htmlFor="email">Email <span className="red-star">*</span></label>
+                                            <label htmlFor="email_newsletter">Email <span className="red-star">*</span></label>
                                             <input className="form-control"
                                                    type="email"
-                                                   id="email"
-                                                   name="email"
+                                                   id="email_newsletter"
+                                                   name="email_newsletter"
                                                    placeholder="Enter Email"
                                                    required
                                                    onChange={this.handleChange}

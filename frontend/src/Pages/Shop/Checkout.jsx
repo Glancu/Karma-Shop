@@ -4,9 +4,10 @@ import { Link, Redirect } from 'react-router-dom';
 import ShoppingCart from '../../Components/Shop/ShoppingCart';
 import { windowScrollTo }  from '../../Components/WindowScroll';
 import isEqual from 'react-fast-compare';
-import { userLoggedIn, userEmail } from '../../Components/User/UserInfo';
+import { userLoggedIn, userEmail } from '../../Components/User/UserData';
 import axios from 'axios';
 import ValidateEmail from '../../Components/ValidateEmail';
+import CONFIG from '../../config';
 
 import imgProductCard from '../../../public/assets/img/product/card.jpg';
 
@@ -248,13 +249,15 @@ class Checkout extends Component {
                     products.push({uuid: product.uuid, quantity: parseInt(product.quantity)});
                 });
 
+                const userStorageLoginToken = CONFIG.user.storage_login_token;
+
                 const data = {
                     personalData: form.inputs,
                     methodPayment: form.methodPayment,
                     isCustomCorrespondence: form.customCorrespondence,
                     products: products,
                     dataProcessingAgreement: form.dataProcessingAgreement,
-                    userToken: localStorage.getItem(process.env.LOGIN_TOKEN_STORAGE_PREFIX)
+                    userToken: localStorage.getItem(userStorageLoginToken)
                 };
 
                 const errorMessageStr = 'Something went wrong. Try again.';
@@ -267,7 +270,7 @@ class Checkout extends Component {
                     formData.append('isCustomCorrespondence', form.customCorrespondence);
                     formData.append('products', JSON.stringify(products));
                     formData.append('dataProcessingAgreement', form.dataProcessingAgreement);
-                    formData.append('userToken', localStorage.getItem(process.env.LOGIN_TOKEN_STORAGE_PREFIX) ?? null);
+                    formData.append('userToken', localStorage.getItem(userStorageLoginToken) ?? null);
 
                     axios.post("/api/shop/create-order", formData).then(result => {
                         if (result.status === 201) {
@@ -362,7 +365,7 @@ class Checkout extends Component {
             }).then(result => {
                 const token = result.data ? result.data.token : null;
                 if (result.status === 200 && token) {
-                    localStorage.setItem(process.env.LOGIN_TOKEN_STORAGE_PREFIX, token);
+                    localStorage.setItem(CONFIG.user.storage_login_token, token);
 
                     window.location.reload(true);
                 } else {

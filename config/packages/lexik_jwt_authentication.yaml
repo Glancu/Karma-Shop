@@ -4,3 +4,11 @@ lexik_jwt_authentication:
     pass_phrase:      'pass' # required for token creation, usage of an environment variable is recommended
     token_ttl:        3600
     user_identity_field: email
+
+gesdinet_jwt_refresh_token:
+    ttl: 2592000
+    ttl_update: true
+    firewall: api
+    user_provider: security.user.provider.concrete.app_client_user_provider
+    user_identity_field: email
+

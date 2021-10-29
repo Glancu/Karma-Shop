@@ -69,7 +69,6 @@ Encore
         }
 
         options['process.env'].CURRENCY_SYMBOL = JSON.stringify(env.parsed.CURRENCY_SYMBOL);
-        options['process.env'].LOGIN_TOKEN_STORAGE_PREFIX = JSON.stringify(env.parsed.LOGIN_TOKEN_STORAGE_PREFIX);
     })
 
     // enables Sass/SCSS support

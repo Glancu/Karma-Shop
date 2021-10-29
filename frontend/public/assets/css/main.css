@@ -5788,4 +5788,26 @@ label {
   .footer-text i {
     color: #ffba00; }
 
+.header {
+  position: relative;
+  display: block; }
+  .header ul {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    list-style: none;
+    padding: 0;
+    white-space: nowrap; }
+    .header ul a:nth-child(2n+0) {
+      margin: 0 10px; }
+    .header ul li {
+      padding: 10px 45px;
+      border: 1px solid grey;
+      transition: .2s all;
+      color: #777777;
+      text-transform: uppercase; }
+      .header ul li:hover {
+        border-color: #ffba00;
+        color: #ffba00; }
+
 /*# sourceMappingURL=main.css.map */

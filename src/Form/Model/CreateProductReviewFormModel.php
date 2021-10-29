@@ -8,7 +8,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 class CreateProductReviewFormModel
 {
     /**
-     * @Assert\NotNull(message="PName cannot be null")
+     * @Assert\NotNull(message="Name cannot be null")
      */
     public string $name;
 

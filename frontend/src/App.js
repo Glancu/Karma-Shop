@@ -16,6 +16,8 @@ import Logout from './Pages/User/Logout';
 import Register from './Pages/User/Register';
 import ScrollToTop from './Components/ScrollToTop';
 import ShoppingCart from './Components/Shop/ShoppingCart';
+import ChangePassword from './Pages/User/ChangePassword';
+import ClientPanelRoute from './Routers/ClientPanelRoute';
 
 const App = () => (
     <Router>
@@ -41,6 +43,7 @@ const App = () => (
             <Route path='/login' component={Login} />
             <Route path='/logout' component={Logout} />
             <Route path='/register' component={Register} />
+            <ClientPanelAppRoute path='/user/panel' component={ChangePassword} />
 
             <Route component={NotFound} />
         </Switch>
@@ -64,6 +67,12 @@ const ShopCheckoutRoute = ({component: Component, ...rest}) => {
 
     return <Route {...rest} render={(props) => (
         <Component {...props} />
+    )} />
+};
+
+const ClientPanelAppRoute = ({component: Component, ...rest}) => {
+    return <Route {...rest} render={(props) => (
+        <ClientPanelRoute {...props} component={Component} />
     )} />
 };
 

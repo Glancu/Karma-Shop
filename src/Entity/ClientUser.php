@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Repository\ClientUserRepository;
 use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\UuidTrait;
+use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\PersistentCollection;
@@ -58,6 +59,13 @@ class ClientUser implements UserInterface
      * @ORM\OneToMany(targetEntity="App\Entity\Order", mappedBy="user")
      */
     private $orders;
+
+    /**
+     * @var DateTime
+     *
+     * @ORM\Column(name="password_changed_at", type="datetime", nullable=true)
+     */
+    private ?DateTime $passwordChangedAt;
 
     public function __construct(string $email, string $encodedPassword) {
         $this->__UuidTraitConstructor();
@@ -130,6 +138,16 @@ class ClientUser implements UserInterface
     public function setOrders(?ArrayCollection $orders): void
     {
         $this->orders = $orders;
+    }
+
+    public function getPasswordChangedAt(): ?DateTime
+    {
+        return $this->passwordChangedAt;
+    }
+
+    public function setPasswordChangedAt(?DateTime $passwordChangedAt): void
+    {
+        $this->passwordChangedAt = $passwordChangedAt;
     }
 
     /**

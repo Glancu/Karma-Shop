@@ -41,7 +41,7 @@ security:
             logout:
                 path: app_admin_logout
 
-        login:
+        api_user_login:
             pattern:  ^/api/login
             stateless: true
             anonymous: true
@@ -61,6 +61,12 @@ security:
                 authenticators:
                     - lexik_jwt_authentication.jwt_token_authenticator
 
+        api_user_token_refresh:
+            pattern: ^/api/user/refresh_token
+            stateless: true
+            anonymous: true
+            provider: app_client_user_provider
+
         main:
             anonymous: ~
 
@@ -68,6 +74,7 @@ security:
         - { path: ^/api/login, roles: IS_AUTHENTICATED_ANONYMOUSLY }
 
         - { path: ^/api/user/validate_token, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/api/user/refresh_token, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/api/user/create, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/api/user/get-email, roles: IS_AUTHENTICATED_ANONYMOUSLY }
 

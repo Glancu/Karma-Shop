@@ -55,7 +55,8 @@ class SerializeDataResponse
             'comments',
             'id',
             'salt',
-            'username'
+            'username',
+            'passwordChangedAt'
         ];
 
         return $this->getSerializedData($clientUser, $ignoredAttributes, $defaultContext);

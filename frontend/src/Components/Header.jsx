@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import { NavLink, Link } from "react-router-dom";
 import $ from 'jquery';
 import ShoppingCart from './Shop/ShoppingCart';
-import { userLoggedIn } from './User/UserInfo';
+import { userLoggedIn } from './User/UserData';
 import axios from 'axios';
 import '../../public/assets/js/jquery.sticky';
 
@@ -79,8 +79,8 @@ class Header extends Component {
                 .fadeOut(500);
         });
 
-        userLoggedIn().then((data) => {
-            this.setState({userLoggedIn: data});
+        userLoggedIn().then((isUserLoggedIn) => {
+            this.setState({userLoggedIn: isUserLoggedIn});
         });
     }
 
@@ -124,9 +124,14 @@ class Header extends Component {
         const renderLoginLogout = () => {
             if(this.state.userLoggedIn) {
                 return (
-                    <li className="nav-item">
-                        <NavLink className="nav-link" to={'/logout'}>Logout</NavLink>
-                    </li>
+                    <>
+                        <li className="nav-item">
+                            <NavLink className="nav-link" to={'/user/panel'}>Profile</NavLink>
+                        </li>
+                        <li className="nav-item">
+                            <NavLink className="nav-link" to={'/logout'}>Logout</NavLink>
+                        </li>
+                    </>
                 )
             }
 
