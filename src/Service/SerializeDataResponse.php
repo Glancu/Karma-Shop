@@ -44,7 +44,7 @@ class SerializeDataResponse
 
         $defaultContext = [
             AbstractNormalizer::CALLBACKS => [
-                'createdAt' => $dateCallback,
+                'createdAt' => $dateCallback
             ],
         ];
 

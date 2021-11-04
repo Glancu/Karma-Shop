@@ -5,6 +5,7 @@ namespace App\Entity\Traits;
 use DateTime;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 trait CreatedAtTrait
 {
@@ -12,6 +13,8 @@ trait CreatedAtTrait
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="create")
+     *
+     * @Groups("createdAt_trait")
      *
      * @ORM\Column(name="created_at", type="datetime")
      */
