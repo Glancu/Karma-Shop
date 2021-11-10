@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Controller\Api\Shop;
 
+use App\Entity\ShopProduct;
 use App\Repository\ShopProductRepository;
 use App\Serializer\ShopSerializer;
 use App\Service\MoneyService;
@@ -15,6 +16,8 @@ use OpenApi\Annotations as OA;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Component\Routing\RouterInterface;
 
 /**
  * Class ProductController
@@ -180,11 +183,11 @@ class ProductController
     }
 
     /**
-     * @Route("/search/{name}", name="app_shop_product_search", methods={"GET"})
+     * @Route("/search", name="app_shop_product_search", methods={"GET"})
      *
      * @OA\Parameter(
-     *     name="name",
-     *     in="path",
+     *     name="query",
+     *     in="query",
      *     description="Search by product name",
      *     required=true,
      *     example="product"
@@ -201,18 +204,39 @@ class ProductController
      *
      * @Security()
      *
-     * @param string $name
-     *
      * @return JsonResponse
      */
-    public function getProductsByNameLikeAction(string $name): JsonResponse
+    public function getProductsByNameLikeAction(Request $request, RouterInterface $router): JsonResponse
     {
-        $name = htmlspecialchars($name, ENT_QUOTES);
+        // This API was created for https://github.com/devbridge/jQuery-Autocomplete
 
-        $products = $this->shopProductRepository->findByNameLike($name);
-        $serializer = $this->serializeDataResponse->getProductsSearchData($products);
+        $query = htmlspecialchars($request->get('query'), ENT_QUOTES);
 
-        return JsonResponse::fromJsonString($serializer);
+        $products = $this->shopProductRepository->findByNameLike($query);
+
+        $suggestions = [];
+
+        /**
+         * @var ShopProduct $product
+         */
+        foreach($products as $product) {
+            $url = $router->generate(
+                'homepage',
+                [],
+                UrlGeneratorInterface::ABSOLUTE_URL
+            ) . 'shop/product/'.$product->getSlug();
+
+            $suggestions[] = [
+                'value' => $product->getName(),
+                'data' => $product->getName(),
+                'url' => $url
+            ];
+        }
+
+        return new JsonResponse([
+            'query' => $query,
+            'suggestions' => $suggestions
+        ]);
     }
 
     /**

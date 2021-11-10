@@ -3,8 +3,8 @@ import { NavLink, Link } from "react-router-dom";
 import $ from 'jquery';
 import ShoppingCart from './Shop/ShoppingCart';
 import { userLoggedIn } from './User/UserData';
-import axios from 'axios';
 import '../../public/assets/js/jquery.sticky';
+import '../../public/assets/js/jquery.autocomplete.min';
 
 // CSS IMPORT
 import '../../public/assets/css/linearicons.css';
@@ -26,13 +26,8 @@ class Header extends Component {
         super(props);
 
         this.state = {
-            userLoggedIn: false,
-            productsSearchBox: [],
-            timer: null
+            userLoggedIn: false
         };
-
-        this.handleSearchInputChange = this.handleSearchInputChange.bind(this);
-        this.getProducts = this.getProducts.bind(this);
     }
 
     componentDidMount() {
@@ -57,7 +52,7 @@ class Header extends Component {
         $("#search").on("click", function() {
             $("#search_input_box")
                 .slideToggle();
-            $("#search_input")
+            $("#autocomplete")
                 .focus();
         });
         $("#close_search").on("click", function() {
@@ -82,45 +77,18 @@ class Header extends Component {
         userLoggedIn().then((isUserLoggedIn) => {
             this.setState({userLoggedIn: isUserLoggedIn});
         });
-    }
 
-    getProducts(value) {
-        const _this = this;
-        axios.get(`/api/shop/products/search/${value}`)
-            .then(result => {
-                if(result.status === 200 && result.data.length > 0) {
-                    _this.setState({productsSearchBox: result.data})
-                } else {
-                    _this.setState({productsSearchBox: []})
+        $('#autocomplete').autocomplete({
+            serviceUrl: '/api/shop/products/search',
+            onSelect: function (suggestion) {
+                if(suggestion && suggestion.url) {
+                    window.location.href = suggestion.url;
                 }
-            })
-            .catch(err => {
-                console.error(err);
-            });
-    }
-
-    handleSearchInputChange(e) {
-        let {timer} = this.state;
-        const _this = this;
-        const searchInputValue = e.target.value.replaceAll(' ', '');
-        if(searchInputValue && searchInputValue.length >= 3) {
-            if(timer) {
-                clearTimeout(timer);
             }
-
-            timer = setTimeout(() => {
-                _this.getProducts(searchInputValue);
-            }, 500);
-
-            this.setState({timer});
-        } else {
-            _this.setState({productsSearchBox: []})
-        }
+        });
     }
 
     render() {
-        const {productsSearchBox} = this.state;
-
         const renderLoginLogout = () => {
             if(this.state.userLoggedIn) {
                 return (
@@ -140,21 +108,6 @@ class Header extends Component {
                     <NavLink className="nav-link" to={'/login'}>Login</NavLink>
                 </li>
             )
-        }
-
-        const renderProductsSearchBox = () => {
-            return productsSearchBox.map((product) => {
-                return (
-                    <div className="single-item" key={product.uuid}>
-                        <img src={product.image.url} alt="" height="75"/>
-
-                        <div className="text">
-                            <p><Link to={`/shop/product/${product.slug}`}>{product.name}</Link></p>
-                            <p>€ {product.priceGross}</p>
-                        </div>
-                    </div>
-                )
-            })
         }
 
         return (
@@ -227,17 +180,11 @@ class Header extends Component {
                             <form className="d-flex justify-content-between">
                                 <input type="text"
                                        className="form-control"
-                                       id="search_input"
-                                       placeholder="Search Here"
-                                       onKeyUp={this.handleSearchInputChange}/>
+                                       id="autocomplete"
+                                       placeholder="Search Here" />
                                 <button type="submit" className="btn"/>
                                 <span className="lnr lnr-cross" id="close_search" title="Close Search"/>
                             </form>
-                        </div>
-
-                        <div className={productsSearchBox.length === 0 ? "search-list hide" : "search-list"}>
-                            <h6 className="text-left">Products:</h6>
-                            {renderProductsSearchBox()}
                         </div>
                     </div>
                 </div>
