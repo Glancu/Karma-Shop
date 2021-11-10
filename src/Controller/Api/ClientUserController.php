@@ -163,7 +163,7 @@ class ClientUserController
     }
 
     /**
-     * @Route("/validate_token", name="user_validate_token", methods={"POST"})
+     * @Route("/validate-token", name="user_validate_token", methods={"POST"})
      *
      * @OA\RequestBody(
      *     description="Pass token to validate",
@@ -465,7 +465,7 @@ class ClientUserController
     }
 
     /**
-     * @Route("/refresh_token", name="user_refresh_jwt_token", methods={"POST"})
+     * @Route("/refresh-token", name="user_refresh_jwt_token", methods={"POST"})
      *
      * @OA\RequestBody(
      *     description="Pass data to create comment",

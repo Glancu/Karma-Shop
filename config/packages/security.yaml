@@ -42,12 +42,12 @@ security:
                 path: app_admin_logout
 
         api_user_login:
-            pattern:  ^/api/login
+            pattern:  ^/api/user/generate-token
             stateless: true
             anonymous: true
             provider: app_client_user_provider
             json_login:
-                check_path: /api/login_check
+                check_path: /api/user/generate-token
                 success_handler: lexik_jwt_authentication.handler.authentication_success
                 failure_handler: lexik_jwt_authentication.handler.authentication_failure
                 username_path: email
@@ -62,7 +62,7 @@ security:
                     - lexik_jwt_authentication.jwt_token_authenticator
 
         api_user_token_refresh:
-            pattern: ^/api/user/refresh_token
+            pattern: ^/api/user/refresh-token
             stateless: true
             anonymous: true
             provider: app_client_user_provider
@@ -71,12 +71,12 @@ security:
             anonymous: ~
 
     access_control:
-        - { path: ^/api/login, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/api/user/generate-token, roles: IS_AUTHENTICATED_ANONYMOUSLY }
 
         - { path: ^/api/doc, roles: IS_AUTHENTICATED_ANONYMOUSLY }
 
-        - { path: ^/api/user/validate_token, roles: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/api/user/refresh_token, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/api/user/validate-token, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/api/user/refresh-token, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/api/user/create, roles: IS_AUTHENTICATED_ANONYMOUSLY }
 
         - { path: ^/api/newsletter/create, roles: IS_AUTHENTICATED_ANONYMOUSLY }

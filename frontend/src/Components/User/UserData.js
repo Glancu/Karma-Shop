@@ -27,7 +27,7 @@ function refreshUserToken() {
         userTokenRefreshToken = sessionStorage.getItem(userStorageLoginRefreshToken);
     }
 
-    return axios.post("/api/user/refresh_token", {
+    return axios.post("/api/user/refresh-token", {
         refresh_token: userTokenRefreshToken
     }).then(result => {
         const token = result.data ? result.data.token : null;
@@ -59,7 +59,7 @@ export const userLoggedIn = () => {
         const formData = new FormData();
         formData.append('token', userToken);
 
-        return axios.post("/api/user/validate_token", formData, {
+        return axios.post("/api/user/validate-token", formData, {
             headers: {'Content-Type': 'multipart/form-data'}
         }).then(result => {
             if(result && result.data && result.data.success) {

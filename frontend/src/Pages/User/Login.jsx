@@ -48,7 +48,7 @@ class Login extends Component {
             const formData = new FormData();
             formData.append('token', token);
 
-            axios.post("/api/user/validate_token", formData, {
+            axios.post("/api/user/validate-token", formData, {
                 headers: { 'Content-Type': 'multipart/form-data' }
             }).then(result => {
                 if(result.data.success) {
@@ -107,7 +107,7 @@ class Login extends Component {
         if(errors.email.length === 0 && errors.password.length === 0) {
             const errorMessageStr = 'Bad email or password. Try again.';
 
-            axios.post("/api/login_check", {
+            axios.post("/api/user/generate-token", {
                 email,
                 password
             }).then(result => {

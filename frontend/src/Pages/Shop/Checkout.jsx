@@ -359,7 +359,7 @@ class Checkout extends Component {
         if(errors.email.length === 0 && errors.password.length === 0) {
             const errorMessageStr = 'Bad email or password. Try again.';
 
-            axios.post("/api/login_check", {
+            axios.post("/api/user/generate-token", {
                 email,
                 password
             }).then(result => {
