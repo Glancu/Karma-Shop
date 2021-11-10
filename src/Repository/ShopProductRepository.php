@@ -85,6 +85,9 @@ class ShopProductRepository extends ServiceEntityRepository
         if ($sortBy && $sortBy !== 'newset') {
             $queryBuilder
                 ->orderBy("s.${sortBy}", $sortOrder);
+        } elseif($sortOrder) {
+            $queryBuilder
+                ->orderBy('s.id', $sortOrder);
         }
 
         if ($brandSlug) {

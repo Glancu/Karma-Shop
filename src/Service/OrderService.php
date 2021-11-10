@@ -103,7 +103,7 @@ final class OrderService
         $this->sendMailToUser($order, $clientUser->getEmail());
         $this->sendMailToAdmin($order);
 
-        return new JsonResponse(['uuid' => $order->getUuid()], 201);
+        return new JsonResponse(['error' => false, 'uuid' => $order->getUuid()], 201);
     }
 
     /**

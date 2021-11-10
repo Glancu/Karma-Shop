@@ -124,7 +124,7 @@ final class ContactControllerTest extends WebTestCase
             }
 
             if(isset($result['error'])) {
-                self::assertTrue(false);
+                self::assertTrue(!$result['error']);
                 return;
             }
 

@@ -102,7 +102,7 @@ class Index extends Component {
             });
         });
 
-        axios.get('/api/products/latest')
+        axios.get('/api/shop/products/latest')
             .then(result => {
                 if(result.status === 200) {
                     if(result.data) {

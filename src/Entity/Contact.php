@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
+use App\Entity\Traits\UuidTrait;
 use App\Repository\ContactRepository;
 use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\DataProcessingAgreement;
@@ -15,8 +16,9 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 class Contact
 {
-    use CreatedAtTrait, DataProcessingAgreement {
+    use CreatedAtTrait, DataProcessingAgreement, UuidTrait {
         DataProcessingAgreement::__construct as private __DPAConstructor;
+        UuidTrait::__construct as private __UuidTraitConstructor;
     }
 
     /**
@@ -85,6 +87,8 @@ class Contact
         $this->subject = $subject;
         $this->message = $message;
         $this->dataProcessingAgreement = $dataProcessingAgreement;
+
+        $this->__UuidTraitConstructor();
     }
 
     public function __toString(): string

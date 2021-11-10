@@ -11,7 +11,7 @@ class ShopCategoriesSidebar extends Component {
     }
 
     componentDidMount() {
-        axios.get('/api/categories/list', null)
+        axios.get('/api/shop/categories/list', null)
             .then(result => {
                 if(result.status === 200) {
                     this.setState({items: result.data});

@@ -5,15 +5,19 @@ namespace App\Controller\Api\Shop;
 
 use App\Repository\ShopColorRepository;
 use App\Service\SerializeDataResponse;
+use Nelmio\ApiDocBundle\Annotation\Security;
+use OpenApi\Annotations as OA;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * Class ColorController
  *
- * @Route("/colors")
- *
  * @package App\Controller\Shop
+ *
+ * @Route("/shop/colors")
+ *
+ * @OA\Tag(name="Shop")
  */
 class ColorController
 {
@@ -29,8 +33,7 @@ class ColorController
     public function __construct(
         SerializeDataResponse $serializeDataResponse,
         ShopColorRepository $shopColorRepository
-    )
-    {
+    ) {
         $this->serializeDataResponse = $serializeDataResponse;
         $this->shopColorRepository = $shopColorRepository;
     }
@@ -38,9 +41,19 @@ class ColorController
     /**
      * @Route("/list", name="shop_colors_list", methods={"GET"})
      *
+     * @OA\Response(
+     *     response=200,
+     *     description="Return list of colors",
+     *     @OA\JsonContent(
+     *          type="string", example={{ "name": "Black with red", "slug": "black-with-red", "countProducts": 2 }, { "name": "Black Leather", "slug": "black-leather", "countProducts": 3 }},
+     *     )
+     * )
+     *
+     * @Security()
+     *
      * @return JsonResponse
      */
-    public function getCategoriesList(): JsonResponse
+    public function getColorsList(): JsonResponse
     {
         $serializer = $this->serializeDataResponse;
 

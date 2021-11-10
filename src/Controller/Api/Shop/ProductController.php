@@ -10,6 +10,8 @@ use App\Service\SerializeDataResponse;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
 use JsonException;
+use Nelmio\ApiDocBundle\Annotation\Security;
+use OpenApi\Annotations as OA;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -19,7 +21,9 @@ use Symfony\Component\Routing\Annotation\Route;
  *
  * @package App\Controller\Shop
  *
- * @Route("/products")
+ * @Route("/shop/products")
+ *
+ * @OA\Tag(name="Product")
  */
 class ProductController
 {
@@ -45,6 +49,74 @@ class ProductController
 
     /**
      * @Route("/list", name="app_shop_products_list", methods={"GET"})
+     *
+     * @OA\Parameter(
+     *     name="limit",
+     *     in="query",
+     *     description="Limit of products (default 12)",
+     *     required=false,
+     *     @OA\Schema(type="integer", example=10)
+     * )
+     * @OA\Parameter(
+     *     name="offset",
+     *     in="query",
+     *     description="Offset of products list (default 0)",
+     *     required=false,
+     *     @OA\Schema(type="integer", example=10)
+     * )
+     * @OA\Parameter(
+     *     name="color",
+     *     in="query",
+     *     description="Search products by color slug",
+     *     required=false,
+     *     @OA\Schema(type="string", example="black")
+     * )
+     * @OA\Parameter(
+     *     name="brand",
+     *     in="query",
+     *     description="Search products by brand slug",
+     *     required=false,
+     *     @OA\Schema(type="string", example="apple")
+     * )
+     * @OA\Parameter(
+     *     name="categorySlug",
+     *     in="query",
+     *     description="Search products by category slug",
+     *     required=false,
+     *     @OA\Schema(type="string", example="meat-and-fish")
+     * )
+     * @OA\Parameter(
+     *     name="sortOrder",
+     *     in="query",
+     *     description="You can change order of products list",
+     *     required=false,
+     *     @OA\Schema(type="string", enum={"DESC", "ASC"})
+     * )
+     * @OA\Parameter(
+     *     name="priceFrom",
+     *     in="query",
+     *     description="Show products with price above",
+     *     required=false,
+     *     @OA\Schema(type="string", example="100")
+     * )
+     * @OA\Parameter(
+     *     name="priceTo",
+     *     in="query",
+     *     description="Show products with maximum price",
+     *     required=false,
+     *     @OA\Schema(type="string", example="200")
+     * )
+     *
+     * @OA\Response(
+     *     response=200,
+     *     description="List of products with count items",
+     *     @OA\JsonContent(
+     *        type="string",
+     *        example={{ "countItems": 1, "items": { { "name": "product 7", "slug": "product-7", "quantity": 23, "description": "<p>this is simple description for product 7</p>", "shopBrand": { "title": "Apple", "slug": "apple", "enable": true, "uuid": "891e2b3b-3b04-4f29-9574-d051358aab7e" }, "shopCategory": { "title": "Fruits and Vegetables", "slug": "fruits-and-vegetables", "enable": true, "uuid": "6f77f136-1627-4fda-837b-cc5677eba9e2" }, "shopProductSpecifications": { { "value": "50", "uuid": "a0438dc4-faea-47eb-bf0c-a3a430fdad8d", "name": "Height" } }, "reviews": {}, "shopColors": { { "name": "Black with red", "slug": "black-with-red", "enable": true, "uuid": "4a3ddf65-35c4-41b7-af9e-8fffc1a50136" } }, "enable": true, "uuid": "c0b8ed63-b795-408c-b720-f7a2ec4c5706", "priceNet": "70.00", "priceGross": "74.00", "images": { { "name": "p7.jpg", "url": "https://website.com/p7.jpg" }, { "name": "p6.jpg", "url": "https://website.com/p6.jpg" } } } } }}
+     *     )
+     * )
+     *
+     * @Security()
      *
      * @param Request $request
      * @param MoneyService $moneyService
@@ -110,13 +182,32 @@ class ProductController
     /**
      * @Route("/search/{name}", name="app_shop_product_search", methods={"GET"})
      *
+     * @OA\Parameter(
+     *     name="name",
+     *     in="path",
+     *     description="Search by product name",
+     *     required=true,
+     *     example="product"
+     * )
+     *
+     * @OA\Response(
+     *     response=200,
+     *     description="List of products by product name",
+     *     @OA\JsonContent(
+     *        type="string",
+     *        example={{ "name": "product1", "slug": "product1", "quantity": 100, "description": "<p>qwert</p>", "enable": true, "uuid": "e363025f-5c91-11eb-8a84-0242ac1fsdf", "priceNet": 11, "priceGross": 13, "image": { "name": "image.jpg", "url": "https://website.com/image.jpg" } }}
+     *     )
+     * )
+     *
+     * @Security()
+     *
      * @param string $name
      *
      * @return JsonResponse
      */
     public function getProductsByNameLikeAction(string $name): JsonResponse
     {
-        $name = htmlspecialchars((string)$name, ENT_QUOTES);
+        $name = htmlspecialchars($name, ENT_QUOTES);
 
         $products = $this->shopProductRepository->findByNameLike($name);
         $serializer = $this->serializeDataResponse->getProductsSearchData($products);
@@ -126,6 +217,25 @@ class ProductController
 
     /**
      * @Route("/product/{slug}", name="app_shop_product_show", methods={"GET"})
+     *
+     * @OA\Parameter(
+     *     name="slug",
+     *     in="path",
+     *     description="Slug of product",
+     *     required=true,
+     *     example="product"
+     * )
+     *
+     * @OA\Response(
+     *     response=200,
+     *     description="Find product by product slug",
+     *     @OA\JsonContent(
+     *        type="string",
+     *        example={{ "name": "product1", "slug": "product1", "quantity": 100, "description": "<p>qwert</p>", "shopBrand": { "title": "Apple", "slug": "apple", "enable": true, "uuid": "891e2b3b-3b04-4f29-9574-d051358aab7e" }, "shopCategory": { "title": "Fruits and Vegetables", "slug": "fruits-and-vegetables", "enable": true, "uuid": "6f77f136-1627-4fda-837b-cc5677eba9e2" }, "shopProductSpecifications": { { "value": "20", "uuid": "3abb3164-ffffW331d-11eb-b126-0242ac130004", "name": "Width" }, { "value": "19", "uuid": "3abb34f1111d-331d-11eb-b126-0242ac130004", "name": "Height" } }, "reviews": {}, "shopColors": {}, "comments": {}, "enable": true, "uuid": "e363025f-5c91-11eb-8a84-0242ac1fsdf", "priceNet": "0.11", "priceGross": "0.13", "images": { { "name": "image1.jpg", "url": "https://website.com/image1.jpg" }, { "name": "image2.jpg", "url": "https://website.com/image2.jpg" } } }}
+     *     )
+     * )
+     *
+     * @Security()
      *
      * @param $slug
      *
@@ -147,6 +257,17 @@ class ProductController
 
     /**
      * @Route("/latest", name="app_shop_products_latest", methods={"GET"})
+     *
+     * @OA\Response(
+     *     response=200,
+     *     description="List of latest products with count items",
+     *     @OA\JsonContent(
+     *        type="string",
+     *        example={{ "countItems": 1, "items": { { "name": "product 7", "slug": "product-7", "quantity": 23, "description": "<p>this is simple description for product 7</p>", "shopBrand": { "title": "Apple", "slug": "apple", "enable": true, "uuid": "891e2b3b-3b04-4f29-9574-d051358aab7e" }, "shopCategory": { "title": "Fruits and Vegetables", "slug": "fruits-and-vegetables", "enable": true, "uuid": "6f77f136-1627-4fda-837b-cc5677eba9e2" }, "shopProductSpecifications": { { "value": "50", "uuid": "a0438dc4-faea-47eb-bf0c-a3a430fdad8d", "name": "Height" } }, "reviews": {}, "shopColors": { { "name": "Black with red", "slug": "black-with-red", "enable": true, "uuid": "4a3ddf65-35c4-41b7-af9e-8fffc1a50136" } }, "enable": true, "uuid": "c0b8ed63-b795-408c-b720-f7a2ec4c5706", "priceNet": "70.00", "priceGross": "74.00", "images": { { "name": "image1.jpg", "url": "https://website.com/image1.jpg" }, { "name": "image2.jpg", "url": "https://website.com/image2.jpg" } } } } }}
+     *     )
+     * )
+     *
+     * @Security()
      *
      * @return JsonResponse
      *

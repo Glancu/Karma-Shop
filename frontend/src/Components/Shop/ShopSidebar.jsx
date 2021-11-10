@@ -30,8 +30,8 @@ class ShopSidebar extends Component {
         const {filters} = this.state;
 
         axios.all([
-            axios.get("/api/brands/list", {type: 'brands'}),
-            axios.get("/api/colors/list", {type: 'colors'})
+            axios.get("/api/shop/brands/list", {type: 'brands'}),
+            axios.get("/api/shop/colors/list", {type: 'colors'})
         ])
             .then(responseArr => {
                 responseArr.map(response => {

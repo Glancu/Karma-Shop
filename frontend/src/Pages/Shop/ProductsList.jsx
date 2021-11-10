@@ -8,7 +8,7 @@ class ProductsList extends Component {
 
     render() {
         return (
-            <ShopBaseTemplate itemsUrl="/api/products/list" />
+            <ShopBaseTemplate itemsUrl="/api/shop/products/list" />
         )
     }
 }

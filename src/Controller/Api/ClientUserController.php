@@ -11,16 +11,20 @@ use App\Service\UserService;
 use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
+use JsonException;
+use Nelmio\ApiDocBundle\Annotation\Security;
+use OpenApi\Annotations as OA;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
-use OpenApi\Annotations as OA;
-use Nelmio\ApiDocBundle\Annotation\Security;
 
 /**
  * Class ClientUserController
@@ -34,19 +38,24 @@ use Nelmio\ApiDocBundle\Annotation\Security;
 class ClientUserController
 {
     private EntityManagerInterface $entityManager;
-
     private FormFactoryInterface $form;
+    private RouterInterface $router;
 
     /**
      * ClientUserController constructor.
      *
      * @param EntityManagerInterface $entityManager
      * @param FormFactoryInterface $formFactory
+     * @param RouterInterface $router
      */
-    public function __construct(EntityManagerInterface $entityManager, FormFactoryInterface $formFactory)
-    {
+    public function __construct(
+        EntityManagerInterface $entityManager,
+        FormFactoryInterface $formFactory,
+        RouterInterface $router
+    ) {
         $this->entityManager = $entityManager;
         $this->form = $formFactory;
+        $this->router = $router;
     }
 
     /**
@@ -326,6 +335,8 @@ class ClientUserController
      * @param UserInterface $userInterface
      *
      * @return JsonResponse
+     *
+     * @throws JsonException
      */
     public function changePasswordAction(
         Request $request,
@@ -337,9 +348,9 @@ class ClientUserController
         $em = $this->entityManager;
         $form = $this->form;
 
-        $data = json_decode($request->getContent(), true);
+        $data = json_decode($request->getContent(), true, 512, JSON_THROW_ON_ERROR);
 
-        if(!$data || !isset($data['oldPassword'], $data['newPassword'], $data['newPasswordRepeat'])) {
+        if (!$data || !isset($data['oldPassword'], $data['newPassword'], $data['newPasswordRepeat'])) {
             return new JsonResponse(['error' => true, 'message' => 'Not found data to execute'], 400);
         }
 
@@ -451,5 +462,59 @@ class ClientUserController
         ];
 
         return new JsonResponse($data);
+    }
+
+    /**
+     * @Route("/refresh_token", name="user_refresh_jwt_token", methods={"POST"})
+     *
+     * @OA\RequestBody(
+     *     description="Pass data to create comment",
+     *     required=true,
+     *     @OA\MediaType(
+     *         mediaType="multipart/form-data",
+     *         @OA\Schema(
+     *             type="object",
+     *             required={"refresh_token"},
+     *             @OA\Property(
+     *                 property="refresh_token",
+     *                 description="Refresh token",
+     *                 type="string"
+     *             )
+     *         )
+     *     )
+     * )
+     * @OA\Response(
+     *     response=200,
+     *     description="Return new token with refresh token",
+     *     @OA\JsonContent(
+     *        type="object",
+     *        @OA\Property(property="token", type="string"),
+     *        @OA\Property(property="refresh_token", type="string")
+     *     )
+     * )
+     * @OA\Response(
+     *     response=401,
+     *     description="Unauthorized. Refresh token is not valid.",
+     *     @OA\JsonContent(
+     *        type="json",
+     *        example={"code": 401, "message": "An authentication exception occurred."}
+     *     )
+     * )
+     *
+     * @Security()
+     *
+     * @param Request $request
+     * @param ContainerInterface $containerBag
+     *
+     * @return JsonResponse
+     */
+    public function refreshTokenAction(Request $request, ContainerInterface $containerBag): JsonResponse
+    {
+        $refreshToken = $containerBag->get('gesdinet.jwtrefreshtoken');
+        if (!$refreshToken) {
+            throw new NotFoundHttpException('Service JWT refresh token was not found.');
+        }
+
+        return $refreshToken->refresh($request);
     }
 }

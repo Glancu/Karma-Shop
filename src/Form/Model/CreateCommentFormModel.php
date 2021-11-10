@@ -28,7 +28,7 @@ class CreateCommentFormModel
     public string $productUuid;
 
     /**
-     * @Assert\IsTrue(message="Accept terms before create review")
+     * @Assert\IsTrue(message="Accept terms before create comment")
      */
     public bool $dataProcessingAgreement;
 }

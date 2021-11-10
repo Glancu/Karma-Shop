@@ -47,7 +47,7 @@ class ProductDetail extends Component {
         const _this = this;
         const slug = this.props.match.params.slug;
         if(slug) {
-            axios.get(`/api/products/product/${slug}`)
+            axios.get(`/api/shop/products/product/${slug}`)
                 .then(result => {
                     if(result.status === 200) {
                         if(result.data) {
@@ -184,7 +184,7 @@ class ProductDetail extends Component {
         formData.append('dataProcessingAgreement', dataProcessingAgreement);
         formData.append('productUuid', this.state.product.uuid);
 
-        axios.post('/api/product-review/create', formData)
+        axios.post('/api/shop/product-review/create', formData)
             .then(result => {
                 if(result.status === 201) {
                     const data = result.data;

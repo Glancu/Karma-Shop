@@ -86,7 +86,7 @@ class Header extends Component {
 
     getProducts(value) {
         const _this = this;
-        axios.get(`/api/products/search/${value}`)
+        axios.get(`/api/shop/products/search/${value}`)
             .then(result => {
                 if(result.status === 200 && result.data.length > 0) {
                     _this.setState({productsSearchBox: result.data})
