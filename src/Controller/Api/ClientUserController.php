@@ -214,7 +214,7 @@ class ClientUserController
      */
     public function validateTokenAction(Request $request, UserService $userService): JsonResponse
     {
-        $return = ['success' => false];
+        $return = ['error' => true];
 
         $data = [
             'token' => htmlspecialchars((string)$request->request->get('token'), ENT_QUOTES)
@@ -251,11 +251,11 @@ class ClientUserController
             if ($clientUser->getPasswordChangedAt() &&
                 ($clientUser->getPasswordChangedAt()->format('Y-m-d H:i:s') > $dateFormatTokenStart)
             ) {
-                return new JsonResponse(['success' => false, 'message' => 'Token has expired.'], 401);
+                return new JsonResponse(['error' => true, 'message' => 'Token has expired.'], 401);
             }
 
             if ($currentDate >= $dateFormatTokenStart && $currentDate <= $dateFormatTokenExpire) {
-                return new JsonResponse(['success' => true]);
+                return new JsonResponse(['error' => false]);
             }
         }
 

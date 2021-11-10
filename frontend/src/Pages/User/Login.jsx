@@ -51,7 +51,7 @@ class Login extends Component {
             axios.post("/api/user/validate-token", formData, {
                 headers: { 'Content-Type': 'multipart/form-data' }
             }).then(result => {
-                if(result.data.success) {
+                if(result.data.error === false) {
                     return this.props.history.push('/');
                 }
             }).catch(e => {

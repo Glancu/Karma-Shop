@@ -62,7 +62,7 @@ export const userLoggedIn = () => {
         return axios.post("/api/user/validate-token", formData, {
             headers: {'Content-Type': 'multipart/form-data'}
         }).then(result => {
-            if(result && result.data && result.data.success) {
+            if(result && result.data && result.data.error === false) {
                 return true;
             }
         }).catch(function(e) {
