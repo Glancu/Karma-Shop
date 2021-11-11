@@ -4,7 +4,6 @@ declare(strict_types=1);
 namespace App\Form\Model;
 
 use App\Entity\Order;
-use JsonException;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
@@ -31,7 +30,7 @@ class CreateOrderFormModel
     /**
      * @Assert\NotNull(message="Not found products to create order")
      */
-    public string $products;
+    public array $products;
 
     /**
      * @Assert\IsTrue(message="Accept terms before create order")
@@ -42,8 +41,6 @@ class CreateOrderFormModel
      * @Assert\Callback()
      *
      * @param ExecutionContextInterface $context
-     *
-     * @throws JsonException
      */
     public function validateData(ExecutionContextInterface $context): void
     {
@@ -86,7 +83,7 @@ class CreateOrderFormModel
             }
         }
 
-        if(!$this->methodPayment || !in_array($this->methodPayment,Order::getMethodPaymentsArr())) {
+        if(!$this->methodPayment || !in_array($this->methodPayment, Order::getMethodPaymentsArr(), true)) {
             $context
                 ->buildViolation('Payment method not found')
                 ->atPath('methodPayment')
@@ -94,7 +91,7 @@ class CreateOrderFormModel
         }
 
         if($this->products) {
-            $products = json_decode($this->products, true, 512, JSON_THROW_ON_ERROR);
+            $products = $this->products;
             if($products) {
                 foreach($products as $productData) {
                     $productQuantity = isset($productData, $productData['quantity']) ?
@@ -121,6 +118,11 @@ class CreateOrderFormModel
                     ->atPath('products')
                     ->addViolation();
             }
+        } else {
+            $context
+                ->buildViolation('Not found products to create order2')
+                ->atPath('products')
+                ->addViolation();
         }
     }
 }

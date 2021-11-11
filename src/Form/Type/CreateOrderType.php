@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Form\Type;
 
+use App\Form\Component\CreateOrderProductType;
 use App\Form\Model\CreateOrderFormModel;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
@@ -16,7 +17,10 @@ class CreateOrderType extends AbstractType
         $builder->add('personalData', CollectionType::class, ['allow_add' => true])
                 ->add('methodPayment')
                 ->add('isCustomCorrespondence')
-                ->add('products')
+                ->add('products', CollectionType::class, [
+                    'entry_type' => CreateOrderProductType::class,
+                    'allow_add' => true
+                ])
                 ->add('dataProcessingAgreement')
         ;
     }

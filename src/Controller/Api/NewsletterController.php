@@ -8,6 +8,7 @@ use App\Form\Type\NewsletterType;
 use App\Service\RequestService;
 use App\Service\UserService;
 use Doctrine\ORM\EntityManagerInterface;
+use JsonException;
 use Nelmio\ApiDocBundle\Annotation\Security;
 use OpenApi\Annotations as OA;
 use Symfony\Component\Form\FormFactoryInterface;
@@ -50,7 +51,7 @@ class NewsletterController
      *     description="Pass data to submit to the newsletter",
      *     required=true,
      *     @OA\MediaType(
-     *         mediaType="multipart/form-data",
+     *         mediaType="application/json",
      *         @OA\Schema(
      *             type="object",
      *             required={"email", "dataProcessingAgreement"},
@@ -96,21 +97,28 @@ class NewsletterController
      *
      * @param Request $request
      * @param ValidatorInterface $validator
+     * @param RequestService $requestService
      *
      * @return JsonResponse
+     *
+     * @throws JsonException
      */
     public function createNewsletter(
         Request $request,
-        ValidatorInterface $validator
+        ValidatorInterface $validator,
+        RequestService $requestService
     ): JsonResponse {
         $em = $this->entityManager;
         $form = $this->form;
 
-        $data = [
-            'name' => htmlspecialchars((string)$request->request->get('name'), ENT_QUOTES),
-            'email' => htmlspecialchars((string)$request->request->get('email'), ENT_QUOTES),
-            'dataProcessingAgreement' => RequestService::isDataProcessingAgreementValid($request->request->get('dataProcessingAgreement'))
+        $requiredDataFromContent = [
+            'name', 'email', 'dataProcessingAgreement'
         ];
+
+        $data = $requestService->validRequestContentAndGetData($request->getContent(), $requiredDataFromContent);
+        if($data instanceof JsonResponse) {
+            return $data;
+        }
 
         if (!UserService::validateEmail($data['email'])) {
             $errorsList = ['error' => true, 'message' => 'Email is not valid.'];
@@ -122,7 +130,7 @@ class NewsletterController
             return new JsonResponse(['error' => true, 'message' => 'Accept terms before submit to newsletter.'], 400);
         }
 
-        $newsletter = new Newsletter($data['email'], $data['dataProcessingAgreement'], $data['name']);
+        $newsletter = new Newsletter($data['email'], $data['dataProcessingAgreement'], $data['name'] ?? null);
 
         $newsletterForm = $form->create(NewsletterType::class, $newsletter);
         $newsletterForm->handleRequest($request);
@@ -134,7 +142,7 @@ class NewsletterController
                 'email' => $data['email']
             ]);
             if ($newsletterObj) {
-                $errorsList = ['error' => true, 'message' => 'User is saved with this email.'];
+                $errorsList = ['error' => true, 'message' => 'Email already exist.'];
 
                 return new JsonResponse($errorsList, 400);
             }
@@ -150,7 +158,7 @@ class NewsletterController
         $errorsList = ['error' => true, 'message' => []];
 
         $errorsCount = $newsletterForm->getErrors(true)->count();
-        if ($errorsCount > 0) {
+        if ($errorsCount > 0 && $newsletterForm->getErrors(true)[0]->getOrigin()) {
             $errorsList['message'] = $newsletterForm->getErrors(true)[0]->getOrigin()
                                                                         ->getName() . ' - ' . $newsletterForm->getErrors(true)[0]->getMessage();
         }

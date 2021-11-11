@@ -55,7 +55,7 @@ class OrderController
      *     description="Pass data to create an user",
      *     required=true,
      *     @OA\MediaType(
-     *         mediaType="multipart/form-data",
+     *         mediaType="application/json",
      *         @OA\Schema(
      *             type="object",
      *             required={"personalData", "methodPayment", "products", "dataProcessingAgreement"},
@@ -88,6 +88,12 @@ class OrderController
      *                 description="Accept data terms",
      *                 type="boolean",
      *                 example=true
+     *             ),
+     *              @OA\Property(
+     *                 property="userToken",
+     *                 description="User JWT token",
+     *                 type="string",
+     *                 example="eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpYXQiOjE2MzY1NDkwMTQsInJvbGVzIjpbIlJPTEVfVVNFUiJdLCJlbWFpbCI6ImVtQGVtLnBsIiwiaWUiOnsiZGF0ZSI6IjIwMjEtMTEtMTAgMTI6NTY6NTQuMjg3OTM4IiwidGltZXpvbmVfdHlwZSI6MywidGltZXpvbmUiOiJVVEMifSwiZXhwIjoxNjM2NTUyNjE0fQ.lTv22ObYCha-4gKi7bSXTyqqr60BLl45q3zOwbRYGwoMjjzIPCoUTCoDhyZchgMEWrdjVp7wbZG3Sp_x2rNXiRqQWRukHfFjYMQGkfi_s5_5q2e1ptt3Tuhmw30XI1CAVopN-rWrCfFV4zWicv9py3KGMgkNZ2KnrVUfKuOwHFLpeZ3VPJwRP7hXCrQam0YkSKq_YQKeY0BOL3q2i-fxpV9PIdcCZqe2bKlRmWW_IC1TCUNmNJtTPl5NrLhb0hBpC_wsK1RnwfOSddg-7dnoPLcZcwcKkpwxa0hAG0NHiWQwy7esmDdGnyR4T_z2vFnFzslp000G4RjjGznhlzZMoS3sUl0cIbxOrJ0D_goNnCyqm24bJnZi52ZP5kXkUTLT4mjus8p0areHZKQ12xlEQ64ZsTiUFcM6OQpOPb1xfQgU9WPOuUxcjYMDq1Ide6OC375Y11mcYbV6azF0_JZfc2ksnMlAfae9WdSHyM1f0mAZH8cxZzxSrhJOyf22FptQthpUQemcgj3gpQUxoxCStsRkgVahwThuRBcirlsXak9Of0mHnbB2HzJ0FaZk3IPlE1peB0sedtFfzRd_niirXna2P16a0PMqULZz-sygsOKgSP7ufnkvaAQsu43kUWaAZpe6zy40KrC5tS6PrdAD8i9bd5HURXTaSe53YM5QYmg"
      *             )
      *         )
      *     )
@@ -129,16 +135,31 @@ class OrderController
      *
      * @param Request $request
      * @param OrderService $orderService
+     * @param RequestService $requestService
      *
      * @return JsonResponse
      *
      * @throws JsonException
      */
-    public function createOrder(Request $request, OrderService $orderService): JsonResponse
-    {
+    public function createOrder(
+        Request $request,
+        OrderService $orderService,
+        RequestService $requestService
+    ): JsonResponse {
         $formService = $this->form;
 
-        $data = $this->getDataFromRequestToCreateOrder($request);
+        $requiredDataFromContent = [
+            'personalData',
+            'methodPayment',
+            'isCustomCorrespondence',
+            'products',
+            'dataProcessingAgreement'
+        ];
+
+        $data = $requestService->validRequestContentAndGetData($request->getContent(), $requiredDataFromContent);
+        if ($data instanceof JsonResponse) {
+            return $data;
+        }
 
         $form = $formService->create(CreateOrderType::class);
         $form->handleRequest($request);
@@ -208,25 +229,5 @@ class OrderController
         }
 
         return new JsonResponse($data);
-    }
-
-    /**
-     * @param Request $request
-     *
-     * @return array
-     *
-     * @throws JsonException
-     */
-    private function getDataFromRequestToCreateOrder(Request $request): array
-    {
-        return [
-            'personalData' => json_decode($request->request->get('personalData'), true, 512, JSON_THROW_ON_ERROR),
-            'methodPayment' => htmlspecialchars((string)$request->request->get('methodPayment'), ENT_QUOTES),
-            'isCustomCorrespondence' => (bool)$request->request->get('isCustomCorrespondence'),
-            'products' => $request->request->get('products'),
-            'dataProcessingAgreement' => RequestService::isDataProcessingAgreementValid($request->request->get('dataProcessingAgreement')),
-            'userToken' => $request->request->get('userToken') !== 'null' ?
-                htmlspecialchars((string)$request->request->get('userToken'), ENT_QUOTES) : null
-        ];
     }
 }

@@ -110,9 +110,10 @@ final class ContactControllerTest extends WebTestCase
         $client->request(
             'POST',
             self::CREATE_API_URL.'/create',
-            $data,
             [],
-            []
+            [],
+            [],
+            json_encode($data)
         );
 
         try {

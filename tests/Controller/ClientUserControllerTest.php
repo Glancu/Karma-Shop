@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Controller;
 
+use Faker\Factory;
 use JsonException;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
@@ -14,16 +15,11 @@ final class ClientUserControllerTest extends WebTestCase
 
     protected function setUp(): void
     {
+        $faker = Factory::create();
+
         $this->defaultData = [
-            'firstName' => 'First',
-            'lastName' => 'Last',
-            'email' => 'email@email.com',
-            'password' => 'pass',
-            'phoneNumber' => '111-222-333',
-            'postalCode' => '11-000',
-            'city' => 'city',
-            'country' => 'country',
-            'street' => 'street'
+            'email' => $faker->email,
+            'password' => $faker->password
         ];
     }
 
@@ -35,28 +31,6 @@ final class ClientUserControllerTest extends WebTestCase
         $data = $this->defaultData;
 
         $this->checkAssertByData($data);
-    }
-
-    /**
-     * @test
-     */
-    public function it_does_not_allow_to_create_user_without_first_name(): void
-    {
-        $data = $this->defaultData;
-        unset($data['firstName']);
-
-        $this->checkAssertByData($data, true);
-    }
-
-    /**
-     * @test
-     */
-    public function it_does_not_allow_to_create_user_without_last_name(): void
-    {
-        $data = $this->defaultData;
-        unset($data['lastName']);
-
-        $this->checkAssertByData($data, true);
     }
 
     /**
@@ -93,61 +67,6 @@ final class ClientUserControllerTest extends WebTestCase
     }
 
     /**
-     * @test
-     */
-    public function it_does_not_allow_to_create_user_without_phone_number(): void
-    {
-        $data = $this->defaultData;
-        unset($data['phoneNumber']);
-
-        $this->checkAssertByData($data, true);
-    }
-
-    /**
-     * @test
-     */
-    public function it_does_not_allow_to_create_user_without_postal_code(): void
-    {
-        $data = $this->defaultData;
-        unset($data['postalCode']);
-
-        $this->checkAssertByData($data, true);
-    }
-
-    /**
-     * @test
-     */
-    public function it_does_not_allow_to_create_user_without_city(): void
-    {
-        $data = $this->defaultData;
-        unset($data['city']);
-
-        $this->checkAssertByData($data, true);
-    }
-
-    /**
-     * @test
-     */
-    public function it_does_not_allow_to_create_user_without_country(): void
-    {
-        $data = $this->defaultData;
-        unset($data['country']);
-
-        $this->checkAssertByData($data, true);
-    }
-
-    /**
-     * @test
-     */
-    public function it_does_not_allow_to_create_user_without_street(): void
-    {
-        $data = $this->defaultData;
-        unset($data['street']);
-
-        $this->checkAssertByData($data, true);
-    }
-
-    /**
      * @param array $data
      * @param bool $allowFalse
      */
@@ -158,16 +77,17 @@ final class ClientUserControllerTest extends WebTestCase
         $client->request(
             'POST',
             self::CREATE_API_URL.'/create',
-            $data,
             [],
-            []
+            [],
+            [],
+            json_encode($data)
         );
 
         try {
             $result = json_decode($client->getResponse()->getContent(), true, 512, JSON_THROW_ON_ERROR);
 
             $bool = true;
-            if(isset($result['error'], $result['message']) && $result['message'] !== 'User is register with this email.') {
+            if(isset($result['error'], $result['message']) && $result['message'] !== 'User already exist with this email.') {
                 $bool = false;
             }
 
@@ -178,7 +98,7 @@ final class ClientUserControllerTest extends WebTestCase
 
             self::assertTrue($bool);
         } catch (JsonException $exception) {
-            self::assertFalse(false);
+            self::assertTrue(false);
         }
     }
 }

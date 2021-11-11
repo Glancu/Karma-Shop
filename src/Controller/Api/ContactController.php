@@ -10,6 +10,8 @@ use App\Service\MailerService;
 use App\Service\RequestService;
 use App\Service\UserService;
 use Doctrine\ORM\EntityManagerInterface;
+use Exception;
+use JsonException;
 use Nelmio\ApiDocBundle\Annotation\Security;
 use OpenApi\Annotations as OA;
 use Symfony\Component\Form\FormFactoryInterface;
@@ -52,7 +54,7 @@ class ContactController
      *     description="Pass data to send contact form",
      *     required=true,
      *     @OA\MediaType(
-     *         mediaType="multipart/form-data",
+     *         mediaType="application/json",
      *         @OA\Schema(
      *             type="object",
      *             required={"name", "email", "subject", "message", "dataProcessingAgreement"},
@@ -111,24 +113,29 @@ class ContactController
      * @param Request $request
      * @param ValidatorInterface $validator
      * @param MailerService $mailerService
+     * @param RequestService $requestService
      *
      * @return JsonResponse
+     * @throws JsonException
+     * @throws Exception
      */
     public function createContact(
         Request $request,
         ValidatorInterface $validator,
-        MailerService $mailerService
+        MailerService $mailerService,
+        RequestService $requestService
     ): JsonResponse {
         $em = $this->entityManager;
         $form = $this->form;
 
-        $data = [
-            'name' => htmlspecialchars((string)$request->request->get('name'), ENT_QUOTES),
-            'email' => htmlspecialchars((string)$request->request->get('email'), ENT_QUOTES),
-            'subject' => htmlspecialchars((string)$request->request->get('subject'), ENT_QUOTES),
-            'message' => htmlspecialchars((string)$request->request->get('message'), ENT_QUOTES),
-            'dataProcessingAgreement' => RequestService::isDataProcessingAgreementValid($request->request->get('dataProcessingAgreement'))
+        $requiredDataFromContent = [
+            'name', 'email', 'subject', 'message', 'dataProcessingAgreement'
         ];
+
+        $data = $requestService->validRequestContentAndGetData($request->getContent(), $requiredDataFromContent);
+        if($data instanceof JsonResponse) {
+            return $data;
+        }
 
         if (!UserService::validateEmail($data['email'])) {
             $errorsList = ['error' => true, 'message' => 'Email is not valid.'];
@@ -136,7 +143,7 @@ class ContactController
             return new JsonResponse($errorsList, 400);
         }
 
-        if (!$data['dataProcessingAgreement']) {
+        if ($data['dataProcessingAgreement'] !== true) {
             return new JsonResponse(['error' => true, 'message' => 'Accept terms before sent contact form.'], 400);
         }
 
@@ -174,7 +181,7 @@ class ContactController
         $errorsList = ['error' => true, 'message' => []];
 
         $errorsCount = $contactForm->getErrors(true)->count();
-        if ($errorsCount > 0) {
+        if ($errorsCount > 0 && $contactForm->getErrors(true)[0]->getOrigin()) {
             $errorsList['message'] = $contactForm->getErrors(true)[0]->getOrigin()
                                                                      ->getName() . ' - ' . $contactForm->getErrors(true)[0]->getMessage();
         } elseif ($errors->count() > 0) {

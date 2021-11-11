@@ -9,6 +9,7 @@ use App\Form\Type\CreateProductReviewFormType;
 use App\Service\RequestService;
 use App\Service\UserService;
 use Doctrine\ORM\EntityManagerInterface;
+use JsonException;
 use Nelmio\ApiDocBundle\Annotation\Security;
 use OpenApi\Annotations as OA;
 use Symfony\Component\Form\FormFactoryInterface;
@@ -48,7 +49,7 @@ class ProductReviewController
      *     description="Pass data to submit to the newsletter",
      *     required=true,
      *     @OA\MediaType(
-     *         mediaType="multipart/form-data",
+     *         mediaType="application/json",
      *         @OA\Schema(
      *             type="object",
      *             required={"name", "email", "message", "rating", "productUuid", "dataProcessingAgreement"},
@@ -83,12 +84,6 @@ class ProductReviewController
      *                 example="e363025f-5c91-11eb-8a84-0242ac1fsdf"
      *             ),
      *             @OA\Property(
-     *                 property="phoneNumber",
-     *                 description="Phone number",
-     *                 type="string",
-     *                 example="000-000-000"
-     *             ),
-     *             @OA\Property(
      *                 property="dataProcessingAgreement",
      *                 description="Accept data terms",
      *                 type="boolean",
@@ -117,15 +112,25 @@ class ProductReviewController
      * @Security(name="Bearer")
      *
      * @param Request $request
+     * @param RequestService $requestService
      *
      * @return JsonResponse
+     *
+     * @throws JsonException
      */
-    public function createProductReview(Request $request): JsonResponse
+    public function createProductReview(Request $request, RequestService $requestService): JsonResponse
     {
         $em = $this->entityManager;
         $formService = $this->form;
 
-        $data = $this->getDataFromRequestToCreateProductReview($request);
+        $requiredDataFromContent = [
+            'name', 'email', 'message', 'rating', 'productUuid', 'dataProcessingAgreement'
+        ];
+
+        $data = $requestService->validRequestContentAndGetData($request->getContent(), $requiredDataFromContent);
+        if($data instanceof JsonResponse) {
+            return $data;
+        }
 
         $form = $formService->create(CreateProductReviewFormType::class);
         $form->handleRequest($request);
@@ -172,22 +177,5 @@ class ProductReviewController
         }
 
         return new JsonResponse($errorsList, 400);
-    }
-
-    /**
-     * @param Request $request
-     *
-     * @return array
-     */
-    private function getDataFromRequestToCreateProductReview(Request $request): array
-    {
-        return [
-            'name' => htmlspecialchars((string)$request->request->get('name')),
-            'email' => htmlspecialchars((string)$request->request->get('email')),
-            'message' => htmlspecialchars((string)$request->request->get('message')),
-            'rating' => (int)htmlspecialchars((string)$request->request->get('rating')),
-            'dataProcessingAgreement' => RequestService::isDataProcessingAgreementValid($request->request->get('dataProcessingAgreement')),
-            'productUuid' => htmlspecialchars((string)$request->request->get('productUuid'))
-        ];
     }
 }

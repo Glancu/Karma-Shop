@@ -6,6 +6,7 @@ namespace App\Controller\Api;
 use App\Entity\ClientUser;
 use App\Form\Type\ClientUserChangePasswordType;
 use App\Form\Type\CreateClientUserFormType;
+use App\Service\RequestService;
 use App\Service\SerializeDataResponse;
 use App\Service\UserService;
 use DateTime;
@@ -65,21 +66,21 @@ class ClientUserController
      *     description="Pass data to create an user",
      *     required=true,
      *     @OA\MediaType(
-     *         mediaType="multipart/form-data",
+     *         mediaType="application/json",
      *         @OA\Schema(
      *             type="object",
      *             required={"email", "password"},
      *             @OA\Property(
      *                 property="email",
-     *                 description="email",
+     *                 description="E-mail",
      *                 type="string",
-     *                 example="user@email.com"
+     *                 example="email@email.com"
      *             ),
      *             @OA\Property(
      *                 property="password",
-     *                 description="password",
+     *                 description="Password",
      *                 type="string",
-     *                 example="userpassword"
+     *                 example="password"
      *             )
      *         )
      *     )
@@ -107,27 +108,53 @@ class ClientUserController
      * @param ValidatorInterface $validator
      * @param SerializeDataResponse $serializeDataResponse
      * @param UserService $userService
+     * @param RequestService $requestService
      *
      * @return JsonResponse
      *
+     * @throws JsonException
      * @throws Exception
      */
     public function createUserAction(
         Request $request,
         ValidatorInterface $validator,
         SerializeDataResponse $serializeDataResponse,
-        UserService $userService
+        UserService $userService,
+        RequestService $requestService
     ): JsonResponse {
         $em = $this->entityManager;
         $form = $this->form;
 
-        $data = [
-            'email' => htmlspecialchars((string)$request->request->get('email'), ENT_QUOTES),
-            'password' => htmlspecialchars((string)$request->request->get('password'), ENT_QUOTES)
+        $requiredDataFromContent = [
+            'email',
+            'password'
         ];
+
+        $data = $requestService->validRequestContentAndGetData($request->getContent(), $requiredDataFromContent);
+        if ($data instanceof JsonResponse) {
+            return $data;
+        }
+        if (!isset($data['email'])) {
+            $errorsList = ['error' => true, 'message' => 'Email cannot be blank.'];
+
+            return new JsonResponse($errorsList, 400);
+        }
+
+        if (!isset($data['password'])) {
+            $errorsList = ['error' => true, 'message' => 'Password cannot be blank.'];
+
+            return new JsonResponse($errorsList, 400);
+        }
 
         if (!$userService::validateEmail($data['email'])) {
             $errorsList = ['error' => true, 'message' => 'Email is not valid.'];
+
+            return new JsonResponse($errorsList, 400);
+        }
+
+        $clientUserObj = $this->entityManager->getRepository('App:ClientUser')->findByEmail($data['email']);
+        if ($clientUserObj) {
+            $errorsList = ['error' => true, 'message' => 'User already exist with this email.'];
 
             return new JsonResponse($errorsList, 400);
         }
@@ -169,7 +196,7 @@ class ClientUserController
      *     description="Pass token to validate",
      *     required=true,
      *     @OA\MediaType(
-     *         mediaType="multipart/form-data",
+     *         mediaType="application/json",
      *         @OA\Schema(
      *             type="object",
      *             required={"token"},
@@ -209,18 +236,26 @@ class ClientUserController
      *
      * @param Request $request
      * @param UserService $userService
+     * @param RequestService $requestService
      *
      * @return JsonResponse
+     *
+     * @throws JsonException
      */
-    public function validateTokenAction(Request $request, UserService $userService): JsonResponse
-    {
+    public function validateTokenAction(
+        Request $request,
+        UserService $userService,
+        RequestService $requestService
+    ): JsonResponse {
         $return = ['error' => true];
 
-        $data = [
-            'token' => htmlspecialchars((string)$request->request->get('token'), ENT_QUOTES)
+        $requiredDataFromContent = [
+            'token'
         ];
-        if (!$data || !isset($data['token'])) {
-            return new JsonResponse($return);
+
+        $data = $requestService->validRequestContentAndGetData($request->getContent(), $requiredDataFromContent);
+        if ($data instanceof JsonResponse) {
+            return $data;
         }
 
         $encoderData = $userService->decodeUserByJWTToken($data['token']);
@@ -333,6 +368,7 @@ class ClientUserController
      * @param SerializeDataResponse $serializeDataResponse
      * @param UserPasswordEncoderInterface $userPasswordEncoder
      * @param UserInterface $userInterface
+     * @param RequestService $requestService
      *
      * @return JsonResponse
      *
@@ -343,15 +379,19 @@ class ClientUserController
         ValidatorInterface $validator,
         SerializeDataResponse $serializeDataResponse,
         UserPasswordEncoderInterface $userPasswordEncoder,
-        UserInterface $userInterface
+        UserInterface $userInterface,
+        RequestService $requestService
     ): JsonResponse {
         $em = $this->entityManager;
         $form = $this->form;
 
-        $data = json_decode($request->getContent(), true, 512, JSON_THROW_ON_ERROR);
+        $requiredDataFromContent = [
+            'oldPassword', 'newPassword', 'newPasswordRepeat'
+        ];
 
-        if (!$data || !isset($data['oldPassword'], $data['newPassword'], $data['newPasswordRepeat'])) {
-            return new JsonResponse(['error' => true, 'message' => 'Not found data to execute'], 400);
+        $data = $requestService->validRequestContentAndGetData($request->getContent(), $requiredDataFromContent);
+        if ($data instanceof JsonResponse) {
+            return $data;
         }
 
         $clientEmail = $userInterface->getEmail();
@@ -471,14 +511,15 @@ class ClientUserController
      *     description="Pass data to create comment",
      *     required=true,
      *     @OA\MediaType(
-     *         mediaType="multipart/form-data",
+     *         mediaType="application/json",
      *         @OA\Schema(
      *             type="object",
      *             required={"refresh_token"},
      *             @OA\Property(
      *                 property="refresh_token",
      *                 description="Refresh token",
-     *                 type="string"
+     *                 type="string",
+     *                 example="ad879cdedbc17a1f727383a7aa6eda978fa4945cf6ef962771465db5e428585f846ffff69b22ea26ed011633affeed7c27e0ff50496a73977b2315bf29b0964e"
      *             )
      *         )
      *     )

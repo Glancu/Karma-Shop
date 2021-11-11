@@ -58,9 +58,7 @@ final class OrderService
             return $clientUser;
         }
 
-        $products = $this->validateProductsAndDecreaseQuantityOfProducts(
-            json_decode($data['products'], true, 512, JSON_THROW_ON_ERROR)
-        );
+        $products = $this->validateProductsAndDecreaseQuantityOfProducts($data['products']);
         if ($products instanceof JsonResponse) {
             return $products;
         }

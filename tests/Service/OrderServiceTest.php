@@ -53,12 +53,12 @@ final class OrderServiceTest extends KernelTestCase
             ],
             'methodPayment' => current(Order::getMethodPaymentsArr()),
             'isCustomCorrespondence' => false,
-            'products' => json_encode([
+            'products' => [
                 [
                     'uuid' => $firstProduct->getUuid(),
                     'quantity' => 1
                 ]
-            ], JSON_THROW_ON_ERROR),
+            ],
             'dataProcessingAgreement' => true,
             'userToken' =>  null
         ];

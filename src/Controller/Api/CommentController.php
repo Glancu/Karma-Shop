@@ -9,6 +9,7 @@ use App\Form\Type\CreateCommentFormType;
 use App\Service\RequestService;
 use App\Service\UserService;
 use Doctrine\ORM\EntityManagerInterface;
+use JsonException;
 use Nelmio\ApiDocBundle\Annotation\Security;
 use OpenApi\Annotations as OA;
 use Symfony\Component\Form\FormFactoryInterface;
@@ -49,7 +50,7 @@ class CommentController
      *     description="Pass data to create comment",
      *     required=true,
      *     @OA\MediaType(
-     *         mediaType="multipart/form-data",
+     *         mediaType="application/json",
      *         @OA\Schema(
      *             type="object",
      *             required={"name", "email", "message", "productUuid", "dataProcessingAgreement"},
@@ -114,15 +115,25 @@ class CommentController
      * @Security()
      *
      * @param Request $request
+     * @param RequestService $requestService
      *
      * @return JsonResponse
+     *
+     * @throws JsonException
      */
-    public function createComment(Request $request): JsonResponse
+    public function createComment(Request $request, RequestService $requestService): JsonResponse
     {
         $em = $this->entityManager;
         $formService = $this->form;
 
-        $data = $this->getDataFromRequest($request);
+        $requiredDataFromContent = [
+            'name', 'email', 'message', 'productUuid', 'dataProcessingAgreement'
+        ];
+
+        $data = $requestService->validRequestContentAndGetData($request->getContent(), $requiredDataFromContent);
+        if($data instanceof JsonResponse) {
+            return $data;
+        }
 
         $form = $formService->create(CreateCommentFormType::class);
         $form->handleRequest($request);
@@ -160,26 +171,9 @@ class CommentController
 
         $errorsCount = $form->getErrors(true)->count();
         if ($errorsCount > 0) {
-            $errorsList['message'] = $form->getErrors(true)[0]->getOrigin()
-                                                              ->getName() . ' - ' . $form->getErrors(true)[0]->getMessage();
+            $errorsList['message'] = $form->getErrors(true)[0]->getMessage();
         }
 
         return new JsonResponse($errorsList, 400);
-    }
-
-    /**
-     * @param Request $request
-     *
-     * @return array
-     */
-    private function getDataFromRequest(Request $request): array
-    {
-        return [
-            'name' => htmlspecialchars((string)$request->request->get('name')),
-            'email' => htmlspecialchars((string)$request->request->get('email')),
-            'message' => htmlspecialchars((string)$request->request->get('message')),
-            'dataProcessingAgreement' => RequestService::isDataProcessingAgreementValid($request->request->get('dataProcessingAgreement')),
-            'productUuid' => htmlspecialchars((string)$request->request->get('productUuid'))
-        ];
     }
 }

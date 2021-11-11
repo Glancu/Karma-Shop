@@ -69,11 +69,7 @@ class Register extends Component {
         }
 
         if(errorsCount === 0) {
-            const formData = new FormData();
-            formData.append('email', email);
-            formData.append('password', password);
-
-            axios.post("/api/user/create", formData).then(result => {
+            axios.post("/api/user/create", {email, password}).then(result => {
                 if(result && result.data) {
                     const data = result.data;
                     if(data.error === true) {
