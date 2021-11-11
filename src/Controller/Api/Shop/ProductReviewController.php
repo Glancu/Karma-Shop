@@ -155,7 +155,7 @@ class ProductReviewController
             $productReview = new ProductReview(
                 $data['name'],
                 $data['email'],
-                $data['rating'],
+                (int)$data['rating'],
                 $data['message']
             );
 
