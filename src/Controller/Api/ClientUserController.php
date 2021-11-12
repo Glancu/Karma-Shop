@@ -190,116 +190,6 @@ class ClientUserController
     }
 
     /**
-     * @Route("/validate-token", name="user_validate_token", methods={"POST"})
-     *
-     * @OA\RequestBody(
-     *     description="Pass token to validate",
-     *     required=true,
-     *     @OA\MediaType(
-     *         mediaType="application/json",
-     *         @OA\Schema(
-     *             type="object",
-     *             required={"token"},
-     *             @OA\Property(
-     *                 property="token",
-     *                 description="token",
-     *                 type="string",
-     *                 example="eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpYXQiOjE2MzYwMDc0NDQsInJvbGVzIjpbIlJPTEVfVVNFUiJdLCJlbWFpbCI6ImVtQGVtLnBsIiwiaWUiOnsiZGF0ZSI6IjIwMjEtMTEtMDQgMDY6MzA6NDQuNjgyNzUyIiwidGltZXpvbmVfdHlwZSI6MywidGltZXpvbmUiOiJVVEMifSwiZXhwIjoxNjM2MDExMDQ0fQ.zWmVkYnNOxx7GL7J39DGBoKatTnzsO2_27Yl7p6JlwT75Z6LD0U8nfRSCWNf3WLvCq52lmv0YbmZk3en9Zn5EQ3NaJYVHEw-hxKE5eqQg9SEwpfiWnCocSRaQKyyN4zD-i-DOwgSmRe_mXZAFjqxko3iDDKO70-QkKvryzontCnlQkM-9fu4wHtBjK4uIPrFI60PBvh68WZWyUPYDgrDUu6Z01QZRIGJ1hQHf04_lJmZxHeWYbQ7OBZGGyqSnkzrS_Hc01yCpLQipAW9M96QTSZPp3R3aPZznRHYtaapISpWMc6kbr1w8hOQwKZj2B6X27-6m_8g3GeONklWBFTInBD613HMgzHrClRTdTfj_Ezrcnp1XyIz8fehvWeMrMJoqkYKS2e_XB60QIxBiLlw6-vZF-Ym0XcW4jvFLmkWSCFOOV37NBM_K7AIdZ8to1YfTHfByCWwWMC3jvt-T6UAOYOK6Eu5rMd4rH2kn2XDLlW7ziqim1v_KBuqF02bgb6clR9imzBsMQ46maPj5MwSNAvC5XURA6EH6kJPYxhK2cmnAModzLt7pm6H0udI6Jn03bwu_H3UK2ZWum72pCiKN2z56lTSjrYrUz2tLn2azVim8GRejoqMh-2u0HRPmL8K2w1l-AdCEJLAtCzWn6v139KSIWDdkF8NfLi7dQTUzJM"
-     *             )
-     *         )
-     *     )
-     * )
-     * @OA\Response(
-     *     response=200,
-     *     description="Success",
-     *     @OA\JsonContent(
-     *        type="json",
-     *        example={"success": true}
-     *     )
-     * )
-     * @OA\Response(
-     *     response=401,
-     *     description="Unauthorized. JWT Token has expired",
-     *     @OA\JsonContent(
-     *        type="json",
-     *        example={"success": false, "message": "Token has expired."}
-     *     )
-     * )
-     * @OA\Response(
-     *     response=404,
-     *     description="Not Found. JWT Token was not found",
-     *     @OA\JsonContent(
-     *        type="json",
-     *        example={"success": false, "message": "Token was not found."}
-     *     )
-     * )
-     *
-     * @param Request $request
-     * @param UserService $userService
-     * @param RequestService $requestService
-     *
-     * @return JsonResponse
-     *
-     * @throws JsonException
-     */
-    public function validateTokenAction(
-        Request $request,
-        UserService $userService,
-        RequestService $requestService
-    ): JsonResponse {
-        $return = ['error' => true];
-
-        $requiredDataFromContent = [
-            'token'
-        ];
-
-        $data = $requestService->validRequestContentAndGetData($request->getContent(), $requiredDataFromContent);
-        if ($data instanceof JsonResponse) {
-            return $data;
-        }
-
-        $encoderData = $userService->decodeUserByJWTToken($data['token']);
-        if ($encoderData) {
-            /**
-             * @var ClientUser $clientUser
-             */
-            $clientUser = $this->entityManager->getRepository('App:ClientUser')->findOneBy([
-                'email' => $encoderData['email']
-            ]);
-            if (!$clientUser) {
-                $return['message'] = 'User was not found';
-
-                return new JsonResponse($return, 404);
-            }
-
-            $dateTime = new DateTime();
-            $currentDate = $dateTime->format('Y-m-d H:i:s');
-            $dateStringTokenStart = $encoderData['iat'];
-
-            $dateTokenStart = new DateTime("@$dateStringTokenStart");
-            $dateFormatTokenStart = $dateTokenStart->format('Y-m-d H:i:s');
-
-            $dateStringTokenExpire = $encoderData['exp'];
-            $dateTokenExpire = new DateTime("@$dateStringTokenExpire");
-            $dateFormatTokenExpire = $dateTokenExpire->format('Y-m-d H:i:s');
-
-            if ($clientUser->getPasswordChangedAt() &&
-                ($clientUser->getPasswordChangedAt()->format('Y-m-d H:i:s') > $dateFormatTokenStart)
-            ) {
-                return new JsonResponse(['error' => true, 'message' => 'Token has expired.'], 401);
-            }
-
-            if ($currentDate >= $dateFormatTokenStart && $currentDate <= $dateFormatTokenExpire) {
-                return new JsonResponse(['error' => false]);
-            }
-        }
-
-        $return['message'] = 'Token was not found.';
-
-        return new JsonResponse($return, 404);
-    }
-
-    /**
      * @Route("/change-password/{uuid}", name="user_change_password", methods={"PATCH"})
      *
      * @OA\Parameter(
@@ -502,6 +392,159 @@ class ClientUserController
         ];
 
         return new JsonResponse($data);
+    }
+
+    /**
+     * @Route("/generate-token", name="api_user_generate_token", methods={"POST"})
+     *
+     * @OA\RequestBody(
+     *     description="Pass data to create comment",
+     *     required=true,
+     *     @OA\MediaType(
+     *         mediaType="application/json",
+     *         @OA\Schema(
+     *             type="object",
+     *             required={"email", "password"},
+     *             @OA\Property(
+     *                 property="email",
+     *                 description="E-mail",
+     *                 type="string",
+     *                 example="email@email.com"
+     *             ),
+     *             @OA\Property(
+     *                 property="password",
+     *                 description="Password",
+     *                 type="string",
+     *                 example="admin1"
+     *             ),
+     *         )
+     *     )
+     * )
+     * @OA\Response(
+     *     response=200,
+     *     description="Return new token with refresh token",
+     *     @OA\JsonContent(
+     *        type="object",
+     *        @OA\Property(property="token", type="string"),
+     *        @OA\Property(property="refresh_token", type="string")
+     *     )
+     * )
+     *
+     * @Security()
+     */
+    public function generateTokenAction()
+    {
+        throw new NotFoundHttpException('Not found configuration for generate user token');
+    }
+
+    /**
+     * @Route("/validate-token", name="user_validate_token", methods={"POST"})
+     *
+     * @OA\RequestBody(
+     *     description="Pass token to validate",
+     *     required=true,
+     *     @OA\MediaType(
+     *         mediaType="application/json",
+     *         @OA\Schema(
+     *             type="object",
+     *             required={"token"},
+     *             @OA\Property(
+     *                 property="token",
+     *                 description="token",
+     *                 type="string",
+     *                 example="eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpYXQiOjE2MzYwMDc0NDQsInJvbGVzIjpbIlJPTEVfVVNFUiJdLCJlbWFpbCI6ImVtQGVtLnBsIiwiaWUiOnsiZGF0ZSI6IjIwMjEtMTEtMDQgMDY6MzA6NDQuNjgyNzUyIiwidGltZXpvbmVfdHlwZSI6MywidGltZXpvbmUiOiJVVEMifSwiZXhwIjoxNjM2MDExMDQ0fQ.zWmVkYnNOxx7GL7J39DGBoKatTnzsO2_27Yl7p6JlwT75Z6LD0U8nfRSCWNf3WLvCq52lmv0YbmZk3en9Zn5EQ3NaJYVHEw-hxKE5eqQg9SEwpfiWnCocSRaQKyyN4zD-i-DOwgSmRe_mXZAFjqxko3iDDKO70-QkKvryzontCnlQkM-9fu4wHtBjK4uIPrFI60PBvh68WZWyUPYDgrDUu6Z01QZRIGJ1hQHf04_lJmZxHeWYbQ7OBZGGyqSnkzrS_Hc01yCpLQipAW9M96QTSZPp3R3aPZznRHYtaapISpWMc6kbr1w8hOQwKZj2B6X27-6m_8g3GeONklWBFTInBD613HMgzHrClRTdTfj_Ezrcnp1XyIz8fehvWeMrMJoqkYKS2e_XB60QIxBiLlw6-vZF-Ym0XcW4jvFLmkWSCFOOV37NBM_K7AIdZ8to1YfTHfByCWwWMC3jvt-T6UAOYOK6Eu5rMd4rH2kn2XDLlW7ziqim1v_KBuqF02bgb6clR9imzBsMQ46maPj5MwSNAvC5XURA6EH6kJPYxhK2cmnAModzLt7pm6H0udI6Jn03bwu_H3UK2ZWum72pCiKN2z56lTSjrYrUz2tLn2azVim8GRejoqMh-2u0HRPmL8K2w1l-AdCEJLAtCzWn6v139KSIWDdkF8NfLi7dQTUzJM"
+     *             )
+     *         )
+     *     )
+     * )
+     * @OA\Response(
+     *     response=200,
+     *     description="Success",
+     *     @OA\JsonContent(
+     *        type="json",
+     *        example={"success": true}
+     *     )
+     * )
+     * @OA\Response(
+     *     response=401,
+     *     description="Unauthorized. JWT Token has expired",
+     *     @OA\JsonContent(
+     *        type="json",
+     *        example={"success": false, "message": "Token has expired."}
+     *     )
+     * )
+     * @OA\Response(
+     *     response=404,
+     *     description="Not Found. JWT Token was not found",
+     *     @OA\JsonContent(
+     *        type="json",
+     *        example={"success": false, "message": "Token was not found."}
+     *     )
+     * )
+     *
+     * @param Request $request
+     * @param UserService $userService
+     * @param RequestService $requestService
+     *
+     * @return JsonResponse
+     *
+     * @throws JsonException
+     */
+    public function validateTokenAction(
+        Request $request,
+        UserService $userService,
+        RequestService $requestService
+    ): JsonResponse {
+        $return = ['error' => true];
+
+        $requiredDataFromContent = [
+            'token'
+        ];
+
+        $data = $requestService->validRequestContentAndGetData($request->getContent(), $requiredDataFromContent);
+        if ($data instanceof JsonResponse) {
+            return $data;
+        }
+
+        $encoderData = $userService->decodeUserByJWTToken($data['token']);
+        if ($encoderData) {
+            /**
+             * @var ClientUser $clientUser
+             */
+            $clientUser = $this->entityManager->getRepository('App:ClientUser')->findOneBy([
+                'email' => $encoderData['email']
+            ]);
+            if (!$clientUser) {
+                $return['message'] = 'User was not found';
+
+                return new JsonResponse($return, 404);
+            }
+
+            $dateTime = new DateTime();
+            $currentDate = $dateTime->format('Y-m-d H:i:s');
+            $dateStringTokenStart = $encoderData['iat'];
+
+            $dateTokenStart = new DateTime("@$dateStringTokenStart");
+            $dateFormatTokenStart = $dateTokenStart->format('Y-m-d H:i:s');
+
+            $dateStringTokenExpire = $encoderData['exp'];
+            $dateTokenExpire = new DateTime("@$dateStringTokenExpire");
+            $dateFormatTokenExpire = $dateTokenExpire->format('Y-m-d H:i:s');
+
+            if ($clientUser->getPasswordChangedAt() &&
+                ($clientUser->getPasswordChangedAt()->format('Y-m-d H:i:s') > $dateFormatTokenStart)
+            ) {
+                return new JsonResponse(['error' => true, 'message' => 'Token has expired.'], 401);
+            }
+
+            if ($currentDate >= $dateFormatTokenStart && $currentDate <= $dateFormatTokenExpire) {
+                return new JsonResponse(['error' => false]);
+            }
+        }
+
+        $return['message'] = 'Token was not found.';
+
+        return new JsonResponse($return, 404);
     }
 
     /**
