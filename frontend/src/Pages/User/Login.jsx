@@ -214,7 +214,6 @@ class Login extends Component {
                                             <button type="submit" value="submit" className="primary-btn">
                                                 Log In
                                             </button>
-                                            <a href="#">Forgot Password?</a>
                                         </div>
                                     </form>
                                 </div>
