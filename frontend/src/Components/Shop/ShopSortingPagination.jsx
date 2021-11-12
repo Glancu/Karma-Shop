@@ -4,6 +4,7 @@ import CONFIG from '../../config';
 import PropTypes from 'prop-types';
 import UrlAddressBar from '../UrlAddressBar';
 import { windowScrollTo } from '../WindowScroll';
+import '../../../public/assets/js/jquery.nice-select.min';
 
 const sortItems = CONFIG.shop.sortItems;
 const sortPerPage = CONFIG.shop.sortPerPage;
@@ -25,6 +26,8 @@ class ShopSortingPagination extends Component {
     componentDidMount() {
         const _this = this;
         this.updateDefaultValues(true);
+
+        $('select').niceSelect();
 
         window.addEventListener('popstate', () => {
             const sortingValue = _this.setSortingSelectValue(true);
