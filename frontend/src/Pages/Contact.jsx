@@ -287,14 +287,13 @@ class Contact extends Component {
         if(!errors.name && !errors.email && !errors.subject && !errors.message && !errors.dataProcessingAgreement) {
             const errorMessageCustom = 'Something went wrong. Try again.';
 
-            const formData = new FormData();
-            formData.append('name', name);
-            formData.append('email', email);
-            formData.append('subject', subject);
-            formData.append('message', message);
-            formData.append('dataProcessingAgreement', dataProcessingAgreement);
-
-            axios.post('/api/contact/create', formData)
+            axios.post('/api/contact/create', {
+                    'name': name,
+                    'email': email,
+                    'subject': subject,
+                    'message': message,
+                    'dataProcessingAgreement': dataProcessingAgreement
+            })
                 .then(result => {
                     if(result.status === 201) {
                         const data = result.data;

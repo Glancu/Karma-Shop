@@ -45,11 +45,8 @@ class Login extends Component {
             token = sessionStorage.getItem(userStorageLoginToken);
         }
         if(token) {
-            const formData = new FormData();
-            formData.append('token', token);
-
-            axios.post("/api/user/validate-token", formData, {
-                headers: { 'Content-Type': 'multipart/form-data' }
+            axios.post("/api/user/validate-token", {'token': token}, {
+                headers: { 'Content-Type': 'application/json' }
             }).then(result => {
                 if(result.data.error === false) {
                     return this.props.history.push('/');

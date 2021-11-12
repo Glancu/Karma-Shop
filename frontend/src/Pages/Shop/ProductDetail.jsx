@@ -175,16 +175,15 @@ class ProductDetail extends Component {
 
         const errorMessageCustom = 'Something went wrong. Try again.';
 
-        const formData = new FormData();
-        formData.append('name', productReviewForm.name);
-        formData.append('email', productReviewForm.email);
-        formData.append('subject', productReviewForm.subject);
-        formData.append('message', productReviewForm.message);
-        formData.append('rating', parseInt(ratingValue));
-        formData.append('dataProcessingAgreement', dataProcessingAgreement);
-        formData.append('productUuid', this.state.product.uuid);
-
-        axios.post('/api/shop/product-review/create', formData)
+        axios.post('/api/shop/product-review/create', {
+            'name': productReviewForm.name,
+            'email': productReviewForm.email,
+            'subject': productReviewForm.subject,
+            'message': productReviewForm.message,
+            'rating': parseInt(ratingValue),
+            'dataProcessingAgreement': dataProcessingAgreement,
+            'productUuid': this.state.product.uuid
+        })
             .then(result => {
                 if(result.status === 201) {
                     const data = result.data;
@@ -262,14 +261,13 @@ class ProductDetail extends Component {
 
         const errorMessageCustom = 'Something went wrong. Try again.';
 
-        const formData = new FormData();
-        formData.append('name', commentForm.name);
-        formData.append('email', commentForm.email);
-        formData.append('message', commentForm.message);
-        formData.append('dataProcessingAgreement', dataProcessingAgreement);
-        formData.append('productUuid', this.state.product.uuid);
-
-        axios.post('/api/comments/create', formData)
+        axios.post('/api/comments/create', {
+            'name': commentForm.name,
+            'email': commentForm.email,
+            'message': commentForm.message,
+            'dataProcessingAgreement': dataProcessingAgreement,
+            'productUuid': this.state.product.uuid
+        })
             .then(result => {
                 if(result.status === 201) {
                     const data = result.data;

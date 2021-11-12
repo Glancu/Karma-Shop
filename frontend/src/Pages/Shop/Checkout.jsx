@@ -264,15 +264,19 @@ class Checkout extends Component {
 
                 const responseDataMessage = document.getElementById('response-data-message');
                 if(responseDataMessage) {
-                    const formData = new FormData();
-                    formData.append('personalData', JSON.stringify(form.inputs));
-                    formData.append('methodPayment', form.methodPayment);
-                    formData.append('isCustomCorrespondence', form.customCorrespondence);
-                    formData.append('products', JSON.stringify(products));
-                    formData.append('dataProcessingAgreement', form.dataProcessingAgreement);
-                    formData.append('userToken', localStorage.getItem(userStorageLoginToken) ?? null);
+                    let token = localStorage.getItem(userStorageLoginToken);
+                    if(!token) {
+                        token = sessionStorage.getItem(userStorageLoginToken);
+                    }
 
-                    axios.post("/api/shop/create-order", formData).then(result => {
+                    axios.post("/api/shop/create-order", {
+                        'personalData': JSON.stringify(form.inputs),
+                        'methodPayment': form.methodPayment,
+                        'isCustomCorrespondence': form.customCorrespondence,
+                        'products': JSON.stringify(products),
+                        'dataProcessingAgreement': form.dataProcessingAgreement,
+                        'userToken': token ?? null
+                    }).then(result => {
                         if (result.status === 201) {
                             if(result.data && result.data.uuid) {
                                 responseDataMessage.classList.add('success-message');

@@ -56,11 +56,8 @@ function refreshUserToken() {
 export const userLoggedIn = () => {
     const userToken = getUserToken();
     if(userToken) {
-        const formData = new FormData();
-        formData.append('token', userToken);
-
-        return axios.post("/api/user/validate-token", formData, {
-            headers: {'Content-Type': 'multipart/form-data'}
+        return axios.post("/api/user/validate-token", {'token': userToken}, {
+            headers: {'Content-Type': 'application/json'}
         }).then(result => {
             if(result && result.data && result.data.error === false) {
                 return true;
