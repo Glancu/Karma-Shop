@@ -4,7 +4,7 @@
 <h4 align="center">A Karma-Shop is a simple shop using Symfony (REST API) and React (from [free template](https://colorlib.com/wp/template/karma/). )</h4>
 
 
-![karma-shop](./public/assets/img/github/homepage-view.png)
+![karma-shop](/public/assets/img/github/homepage-view.png)
 
 ## Notice
 This project was created for training my skills. Please don't use this project for production. 
