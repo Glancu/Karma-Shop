@@ -1,23 +1,102 @@
 security:
     # https://symfony.com/doc/current/security.html#where-do-users-come-from-user-providers
+    encoders:
+        App\Entity\AdminUser:
+            algorithm: auto
+
+        App\Entity\ClientUser:
+            algorithm: auto
     providers:
-        users_in_memory: { memory: null }
+        # used to reload user from session & other features (e.g. switch_user)
+        app_admin_user_provider:
+            entity:
+                class: App\Entity\AdminUser
+                property: email
+
+        app_client_user_provider:
+            entity:
+                class: App\Entity\ClientUser
+                property: email
     firewalls:
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
-        main:
-            anonymous: true
-            provider: users_in_memory
 
             # activate different ways to authenticate
             # https://symfony.com/doc/current/security.html#firewalls-authentication
 
             # https://symfony.com/doc/current/security/impersonating_user.html
-            # switch_user: true
 
-    # Easy way to control access for large sections of your site
-    # Note: Only the *first* access control that matches will be used
+        admin_secured_area:
+            pattern:   ^/admin
+            anonymous: true
+            guard:
+                authenticators:
+                    - App\Security\AdminLoginFormAuthenticator
+            provider: app_admin_user_provider
+            form_login:
+                login_path: /admin/login
+                check_path: /admin/login_check
+                default_target_path: /admin
+            logout:
+                path: app_admin_logout
+
+        api_user_login:
+            pattern:  ^/api/user/generate-token
+            stateless: true
+            anonymous: true
+            provider: app_client_user_provider
+            json_login:
+                check_path: /api/user/generate-token
+                success_handler: lexik_jwt_authentication.handler.authentication_success
+                failure_handler: lexik_jwt_authentication.handler.authentication_failure
+                username_path: email
+
+        api:
+            pattern:   ^/api
+            stateless: true
+            anonymous: true
+            provider: app_client_user_provider
+            guard:
+                authenticators:
+                    - lexik_jwt_authentication.jwt_token_authenticator
+
+        api_user_token_refresh:
+            pattern: ^/api/user/refresh-token
+            stateless: true
+            anonymous: true
+            provider: app_client_user_provider
+
+        main:
+            anonymous: ~
+
     access_control:
-        # - { path: ^/admin, roles: ROLE_ADMIN }
-        # - { path: ^/profile, roles: ROLE_USER }
+        - { path: ^/api/user/generate-token, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+
+        - { path: ^/api/doc, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+
+        - { path: ^/api/user/validate-token, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/api/user/refresh-token, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/api/user/create, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+
+        - { path: ^/api/newsletter/create, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+
+        - { path: ^/api/contact/create, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+
+        - { path: ^/api/shop/products/list, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/api/shop/products/latest, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/api/shop/products/search/*, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/api/shop/products/product/*, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+
+        - { path: ^/api/shop/product-review/create, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+
+        - { path: ^/api/comments/create, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+
+        - { path: ^/api/shop/categories/list, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/api/shop/brands/list, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/api/shop/colors/list, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+
+        - { path: ^/api/shop/create-order, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }
+        - { path: /admin/login, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/admin, role: ROLE_ADMIN }

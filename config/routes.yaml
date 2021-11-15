@@ -1,0 +1,13 @@
+app.swagger_ui:
+  path: /api/doc
+  methods: "GET"
+  defaults: { _controller: nelmio_api_doc.controller.swagger_ui }
+
+homepage:
+  path: /{reactRouting}
+  controller: App\Controller\IndexController::index
+  defaults:
+    reactRouting: .+
+  requirements:
+    reactRouting: .+
+  methods: "GET"

@@ -131,10 +131,10 @@
 	padding-top: 70px;
 	padding-bottom: 50px;
 	.owl-nav {
-		div {
+		button {
 			position: absolute;
 			left: 35%;
-			top: 7%;
+			top: 1%;
 			opacity: .3;
 			@media (max-width: 1440px) {
 				left: 30%;
@@ -393,7 +393,7 @@
 				@media (max-width: 767px) {
 					display: none;
 				}
-				div {
+				button {
 					position: absolute;
 					left: 5%;
 					top: 50%;

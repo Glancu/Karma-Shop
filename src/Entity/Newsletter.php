@@ -4,9 +4,9 @@ declare(strict_types=1);
 namespace App\Entity;
 
 use App\Repository\NewsletterRepository;
-use App\Traits\CreatedAtTrait;
-use App\Traits\DataProcessingAgreement;
-use App\Traits\EnableTrait;
+use App\Entity\Traits\CreatedAtTrait;
+use App\Entity\Traits\DataProcessingAgreement;
+use App\Entity\Traits\EnableTrait;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -17,23 +17,24 @@ class Newsletter
 {
     use EnableTrait, CreatedAtTrait, DataProcessingAgreement {
         EnableTrait::__construct as private __EnableTraitConstructor;
-        CreatedAtTrait::__construct as private __CreatedAtTraitConstructor;
         DataProcessingAgreement::__construct as private __DPAConstructor;
     }
 
     /**
+     * @var int|null
+     *
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
      */
-    private int $id;
+    private ?int $id = null;
 
     /**
      * @var string|null
      *
      * @ORM\Column(nullable=true)
      */
-    private ?string $name;
+    private ?string $name = null;
 
     /**
      * @var string
@@ -45,61 +46,42 @@ class Newsletter
      *
      * @ORM\Column()
      */
-    private string $email;
+    private string $email = '';
 
-    /**
-     * Newsletter constructor.
-     */
-    public function __construct()
+    public function __construct(string $email, bool $dataProcessingAgreement = false, string $name = null)
     {
         $this->__EnableTraitConstructor();
-        $this->__CreatedAtTraitConstructor();
         $this->__DPAConstructor();
+        $this->email = $email;
+        $this->dataProcessingAgreement = $dataProcessingAgreement;
+        $this->name = $name;
     }
 
-    /**
-     * @return string
-     */
     public function __toString(): string
     {
         return $this->email;
     }
 
-    /**
-     * @return int
-     */
-    public function getId(): int
+    public function getId(): ?int
     {
         return $this->id;
     }
 
-    /**
-     * @return string|null
-     */
     public function getName(): ?string
     {
         return $this->name;
     }
 
-    /**
-     * @param string|null $name
-     */
     public function setName(?string $name): void
     {
         $this->name = $name;
     }
 
-    /**
-     * @return string
-     */
     public function getEmail(): string
     {
         return $this->email;
     }
 
-    /**
-     * @param string $email
-     */
     public function setEmail(string $email): void
     {
         $this->email = $email;

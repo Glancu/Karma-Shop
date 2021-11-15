@@ -1,0 +1,13 @@
+<th>{{ field_description.options.label }}</th>
+<td>
+    <ul>
+        {% for item in value %}
+            <li>
+                Type: {{ item.shopProductSpecificationType.name }} - Value: {{ item.value }}
+                <a href="{{ path('admin_app_shopproductspecification_show', {'id': item.id}) }}" target="_blank">
+                    (show)
+                </a>
+            </li>
+        {% endfor %}
+    </ul>
+</td>

@@ -5,6 +5,7 @@ namespace App\Form\Type;
 
 use App\Entity\Contact;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -15,17 +16,18 @@ class ContactType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
-        $builder->add('email', EmailType::class)
+        $builder->add('name', TextType::class)
+                ->add('email', EmailType::class)
                 ->add('subject', TextType::class)
                 ->add('message', TextType::class)
-                ->add('save', SubmitType::class);
+                ->add('dataProcessingAgreement', CheckboxType::class);
     }
 
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
             'data_class' => Contact::class,
-            'csrf_protection' => false, // @TODO Remove this and implement JWT
+            'csrf_protection' => false
         ]);
     }
 

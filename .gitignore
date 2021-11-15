@@ -1,5 +1,6 @@
 ###> symfony/framework-bundle ###
 /.env
+/.env.test
 /.env.local
 /.env.local.php
 /.env.*.local
@@ -25,3 +26,14 @@ yarn-error.log
 ###> symfony/web-server-bundle ###
 /.web-server-pid
 ###< symfony/web-server-bundle ###
+
+###> CUSTOM ###
+/docker/karma-shop.sql/
+frontend/.sass-cache
+/public/uploads/
+/docker/karma-shop.sql
+###< CUSTOM ###
+
+###> lexik/jwt-authentication-bundle ###
+/config/jwt/*.pem
+###< lexik/jwt-authentication-bundle ###

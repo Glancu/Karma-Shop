@@ -1,4 +1,6 @@
 import React, { Component } from "react";
+import axios from 'axios';
+import ValidateEmail from './ValidateEmail';
 
 import imgI1 from '../../public/assets/img/i1.jpg';
 import imgI2 from '../../public/assets/img/i2.jpg';
@@ -10,11 +12,92 @@ import imgI7 from '../../public/assets/img/i7.jpg';
 import imgI8 from '../../public/assets/img/i8.jpg';
 
 class Footer extends Component {
-    newsletterOnChange() {
-        // @TODO
+    constructor(props) {
+        super(props);
+        this.state = {
+            name: '',
+            email: '',
+            dataProcessingAgreement: false,
+            errors: {
+                name: '',
+                email: '',
+                dataProcessingAgreement: ''
+            },
+            errorMessage: '',
+            noticeMessage: ''
+        };
+
+        this.handleChange = this.handleChange.bind(this);
+        this.handleSubmit = this.handleSubmit.bind(this);
+    }
+
+    handleChange(event) {
+        const { name, value, checked } = event.target;
+        this.setState({
+            [name]: name !== 'dataProcessingAgreement' ? value : checked
+        });
+
+        const errors = this.state.errors;
+
+        errors[name] = '';
+
+        if(name === 'dataProcessingAgreement' && !checked) {
+            errors.dataProcessingAgreement = 'You need to approve the regulations before submit.';
+        }
+
+        this.setState({errors});
+    }
+
+    handleSubmit(event) {
+        event.preventDefault();
+        const { name, email, dataProcessingAgreement } = this.state;
+        let errors = this.state.errors;
+
+        // Clear error message while send form
+        this.setState({errorMessage: ''});
+
+        errors.email = ValidateEmail(email) ?
+            '' :
+            'Email is not valid!';
+
+        errors.dataProcessingAgreement = dataProcessingAgreement ?
+            '' :
+            'You need to approve the regulations before submit.';
+
+        this.setState({errors});
+
+        if(errors.email.length === 0 && errors.dataProcessingAgreement.length === 0) {
+            const errorMessageStr = 'Something went wrong. Try again.';
+
+            axios.post("/api/newsletter/create",
+                {'name': name, 'email': email, 'dataProcessingAgreement': dataProcessingAgreement}
+            ).then(result => {
+                if (result.status === 201) {
+                    const data = result.data;
+                    if(!data.error) {
+                        this.setState({
+                            name: '',
+                            email: '',
+                            dataProcessingAgreement: false,
+                            noticeMessage: 'Your email was added to newsletter.'
+                        });
+                    } else if(data.error && data.message) {
+                        this.setState({errorMessage: data.message, noticeMessage: ''});
+                    } else {
+                        this.setState({errorMessage: errorMessageStr, noticeMessage: ''});
+                    }
+                } else {
+                    this.setState({errorMessage: errorMessageStr, noticeMessage: ''});
+                }
+            }).catch(() => {
+                this.setState({errorMessage: errorMessageStr, noticeMessage: ''});
+            });
+        }
     }
 
     render() {
+        const { errors, errorMessage, noticeMessage } = this.state;
+
         return (
             <footer className="footer-area section_gap">
                 <div className="container">
@@ -24,8 +107,7 @@ class Footer extends Component {
                                 <h6>About Us</h6>
                                 <p>
                                     Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor
-                                    incididunt ut labore dolore
-                                    magna aliqua.
+                                    incididunt ut labore dolore magna aliqua.
                                 </p>
                             </div>
                         </div>
@@ -34,33 +116,74 @@ class Footer extends Component {
                                 <h6>Newsletter</h6>
                                 <p>Stay update with our latest</p>
                                 <div className="" id="mc_embed_signup">
+                                    { errorMessage ?
+                                        <span className="form-error-message">{errorMessage}</span> :
+                                        null
+                                    }
 
-                                    <form target="_blank" noValidate={true}
-                                          action=""
-                                        // action="https://spondonit.us12.list-manage.com/subscribe/post?u=1462626880ade1ac87bd9c93a&amp;id=92a4423d01"
-                                          method="get" className="form-inline">
+                                    { noticeMessage ?
+                                        <span className="form-notice-message">{noticeMessage}</span> :
+                                        null
+                                    }
 
-                                        <div className="d-flex flex-row">
-
+                                    <form target="_blank"
+                                          className="row"
+                                          onSubmit={this.handleSubmit}
+                                    >
+                                        <div className="col-md-12 form-group">
+                                            <label htmlFor="name">Name (optional)</label>
                                             <input className="form-control"
-                                                   name="EMAIL"
+                                                   type="name"
+                                                   id="name"
+                                                   name="name"
+                                                   placeholder="Name (optional)"
+                                                   onChange={this.handleChange}
+                                                   value={this.state.name}
+                                            />
+                                        </div>
+
+                                        <div className="col-md-12 form-group">
+                                            { errors.email ?
+                                                <span className='error-message-input'>{errors.email}</span> : null }
+                                        </div>
+
+                                        <div className="col-md-12 form-group">
+                                            <label htmlFor="email_newsletter">Email <span className="red-star">*</span></label>
+                                            <input className="form-control"
+                                                   type="email"
+                                                   id="email_newsletter"
+                                                   name="email_newsletter"
                                                    placeholder="Enter Email"
-                                                // onFocus="this.placeholder = ''"
-                                                // onBlur="this.placeholder = 'Enter Email '"
-                                                   required="" type="email"/>
+                                                   required
+                                                   onChange={this.handleChange}
+                                                   value={this.state.email}
+                                            />
+                                        </div>
 
+                                        <div className="col-md-12 form-group">
+                                            { errors.dataProcessingAgreement ?
+                                                <span className='error-message-input'>{errors.dataProcessingAgreement}</span> :
+                                                null
+                                            }
+                                        </div>
 
-                                            <button className="click-btn btn btn-default"><i
-                                                className="fa fa-long-arrow-right" aria-hidden="true"/>
+                                        <div className="col-md-12 form-group">
+                                            <input type="checkbox"
+                                                   id="dataProcessingAgreement_newsletter"
+                                                   name="dataProcessingAgreement"
+                                                   className="form-control"
+                                                   onChange={this.handleChange}
+                                                   checked={this.state.dataProcessingAgreement}
+                                            />
+                                            <label htmlFor="dataProcessingAgreement_newsletter">
+                                                I accept sales regulations and confirm acquaintance with Privacy Policy
+                                            </label>
+                                        </div>
+
+                                        <div className="col-md-12 form-group">
+                                            <button className="click-btn btn btn-default pull-right">
+                                                <i className="fa fa-long-arrow-right" aria-hidden="true" />
                                             </button>
-                                            <div style={{position: 'absolute', left: '-5000px'}}>
-                                                <input name="b_36c4fd991d266f23781ded980_aefe40901a"
-                                                       tabIndex="-1"
-                                                       value=""
-                                                       type="text"
-                                                       onChange={this.newsletterOnChange}
-                                                />
-                                            </div>
                                         </div>
                                         <div className="info"/>
                                     </form>
@@ -98,8 +221,8 @@ class Footer extends Component {
                     <div className="footer-bottom d-flex justify-content-center align-items-center flex-wrap">
                         <p className="footer-text m-0">
                             Copyright &copy;
-                            {(new Date().getFullYear())}
-                             All rights reserved | This template is made with
+                            ({new Date().getFullYear()})
+                            All rights reserved | This template is made with
                             <i className="fa fa-heart-o" aria-hidden="true"/> by
                             <a href="https://colorlib.com" target="_blank">Colorlib</a>
                         </p>

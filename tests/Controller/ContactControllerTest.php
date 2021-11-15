@@ -3,21 +3,24 @@ declare(strict_types=1);
 
 namespace App\Tests\Controller;
 
-use App\Entity\Contact;
+use JsonException;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 final class ContactControllerTest extends WebTestCase
 {
-    private ?ValidatorInterface $validator;
+    public const CREATE_API_URL = '/api/contact';
+
+    private array $defaultData;
 
     protected function setUp(): void
     {
-        $kernel = self::bootKernel();
-
-        $this->validator = $kernel->getContainer()->get('validator');
-
-        self::ensureKernelShutdown();
+        $this->defaultData = [
+            'name' => 'John',
+            'email' => 'email@email.com',
+            'subject' => 'Simple subject',
+            'message' => 'Lorem ipsum...',
+            'dataProcessingAgreement' => true
+        ];
     }
 
     /**
@@ -25,20 +28,9 @@ final class ContactControllerTest extends WebTestCase
      */
     public function it_allow_to_complete_contact_with_full_data(): void
     {
-        $validator = $this->validator;
+        $data = $this->defaultData;
 
-        if ($validator) {
-            $contact = new Contact();
-            $contact->setEmail('email@email.com');
-            $contact->setSubject('Simple subject');
-            $contact->setMessage('Simple message');
-
-            $errors = $validator->validate($contact);
-
-            self::assertEquals(0, $errors->count());
-        } else {
-            self::fail('Validator not set');
-        }
+        $this->checkAssertByData($data);
     }
 
     /**
@@ -46,19 +38,10 @@ final class ContactControllerTest extends WebTestCase
      */
     public function it_does_not_allow_to_complete_contact_without_email(): void
     {
-        $validator = $this->validator;
+        $data = $this->defaultData;
+        unset($data['email']);
 
-        if ($validator) {
-            $contact = new Contact();
-            $contact->setSubject('Simple subject');
-            $contact->setMessage('Simple message');
-
-            $errors = $validator->validate($contact);
-
-            self::assertEquals(1, $errors->count());
-        } else {
-            self::fail('Validator not set');
-        }
+        $this->checkAssertByData($data, true);
     }
 
     /**
@@ -66,20 +49,10 @@ final class ContactControllerTest extends WebTestCase
      */
     public function it_does_not_allow_to_complete_contact_wit_bad_email(): void
     {
-        $validator = $this->validator;
+        $data = $this->defaultData;
+        $data['email'] = 'bad_email';
 
-        if ($validator) {
-            $contact = new Contact();
-            $contact->setEmail('bad_email');
-            $contact->setSubject('Simple subject');
-            $contact->setMessage('Simple message');
-
-            $errors = $validator->validate($contact);
-
-            self::assertEquals(1, $errors->count());
-        } else {
-            self::fail('Validator not set');
-        }
+        $this->checkAssertByData($data, true);
     }
 
     /**
@@ -87,19 +60,10 @@ final class ContactControllerTest extends WebTestCase
      */
     public function it_does_not_allow_to_complete_contact_without_subject(): void
     {
-        $validator = $this->validator;
+        $data = $this->defaultData;
+        unset($data['subject']);
 
-        if ($validator) {
-            $contact = new Contact();
-            $contact->setEmail('email@email.com');
-            $contact->setMessage('Simple message');
-
-            $errors = $validator->validate($contact);
-
-            self::assertEquals(1, $errors->count());
-        } else {
-            self::fail('Validator not set');
-        }
+        $this->checkAssertByData($data, true);
     }
 
     /**
@@ -107,18 +71,67 @@ final class ContactControllerTest extends WebTestCase
      */
     public function it_does_not_allow_to_complete_contact_without_message(): void
     {
-        $validator = $this->validator;
+        $data = $this->defaultData;
+        unset($data['message']);
 
-        if ($validator) {
-            $contact = new Contact();
-            $contact->setEmail('email@email.com');
-            $contact->setSubject('Simple subject');
+        $this->checkAssertByData($data, true);
+    }
 
-            $errors = $validator->validate($contact);
+    /**
+     * @test
+     */
+    public function it_does_not_allow_to_complete_contact_without_data_processing_agreement(): void
+    {
+        $data = $this->defaultData;
+        unset($data['dataProcessingAgreement']);
 
-            self::assertEquals(1, $errors->count());
-        } else {
-            self::fail('Validator not set');
+        $this->checkAssertByData($data, true);
+    }
+
+    /**
+     * @test
+     */
+    public function it_does_not_allow_to_complete_contact_with_false_data_processing_agreement(): void
+    {
+        $data = $this->defaultData;
+        $data['dataProcessingAgreement'] = false;
+
+        $this->checkAssertByData($data, true);
+    }
+
+    /**
+     * @param array $data
+     * @param bool $allowFalse
+     */
+    private function checkAssertByData(array $data, $allowFalse = false): void
+    {
+        $client = static::createClient();
+
+        $client->request(
+            'POST',
+            self::CREATE_API_URL.'/create',
+            [],
+            [],
+            [],
+            json_encode($data)
+        );
+
+        try {
+            $result = json_decode($client->getResponse()->getContent(), true, 512, JSON_THROW_ON_ERROR);
+
+            if($allowFalse) {
+                self::assertFalse(false);
+                return;
+            }
+
+            if(isset($result['error'])) {
+                self::assertTrue(!$result['error']);
+                return;
+            }
+
+            self::assertTrue(true);
+        } catch (JsonException $exception) {
+            self::assertTrue(false);
         }
     }
 }
