@@ -22,9 +22,7 @@ $ cd karma-shop
 
 # .env from .env.dist
 Create .env file from .env.dist and update DATABASE_URL variable
-
-# .env.test from .env.test.dist
-Create .env.test file from .env.test.dist for tests
+$ cp .env.dist .env
 
 # docker
 If u have docker, you can use it for this project. Go to docker directory and run
@@ -35,6 +33,9 @@ $ composer install
 
 # Create database
 $ php bin/console doctrine:database:create
+
+# Build view 
+$ yarn build
 
 # Load fixtures
 $ php bin/console doctrine:fixtures:load
