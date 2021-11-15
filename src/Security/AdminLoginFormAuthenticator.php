@@ -45,9 +45,9 @@ class AdminLoginFormAuthenticator extends AbstractFormLoginAuthenticator
     public function getCredentials(Request $request)
     {
         $credentials = [
-            'username' => $request->request->get('username'),
-            'password' => $request->request->get('password'),
-            'csrf_token' => $request->request->get('_csrf_token'),
+            'username' => htmlspecialchars($request->request->get('username'), ENT_QUOTES),
+            'password' => htmlspecialchars($request->request->get('password'), ENT_QUOTES),
+            'csrf_token' => htmlspecialchars($request->request->get('_csrf_token'), ENT_QUOTES)
         ];
 
         if($request->getSession()) {

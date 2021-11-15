@@ -46,3 +46,45 @@ services:
     arguments: [ ~, App\Entity\ClientUser, ~ ]
     tags:
       - { name: sonata.admin, manager_type: orm, group: Users, label: Clients }
+
+  admin.shop.product_specification:
+    class: App\Admin\ShopProductSpecificationAdmin
+    arguments: [ ~, App\Entity\ShopProductSpecification, ~ ]
+    tags:
+      - { name: sonata.admin, manager_type: orm, group: Shop, label: Product specification }
+
+  admin.shop.product_specification_type:
+    class: App\Admin\ShopProductSpecificationTypeAdmin
+    arguments: [ ~, App\Entity\ShopProductSpecificationType, 'PixSortableBehaviorBundle:SortableAdmin' ]
+    tags:
+      - { name: sonata.admin, manager_type: orm, group: Shop, label: Product specification type }
+
+  admin.shop.product:
+    class: App\Admin\ShopProductAdmin
+    arguments: [ ~, App\Entity\ShopProduct, ~ ]
+    tags:
+      - { name: sonata.admin, manager_type: orm, group: Shop, label: Product }
+
+  admin.shop.order:
+    class: App\Admin\OrderAdmin
+    arguments: [ ~, App\Entity\Order, App\Controller\Admin\OrderCRUDController ]
+    tags:
+      - { name: sonata.admin, manager_type: orm, group: Shop, label: Order }
+
+  admin.comment:
+    class: App\Admin\CommentAdmin
+    arguments: [ ~, App\Entity\Comment, App\Controller\Admin\CommentCRUDController ]
+    tags:
+      - { name: sonata.admin, manager_type: orm, group: Comments, label: Comments, icon: "<i class=\"fa fa-comment\"></i>" }
+
+  admin.email.email_template:
+    class: App\Admin\EmailTemplateAdmin
+    arguments: [ ~, App\Entity\EmailTemplate, ~ ]
+    tags:
+      - { name: sonata.admin, manager_type: orm, group: Email, label: Email template }
+
+  admin.email.email_history:
+    class: App\Admin\EmailHistoryAdmin
+    arguments: [ ~, App\Entity\EmailHistory, ~ ]
+    tags:
+      - { name: sonata.admin, manager_type: orm, group: Email, label: Email history }

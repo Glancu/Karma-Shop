@@ -69,13 +69,10 @@ class Footer extends Component {
         if(errors.email.length === 0 && errors.dataProcessingAgreement.length === 0) {
             const errorMessageStr = 'Something went wrong. Try again.';
 
-            const formData = new FormData();
-            formData.append('name', name);
-            formData.append('email', email);
-            formData.append('dataProcessingAgreement', dataProcessingAgreement);
-
-            axios.post("/api/newsletter/create", formData).then(result => {
-                if (result.status === 200) {
+            axios.post("/api/newsletter/create",
+                {'name': name, 'email': email, 'dataProcessingAgreement': dataProcessingAgreement}
+            ).then(result => {
+                if (result.status === 201) {
                     const data = result.data;
                     if(!data.error) {
                         this.setState({
@@ -151,11 +148,11 @@ class Footer extends Component {
                                         </div>
 
                                         <div className="col-md-12 form-group">
-                                            <label htmlFor="email">Email <span className="red-star">*</span></label>
+                                            <label htmlFor="email_newsletter">Email <span className="red-star">*</span></label>
                                             <input className="form-control"
                                                    type="email"
-                                                   id="email"
-                                                   name="email"
+                                                   id="email_newsletter"
+                                                   name="email_newsletter"
                                                    placeholder="Enter Email"
                                                    required
                                                    onChange={this.handleChange}

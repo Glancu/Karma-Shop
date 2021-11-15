@@ -1,7 +1,10 @@
 import React, { Component } from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, Link } from "react-router-dom";
 import $ from 'jquery';
+import ShoppingCart from './Shop/ShoppingCart';
+import { userLoggedIn } from './User/UserData';
 import '../../public/assets/js/jquery.sticky';
+import '../../public/assets/js/jquery.autocomplete.min';
 
 // CSS IMPORT
 import '../../public/assets/css/linearicons.css';
@@ -19,6 +22,14 @@ import '../../public/assets/css/main.css';
 import imgLogoHeader from '../../public/assets/img/logo.png';
 
 class Header extends Component {
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            userLoggedIn: false
+        };
+    }
+
     componentDidMount() {
         $('.sticky-header').sticky();
 
@@ -41,7 +52,7 @@ class Header extends Component {
         $("#search").on("click", function() {
             $("#search_input_box")
                 .slideToggle();
-            $("#search_input")
+            $("#autocomplete")
                 .focus();
         });
         $("#close_search").on("click", function() {
@@ -62,9 +73,43 @@ class Header extends Component {
                 .delay(200)
                 .fadeOut(500);
         });
+
+        userLoggedIn().then((isUserLoggedIn) => {
+            this.setState({userLoggedIn: isUserLoggedIn});
+        });
+
+        $('#autocomplete').autocomplete({
+            serviceUrl: '/api/shop/products/search',
+            onSelect: function (suggestion) {
+                if(suggestion && suggestion.url) {
+                    window.location.href = suggestion.url;
+                }
+            }
+        });
     }
 
     render() {
+        const renderLoginLogout = () => {
+            if(this.state.userLoggedIn) {
+                return (
+                    <>
+                        <li className="nav-item">
+                            <NavLink className="nav-link" to={'/user/panel'}>Profile</NavLink>
+                        </li>
+                        <li className="nav-item">
+                            <NavLink className="nav-link" to={'/logout'}>Logout</NavLink>
+                        </li>
+                    </>
+                )
+            }
+
+            return (
+                <li className="nav-item">
+                    <NavLink className="nav-link" to={'/login'}>Login</NavLink>
+                </li>
+            )
+        }
+
         return (
             <header className="header_area sticky-header">
                 <div className="main_menu">
@@ -81,35 +126,23 @@ class Header extends Component {
                             </button>
                             <div className="collapse navbar-collapse offset" id="navbarSupportedContent">
                                 <ul className="nav navbar-nav menu_nav ml-auto">
-                                    <li className="nav-item active">
-                                        <NavLink exact className="nav-link" to={'/'}>Home</NavLink>
+                                    <li className="nav-item">
+                                        <NavLink exact className="nav-link" to={'/'}>
+                                            Home
+                                        </NavLink>
+                                    </li>
+                                    <li className="nav-item">
+                                        <NavLink className="nav-link" to={'/shop'}>Shop</NavLink>
                                     </li>
                                     <li className="nav-item submenu dropdown">
-                                        <a href="#" className="nav-link dropdown-toggle" data-toggle="dropdown"
-                                           role="button" aria-haspopup="true"
-                                           aria-expanded="false">Shop</a>
-                                        <ul className="dropdown-menu">
-                                            <li className="nav-item">
-                                                <NavLink className="nav-link" to={'/shop/category'}>Shop category</NavLink>
-                                            </li>
-                                            <li className="nav-item">
-                                                <NavLink className="nav-link" to={'/shop/product'}>Product Details</NavLink>
-                                            </li>
-                                            <li className="nav-item">
-                                                <NavLink className="nav-link" to={'/shop/checkout'}>Product Checkout</NavLink>
-                                            </li>
-                                            <li className="nav-item">
-                                                <NavLink className="nav-link" to={'/shop/cart'}>Shopping Cart</NavLink>
-                                            </li>
-                                            <li className="nav-item">
-                                                <NavLink className="nav-link" to={'/shop/confirmation'}>Confirmation</NavLink>
-                                            </li>
-                                        </ul>
-                                    </li>
-                                    <li className="nav-item submenu dropdown">
-                                        <a href="#" className="nav-link dropdown-toggle" data-toggle="dropdown"
-                                           role="button" aria-haspopup="true"
-                                           aria-expanded="false">Blog</a>
+                                        <NavLink className="nav-link dropdown-toggle"
+                                                 data-toggle="dropdown"
+                                                 role="button"
+                                                 aria-haspopup="true"
+                                                 aria-expanded="false"
+                                                 to={'/blog'}>
+                                            Blog
+                                        </NavLink>
                                         <ul className="dropdown-menu">
                                             <li className="nav-item">
                                                 <NavLink className="nav-link" to={'/blog'}>Blog</NavLink>
@@ -119,29 +152,17 @@ class Header extends Component {
                                             </li>
                                         </ul>
                                     </li>
-                                    <li className="nav-item submenu dropdown">
-                                        <a href="#" className="nav-link dropdown-toggle" data-toggle="dropdown"
-                                           role="button" aria-haspopup="true"
-                                           aria-expanded="false">Pages</a>
-                                        <ul className="dropdown-menu">
-                                            <li className="nav-item">
-                                                <NavLink className="nav-link" to={'/login'}>Login</NavLink>
-                                            </li>
-                                            <li className="nav-item">
-                                                <NavLink className="nav-link" to={'/shop/tracking'}>Tracking</NavLink>
-                                            </li>
-                                            <li className="nav-item">
-                                                <NavLink className="nav-link" to={'/elements'}>Elements</NavLink>
-                                            </li>
-                                        </ul>
-                                    </li>
                                     <li className="nav-item">
                                         <NavLink className="nav-link" to={'/contact'}>Contact</NavLink>
                                     </li>
+                                    {
+                                        renderLoginLogout()
+                                    }
                                 </ul>
                                 <ul className="nav navbar-nav navbar-right">
                                     <li className="nav-item">
-                                        <a href="#" className="cart"><span className="ti-bag"/></a>
+                                        <Link to={'/shop/cart'} className="cart"><span className="ti-bag"/></Link>
+                                        <span className="cart-count-products">{ShoppingCart.getCountProducts()}</span>
                                     </li>
                                     <li className="nav-item">
                                         <button className="search">
@@ -153,16 +174,18 @@ class Header extends Component {
                         </div>
                     </nav>
                 </div>
-                <div className="search_input" id="search_input_box">
-                    <div className="container">
-                        <form className="d-flex justify-content-between">
-                            <input type="text"
-                                   className="form-control"
-                                   id="search_input"
-                                   placeholder="Search Here"/>
-                            <button type="submit" className="btn"/>
-                            <span className="lnr lnr-cross" id="close_search" title="Close Search"/>
-                        </form>
+                <div className="search-box">
+                    <div className="search_input" id="search_input_box">
+                        <div className="container">
+                            <form className="d-flex justify-content-between">
+                                <input type="text"
+                                       className="form-control"
+                                       id="autocomplete"
+                                       placeholder="Search Here" />
+                                <button type="submit" className="btn"/>
+                                <span className="lnr lnr-cross" id="close_search" title="Close Search"/>
+                            </form>
+                        </div>
                     </div>
                 </div>
             </header>

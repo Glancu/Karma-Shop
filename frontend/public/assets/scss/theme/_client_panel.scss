@@ -1,0 +1,32 @@
+.header {
+    position: relative;
+    display: block;
+
+    ul {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        list-style: none;
+        padding: 0;
+        white-space: nowrap;
+
+        a {
+            &:nth-child(2n+0) {
+                margin: 0 10px;
+            }
+        }
+
+        li {
+            padding: 10px 45px;
+            border: 1px solid grey;
+            transition: .2s all;
+            color: #777777;
+            text-transform: uppercase;
+
+            &:hover {
+                border-color: #ffba00;
+                color: #ffba00;
+            }
+        }
+    }
+}

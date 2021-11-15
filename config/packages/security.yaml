@@ -41,13 +41,13 @@ security:
             logout:
                 path: app_admin_logout
 
-        login:
-            pattern:  ^/api/login
+        api_user_login:
+            pattern:  ^/api/user/generate-token
             stateless: true
             anonymous: true
             provider: app_client_user_provider
             json_login:
-                check_path: /api/login_check
+                check_path: /api/user/generate-token
                 success_handler: lexik_jwt_authentication.handler.authentication_success
                 failure_handler: lexik_jwt_authentication.handler.authentication_failure
                 username_path: email
@@ -61,15 +61,42 @@ security:
                 authenticators:
                     - lexik_jwt_authentication.jwt_token_authenticator
 
+        api_user_token_refresh:
+            pattern: ^/api/user/refresh-token
+            stateless: true
+            anonymous: true
+            provider: app_client_user_provider
+
         main:
             anonymous: ~
 
     access_control:
-        - { path: ^/api/login, roles: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/api/user/validate_token, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/api/user/generate-token, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+
+        - { path: ^/api/doc, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+
+        - { path: ^/api/user/validate-token, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/api/user/refresh-token, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/api/user/create, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+
         - { path: ^/api/newsletter/create, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+
         - { path: ^/api/contact/create, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+
+        - { path: ^/api/shop/products/list, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/api/shop/products/latest, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/api/shop/products/search/*, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/api/shop/products/product/*, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+
+        - { path: ^/api/shop/product-review/create, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+
+        - { path: ^/api/comments/create, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+
+        - { path: ^/api/shop/categories/list, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/api/shop/brands/list, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/api/shop/colors/list, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+
+        - { path: ^/api/shop/create-order, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }
         - { path: /admin/login, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/admin, role: ROLE_ADMIN }

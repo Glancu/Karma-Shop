@@ -46,7 +46,6 @@ final class ProductReviewAdmin extends AbstractAdmin
                    ->add('email', null, ['label' => 'E-mail'])
                    ->add('rating', null, ['label' => 'Rating'])
                    ->add('enable', null, ['label' => 'Enable'])
-                   ->add('phoneNumber', null, ['label' => 'Phone number'])
                    ->add('createdAt', null, ['label' => 'Created'])
                    ->add('message', null, ['label' => 'Message']);
     }

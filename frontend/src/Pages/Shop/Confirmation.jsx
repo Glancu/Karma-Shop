@@ -1,9 +1,67 @@
 import React, { Component } from 'react';
 import BaseTemplate from '../../Components/BaseTemplate';
-import { Link } from 'react-router-dom';
+import { Link, Redirect } from 'react-router-dom';
+import ShoppingCart from '../../Components/Shop/ShoppingCart';
+import CONFIG from '../../config';
 
 class Confirmation extends Component {
+    componentDidMount() {
+        window.localStorage.removeItem(ShoppingCart.localStorageShopKeyName);
+    }
+
     render() {
+        const currencySymbol = CONFIG.shop.currencySymbol;
+        const shoppingCartProducts = ShoppingCart.getProducts();
+
+        const localStorageShop = window.localStorage.getItem(ShoppingCart.localStorageShopKeyName);
+        if(!localStorageShop || JSON.parse(localStorageShop).products.length === 0 ||
+            Object.keys(JSON.parse(localStorageShop).form).length === 0
+        ) {
+            return <Redirect to="/" />
+        }
+
+        let parsedLocalStorageShop = null;
+        if(localStorageShop) {
+            parsedLocalStorageShop = JSON.parse(localStorageShop);
+            if(!parsedLocalStorageShop || !parsedLocalStorageShop.form || !parsedLocalStorageShop.products) {
+                return <Redirect to="/" />
+            }
+        }
+
+        if(!parsedLocalStorageShop) {
+            return <Redirect to="/" />
+        }
+
+        const {form} = parsedLocalStorageShop;
+        const {inputs} = form;
+
+        const renderBillingAddress = () => {
+            return (
+                <>
+                    <li><a href="#"><span>Address first</span>: {inputs.addressLineFirst}</a></li>
+                    <li><a href="#"><span>Address second</span>: {inputs.addressLineSecond}</a></li>
+                    <li><a href="#"><span>City</span>: {inputs.city}</a></li>
+                    {inputs.postalCode &&
+                    <li><a href="#"><span>Postcode </span>: {inputs.postalCode}</a></li>
+                    }
+                </>
+            )
+        };
+
+        const renderShippingAddress = () => {
+            return form.customCorrespondence === true ? (
+                    <>
+                        <li><a href="#"><span>Address first</span>: {inputs.addressLineFirstCorrespondence}</a></li>
+                        <li><a href="#"><span>Address second</span>: {inputs.addressLineSecondCorrespondence}</a></li>
+                        <li><a href="#"><span>City</span>: {inputs.cityCorrespondence}</a></li>
+                        {inputs.postalCodeCorrespondence &&
+                        <li><a href="#"><span>Postcode </span>: {inputs.postalCodeCorrespondence}</a></li>
+                        }
+                    </>
+                )
+                : renderBillingAddress();
+        };
+
         return (
             <BaseTemplate>
                 <section className="banner-area organic-breadcrumb">
@@ -12,8 +70,9 @@ class Confirmation extends Component {
                             <div className="col-first">
                                 <h1>Confirmation</h1>
                                 <nav className="d-flex align-items-center">
-                                    <Link to={'/'}/>
-                                    <a href="#">Confirmation</a>
+                                    <Link to={'/'}>Home<span className="lnr lnr-arrow-right"/></Link>
+                                    <Link to={'/shop'}>Shop<span className="lnr lnr-arrow-right"/></Link>
+                                    <p>Confirmation</p>
                                 </nav>
                             </div>
                         </div>
@@ -28,10 +87,8 @@ class Confirmation extends Component {
                                 <div className="details_item">
                                     <h4>Order Info</h4>
                                     <ul className="list">
-                                        <li><a href="#"><span>Order number</span> : 60235</a></li>
-                                        <li><a href="#"><span>Date</span> : Los Angeles</a></li>
-                                        <li><a href="#"><span>Total</span> : USD 2210</a></li>
-                                        <li><a href="#"><span>Payment method</span> : Check payments</a></li>
+                                        <li><a href="#"><span>Total</span>: {currencySymbol} {ShoppingCart.getTotalPrice()}</a></li>
+                                        <li><a href="#"><span>Payment method</span>: {form.methodPayment}</a></li>
                                     </ul>
                                 </div>
                             </div>
@@ -39,10 +96,7 @@ class Confirmation extends Component {
                                 <div className="details_item">
                                     <h4>Billing Address</h4>
                                     <ul className="list">
-                                        <li><a href="#"><span>Street</span> : 56/8</a></li>
-                                        <li><a href="#"><span>City</span> : Los Angeles</a></li>
-                                        <li><a href="#"><span>Country</span> : United States</a></li>
-                                        <li><a href="#"><span>Postcode </span> : 36952</a></li>
+                                        {renderBillingAddress()}
                                     </ul>
                                 </div>
                             </div>
@@ -50,10 +104,7 @@ class Confirmation extends Component {
                                 <div className="details_item">
                                     <h4>Shipping Address</h4>
                                     <ul className="list">
-                                        <li><a href="#"><span>Street</span> : 56/8</a></li>
-                                        <li><a href="#"><span>City</span> : Los Angeles</a></li>
-                                        <li><a href="#"><span>Country</span> : United States</a></li>
-                                        <li><a href="#"><span>Postcode </span> : 36952</a></li>
+                                        {renderShippingAddress()}
                                     </ul>
                                 </div>
                             </div>
@@ -70,71 +121,25 @@ class Confirmation extends Component {
                                     </tr>
                                     </thead>
                                     <tbody>
+                                    {
+                                        shoppingCartProducts.map(product => {
+                                            const priceGross = product.priceGross;
+                                            const priceGrossSum = (parseFloat(priceGross) * product.quantity).toFixed(2);
+                                            const productQuantity = (Math.round(product.quantity * 100) / 100).toFixed(2);
+
+                                            return (
+                                                <tr  key={product.uuid}>
+                                                    <td><p>{product.name}</p></td>
+                                                    <td><h5>x {productQuantity}</h5></td>
+                                                    <td><p>{currencySymbol} {priceGrossSum}</p></td>
+                                                </tr>
+                                            )
+                                        })
+                                    }
                                     <tr>
-                                        <td>
-                                            <p>Pixelstore fresh Blackberry</p>
-                                        </td>
-                                        <td>
-                                            <h5>x 02</h5>
-                                        </td>
-                                        <td>
-                                            <p>$720.00</p>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <p>Pixelstore fresh Blackberry</p>
-                                        </td>
-                                        <td>
-                                            <h5>x 02</h5>
-                                        </td>
-                                        <td>
-                                            <p>$720.00</p>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <p>Pixelstore fresh Blackberry</p>
-                                        </td>
-                                        <td>
-                                            <h5>x 02</h5>
-                                        </td>
-                                        <td>
-                                            <p>$720.00</p>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <h4>Subtotal</h4>
-                                        </td>
-                                        <td>
-                                            <h5/>
-                                        </td>
-                                        <td>
-                                            <p>$2160.00</p>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <h4>Shipping</h4>
-                                        </td>
-                                        <td>
-                                            <h5/>
-                                        </td>
-                                        <td>
-                                            <p>Flat rate: $50.00</p>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <h4>Total</h4>
-                                        </td>
-                                        <td>
-                                            <h5/>
-                                        </td>
-                                        <td>
-                                            <p>$2210.00</p>
-                                        </td>
+                                        <td><h4>Total</h4></td>
+                                        <td><h5/></td>
+                                        <td><p>{currencySymbol} {ShoppingCart.getTotalPrice()}</p></td>
                                     </tr>
                                     </tbody>
                                 </table>

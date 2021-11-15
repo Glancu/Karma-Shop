@@ -22,7 +22,7 @@ final class ShopControllerTest extends WebTestCase
         $jwtClient = static::createClient();
         $jwtClient->request(
             'POST',
-            '/api/login_check',
+            '/api/user/generate-token',
             [],
             [],
             ['CONTENT_TYPE' => 'application/json'],
@@ -84,7 +84,7 @@ final class ShopControllerTest extends WebTestCase
 
         $client->request(
             'POST',
-            self::BASE_API_URL . 'product-review/create',
+            self::BASE_API_URL . '/shop/product-review/create',
             $data,
             [],
             [

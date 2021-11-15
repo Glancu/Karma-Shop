@@ -1,10 +1,14 @@
 import React, { Component } from "react";
 import BaseTemplate from "../Components/BaseTemplate";
-import { withRouter } from "react-router-dom";
+import { Link, withRouter } from 'react-router-dom';
 import $ from 'jquery';
 import OwlCarousel from 'react-owl-carousel';
 import '../../public/assets/js/jquery.magnific-popup.min';
 import '../../public/assets/js/countdown';
+import axios from 'axios';
+import CONFIG from '../config';
+import ShoppingCart from '../Components/Shop/ShoppingCart';
+import { toast } from 'react-toastify';
 
 // Images
 import imgBanner from '../../public/assets/img/banner/banner-img.png';
@@ -20,36 +24,19 @@ import imgCategory3 from '../../public/assets/img/category/c3.jpg';
 import imgCategory4 from '../../public/assets/img/category/c4.jpg';
 import imgCategory5 from '../../public/assets/img/category/c5.jpg';
 
-import imgProduct1 from '../../public/assets/img/product/p1.jpg';
-import imgProduct2 from '../../public/assets/img/product/p2.jpg';
-import imgProduct3 from '../../public/assets/img/product/p3.jpg';
-import imgProduct4 from '../../public/assets/img/product/p4.jpg';
-import imgProduct5 from '../../public/assets/img/product/p5.jpg';
-import imgProduct6 from '../../public/assets/img/product/p6.jpg';
-import imgProduct7 from '../../public/assets/img/product/p7.jpg';
-import imgProduct8 from '../../public/assets/img/product/p8.jpg';
-import imgProductE1 from '../../public/assets/img/product/e-p1.png';
-
 import imgBrand1 from '../../public/assets/img/brand/1.png';
 import imgBrand2 from '../../public/assets/img/brand/2.png';
 import imgBrand3 from '../../public/assets/img/brand/3.png';
 import imgBrand4 from '../../public/assets/img/brand/4.png';
 import imgBrand5 from '../../public/assets/img/brand/5.png';
 
-import imgRelatedProduct1 from '../../public/assets/img/r1.jpg';
-import imgRelatedProduct2 from '../../public/assets/img/r2.jpg';
-import imgRelatedProduct3 from '../../public/assets/img/r3.jpg';
-import imgRelatedProduct5 from '../../public/assets/img/r5.jpg';
-import imgRelatedProduct6 from '../../public/assets/img/r6.jpg';
-import imgRelatedProduct7 from '../../public/assets/img/r7.jpg';
-import imgRelatedProduct9 from '../../public/assets/img/r9.jpg';
-import imgRelatedProduct10 from '../../public/assets/img/r10.jpg';
-import imgRelatedProduct11 from '../../public/assets/img/r11.jpg';
-import DealsRelatedProducts from '../Components/DealsRelatedProducts';
-
 class Index extends Component {
     constructor(props) {
         super(props);
+
+        this.state = {
+            latestProducts: []
+        }
     }
 
     componentDidMount() {
@@ -62,14 +49,14 @@ class Index extends Component {
             $(".fitscreen").css("height", fitscreen);
 
             if (document.getElementById("js-countdown")) {
-                var countdown = new Date("October 17, 2018");
+                const countdown = new Date("October 17, 2018");
 
                 function getRemainingTime(endtime) {
-                    var milliseconds = Date.parse(endtime) - Date.parse(new Date());
-                    var seconds = Math.floor(milliseconds / 1000 % 60);
-                    var minutes = Math.floor(milliseconds / 1000 / 60 % 60);
-                    var hours = Math.floor(milliseconds / (1000 * 60 * 60) % 24);
-                    var days = Math.floor(milliseconds / (1000 * 60 * 60 * 24));
+                    const milliseconds = Date.parse(endtime) - Date.parse(new Date());
+                    const seconds = Math.floor(milliseconds / 1000 % 60);
+                    const minutes = Math.floor(milliseconds / 1000 / 60 % 60);
+                    const hours = Math.floor(milliseconds / (1000 * 60 * 60) % 24);
+                    const days = Math.floor(milliseconds / (1000 * 60 * 60 * 24));
 
                     return {
                         'total': milliseconds,
@@ -81,14 +68,14 @@ class Index extends Component {
                 }
 
                 function initClock(id, endtime) {
-                    var counter = document.getElementById(id);
-                    var daysItem = counter.querySelector('.js-countdown-days');
-                    var hoursItem = counter.querySelector('.js-countdown-hours');
-                    var minutesItem = counter.querySelector('.js-countdown-minutes');
-                    var secondsItem = counter.querySelector('.js-countdown-seconds');
+                    const counter = document.getElementById(id);
+                    const daysItem = counter.querySelector('.js-countdown-days');
+                    const hoursItem = counter.querySelector('.js-countdown-hours');
+                    const minutesItem = counter.querySelector('.js-countdown-minutes');
+                    const secondsItem = counter.querySelector('.js-countdown-seconds');
 
                     function updateClock() {
-                        var time = getRemainingTime(endtime);
+                        const time = getRemainingTime(endtime);
 
                         daysItem.innerHTML = time.days;
                         hoursItem.innerHTML = ('0' + time.hours).slice(-2);
@@ -101,7 +88,7 @@ class Index extends Component {
                     }
 
                     updateClock();
-                    var timeinterval = setInterval(updateClock, 1000);
+                    const timeinterval = setInterval(updateClock, 1000);
                 }
 
                 initClock('js-countdown', countdown);
@@ -114,65 +101,127 @@ class Index extends Component {
                 }
             });
         });
+
+        axios.get('/api/shop/products/latest')
+            .then(result => {
+                if(result.status === 200) {
+                    if(result.data) {
+                        this.setState({latestProducts: result.data.items});
+                    }
+                }
+            })
+            .catch(err => {
+                console.error(err);
+            });
+    }
+
+    addProductToCart(e, product) {
+        e.preventDefault();
+        const data = ShoppingCart.addProductToCart(product);
+
+        if(data.newProductInCart === true) {
+            toast.info('Product was add to cart!', {autoClose: 2000});
+        } else if(data.newProductInCart === false && data.quantity <= 9) {
+            toast.info('Product quantity was increased to ' + data.quantity + '!', {autoClose: 2000});
+        } else {
+            toast.info('Reached maximum quantity of product!', {autoClose: 2000});
+        }
+
+        const cartCountProductsEl = document.querySelector('header.header_area .cart-count-products');
+        if(cartCountProductsEl) {
+            cartCountProductsEl.innerText = ShoppingCart.getCountProducts();
+        }
     }
 
     render() {
+        const {latestProducts} = this.state;
+
+        const currencySymbol = CONFIG.shop.currencySymbol;
+
+        const latestProductsHTML = () => {
+            return latestProducts.map((product) => {
+                return (
+                    <div className="col-lg-3 col-md-6" key={product.uuid}>
+                        <div className="single-product">
+                            { product.images && product.images.length > 0 &&
+                                <Link to={`/shop/product/${product.slug}`}>
+                                    <img className="img-fluid" src={product.images[0].url} alt={product.images[0].name} />
+                                </Link>
+                            }
+                            <div className="product-details">
+                                <h6><Link to={`/shop/product/${product.slug}`} className="product-title">{product.name}</Link></h6>
+                                <div className="price">
+                                    <h6>{currencySymbol} {product.priceGross}</h6>
+                                </div>
+                                <div className="prd-bottom">
+                                    <a href="#" className="social-info" onClick={(e) => {this.addProductToCart(e, product) }}>
+                                        <span className="ti-bag"/>
+                                        <p className="hover-text">add to bag</p>
+                                    </a>
+                                    <Link to={`/shop/product/${product.slug}`} className="social-info">
+                                        <span className="lnr lnr-move"/>
+                                        <p className="hover-text">view more</p>
+                                    </Link>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )
+            });
+        };
+
+        const exclusiveProductsFromLatestProducts = () => {
+            return latestProducts.map((product) => {
+                return (
+                    <div className="single-exclusive-slider" key={product.uuid}>
+                        <Link to={`/shop/product/${product.slug}`}>
+                            <img className="img-fluid" src={product.images[0].url} alt={product.images[0].name}/>
+                        </Link>
+                        <div className="product-details">
+                            <div className="price">
+                                <h6>{currencySymbol} {product.priceGross}</h6>
+                            </div>
+                            <Link to={`/shop/product/${product.slug}`}>
+                                <h4>{product.name}</h4>
+                            </Link>
+                            <div
+                                className="add-bag d-flex align-items-center justify-content-center">
+                                <Link to={`/shop/product/${product.slug}`} className="add-btn">
+                                    <span className="lnr lnr-move"/>
+                                </Link>
+
+                                <Link to={`/shop/product/${product.slug}`} className="">
+                                    <span className="add-text text-uppercase">View more</span>
+                                </Link>
+                            </div>
+                        </div>
+                    </div>
+                )
+            });
+        }
+
+        const firstOfLatestProducts = this.state.latestProducts[0];
+
         return (
             <BaseTemplate>
                 <section className="banner-area">
                     <div className="container">
                         <div className="row fullscreen align-items-center justify-content-start">
                             <div className="col-lg-12">
-                                <OwlCarousel className="active-banner-slider owl-carousel"
-                                             items={1}
-                                             autoPlay={false}
-                                             autoplayTimeout={5000}
-                                             loop={true}
-                                             nav={true}
-                                             dots={false}
-                                             navText={[
-                                                 "<img src='assets/img/banner/prev.png'>",
-                                                 "<img src='assets/img/banner/next.png'>"
-                                             ]}
-                                             navClass={[
-                                                 "owl-prev button-without-background",
-                                                 "owl-next button-without-background"
-                                             ]}
-                                >
-                                    <div className="row single-slide align-items-center d-flex">
+                                {firstOfLatestProducts &&
+                                    <div className="row single-slide align-items-center d-flex" key={firstOfLatestProducts.uuid}>
                                         <div className="col-lg-5 col-md-6">
                                             <div className="banner-content">
-                                                <h1>Nike New <br/>Collection!</h1>
-                                                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do
-                                                    eiusmod tempor incididunt ut labore et
-                                                    dolore magna aliqua. Ut enim ad minim veniam, quis nostrud
-                                                    exercitation.</p>
+                                                <h1>New products!</h1>
+                                                <p>Check our new products in shop!</p>
                                                 <div className="add-bag d-flex align-items-center">
-                                                    <a className="add-btn" href=""><span
-                                                        className="lnr lnr-cross"/></a>
-                                                    <span className="add-text text-uppercase">Add to Bag</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div className="col-lg-7">
-                                            <div className="banner-img">
-                                                <img className="img-fluid" src={imgBanner} alt=""/>
-                                            </div>
-                                        </div>
-                                    </div>
+                                                    <Link to={'/shop'} className="add-btn">
+                                                            <span className="lnr lnr-cross"/>
+                                                    </Link>
 
-                                    <div className="row single-slide">
-                                        <div className="col-lg-5">
-                                            <div className="banner-content">
-                                                <h1>Nike New <br/>Collection!</h1>
-                                                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do
-                                                    eiusmod tempor incididunt ut labore et
-                                                    dolore magna aliqua. Ut enim ad minim veniam, quis nostrud
-                                                    exercitation.</p>
-                                                <div className="add-bag d-flex align-items-center">
-                                                    <a className="add-btn" href=""><span
-                                                        className="lnr lnr-cross"/></a>
-                                                    <span className="add-text text-uppercase">Add to Bag</span>
+                                                    <Link to={'/shop'}>
+                                                        <span className="add-text text-uppercase">Shop</span>
+                                                    </Link>
                                                 </div>
                                             </div>
                                         </div>
@@ -182,7 +231,7 @@ class Index extends Component {
                                             </div>
                                         </div>
                                     </div>
-                                </OwlCarousel>
+                                }
                             </div>
                         </div>
                     </div>
@@ -301,583 +350,24 @@ class Index extends Component {
                 </section>
 
                 <section className="active-product-area section_gap">
-                    <OwlCarousel className="owl-carousel"
-                                 items={1}
-                                 autoPlay={false}
-                                 autoplayTimeout={5000}
-                                 loop={true}
-                                 nav={true}
-                                 dots={false}
-                                 navText={[
-                                     "<img src='assets/img/product/prev.png'>",
-                                     "<img src='assets/img/product/next.png'>"
-                                 ]}
-                                 navClass={[
-                                     "owl-prev button-without-background",
-                                     "owl-next button-without-background"
-                                 ]}
-                    >
-                        <div className="single-product-slider">
-                            <div className="container">
-                                <div className="row justify-content-center">
-                                    <div className="col-lg-6 text-center">
-                                        <div className="section-title">
-                                            <h1>Latest Products</h1>
-                                            <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
-                                                tempor incididunt ut labore et
-                                                dolore
-                                                magna aliqua.</p>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="row">
-                                    <div className="col-lg-3 col-md-6">
-                                        <div className="single-product">
-                                            <img className="img-fluid" src={imgProduct1} alt=""/>
-                                            <div className="product-details">
-                                                <h6>addidas New Hammer sole
-                                                    for Sports person</h6>
-                                                <div className="price">
-                                                    <h6>$150.00</h6>
-                                                    <h6 className="l-through">$210.00</h6>
-                                                </div>
-                                                <div className="prd-bottom">
-
-                                                    <a href="" className="social-info">
-                                                        <span className="ti-bag"/>
-                                                        <p className="hover-text">add to bag</p>
-                                                    </a>
-                                                    <a href="" className="social-info">
-                                                        <span className="lnr lnr-heart"/>
-                                                        <p className="hover-text">Wishlist</p>
-                                                    </a>
-                                                    <a href="" className="social-info">
-                                                        <span className="lnr lnr-sync"/>
-                                                        <p className="hover-text">compare</p>
-                                                    </a>
-                                                    <a href="" className="social-info">
-                                                        <span className="lnr lnr-move"/>
-                                                        <p className="hover-text">view more</p>
-                                                    </a>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div className="col-lg-3 col-md-6">
-                                        <div className="single-product">
-                                            <img className="img-fluid" src={imgProduct2} alt=""/>
-                                            <div className="product-details">
-                                                <h6>addidas New Hammer sole
-                                                    for Sports person</h6>
-                                                <div className="price">
-                                                    <h6>$150.00</h6>
-                                                    <h6 className="l-through">$210.00</h6>
-                                                </div>
-                                                <div className="prd-bottom">
-
-                                                    <a href="" className="social-info">
-                                                        <span className="ti-bag"/>
-                                                        <p className="hover-text">add to bag</p>
-                                                    </a>
-                                                    <a href="" className="social-info">
-                                                        <span className="lnr lnr-heart"/>
-                                                        <p className="hover-text">Wishlist</p>
-                                                    </a>
-                                                    <a href="" className="social-info">
-                                                        <span className="lnr lnr-sync"/>
-                                                        <p className="hover-text">compare</p>
-                                                    </a>
-                                                    <a href="" className="social-info">
-                                                        <span className="lnr lnr-move"/>
-                                                        <p className="hover-text">view more</p>
-                                                    </a>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div className="col-lg-3 col-md-6">
-                                        <div className="single-product">
-                                            <img className="img-fluid" src={imgProduct3} alt=""/>
-                                            <div className="product-details">
-                                                <h6>addidas New Hammer sole
-                                                    for Sports person</h6>
-                                                <div className="price">
-                                                    <h6>$150.00</h6>
-                                                    <h6 className="l-through">$210.00</h6>
-                                                </div>
-                                                <div className="prd-bottom">
-                                                    <a href="" className="social-info">
-                                                        <span className="ti-bag"/>
-                                                        <p className="hover-text">add to bag</p>
-                                                    </a>
-                                                    <a href="" className="social-info">
-                                                        <span className="lnr lnr-heart"/>
-                                                        <p className="hover-text">Wishlist</p>
-                                                    </a>
-                                                    <a href="" className="social-info">
-                                                        <span className="lnr lnr-sync"/>
-                                                        <p className="hover-text">compare</p>
-                                                    </a>
-                                                    <a href="" className="social-info">
-                                                        <span className="lnr lnr-move"/>
-                                                        <p className="hover-text">view more</p>
-                                                    </a>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div className="col-lg-3 col-md-6">
-                                        <div className="single-product">
-                                            <img className="img-fluid" src={imgProduct4} alt=""/>
-                                            <div className="product-details">
-                                                <h6>addidas New Hammer sole
-                                                    for Sports person</h6>
-                                                <div className="price">
-                                                    <h6>$150.00</h6>
-                                                    <h6 className="l-through">$210.00</h6>
-                                                </div>
-                                                <div className="prd-bottom">
-
-                                                    <a href="" className="social-info">
-                                                        <span className="ti-bag"/>
-                                                        <p className="hover-text">add to bag</p>
-                                                    </a>
-                                                    <a href="" className="social-info">
-                                                        <span className="lnr lnr-heart"/>
-                                                        <p className="hover-text">Wishlist</p>
-                                                    </a>
-                                                    <a href="" className="social-info">
-                                                        <span className="lnr lnr-sync"/>
-                                                        <p className="hover-text">compare</p>
-                                                    </a>
-                                                    <a href="" className="social-info">
-                                                        <span className="lnr lnr-move"/>
-                                                        <p className="hover-text">view more</p>
-                                                    </a>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div className="col-lg-3 col-md-6">
-                                        <div className="single-product">
-                                            <img className="img-fluid" src={imgProduct5} alt=""/>
-                                            <div className="product-details">
-                                                <h6>addidas New Hammer sole
-                                                    for Sports person</h6>
-                                                <div className="price">
-                                                    <h6>$150.00</h6>
-                                                    <h6 className="l-through">$210.00</h6>
-                                                </div>
-                                                <div className="prd-bottom">
-
-                                                    <a href="" className="social-info">
-                                                        <span className="ti-bag"/>
-                                                        <p className="hover-text">add to bag</p>
-                                                    </a>
-                                                    <a href="" className="social-info">
-                                                        <span className="lnr lnr-heart"/>
-                                                        <p className="hover-text">Wishlist</p>
-                                                    </a>
-                                                    <a href="" className="social-info">
-                                                        <span className="lnr lnr-sync"/>
-                                                        <p className="hover-text">compare</p>
-                                                    </a>
-                                                    <a href="" className="social-info">
-                                                        <span className="lnr lnr-move"/>
-                                                        <p className="hover-text">view more</p>
-                                                    </a>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div className="col-lg-3 col-md-6">
-                                        <div className="single-product">
-                                            <img className="img-fluid" src={imgProduct6} alt=""/>
-                                            <div className="product-details">
-                                                <h6>addidas New Hammer sole
-                                                    for Sports person</h6>
-                                                <div className="price">
-                                                    <h6>$150.00</h6>
-                                                    <h6 className="l-through">$210.00</h6>
-                                                </div>
-                                                <div className="prd-bottom">
-
-                                                    <a href="" className="social-info">
-                                                        <span className="ti-bag"/>
-                                                        <p className="hover-text">add to bag</p>
-                                                    </a>
-                                                    <a href="" className="social-info">
-                                                        <span className="lnr lnr-heart"/>
-                                                        <p className="hover-text">Wishlist</p>
-                                                    </a>
-                                                    <a href="" className="social-info">
-                                                        <span className="lnr lnr-sync"/>
-                                                        <p className="hover-text">compare</p>
-                                                    </a>
-                                                    <a href="" className="social-info">
-                                                        <span className="lnr lnr-move"/>
-                                                        <p className="hover-text">view more</p>
-                                                    </a>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div className="col-lg-3 col-md-6">
-                                        <div className="single-product">
-                                            <img className="img-fluid" src={imgProduct7} alt=""/>
-                                            <div className="product-details">
-                                                <h6>addidas New Hammer sole
-                                                    for Sports person</h6>
-                                                <div className="price">
-                                                    <h6>$150.00</h6>
-                                                    <h6 className="l-through">$210.00</h6>
-                                                </div>
-                                                <div className="prd-bottom">
-
-                                                    <a href="" className="social-info">
-                                                        <span className="ti-bag"/>
-                                                        <p className="hover-text">add to bag</p>
-                                                    </a>
-                                                    <a href="" className="social-info">
-                                                        <span className="lnr lnr-heart"/>
-                                                        <p className="hover-text">Wishlist</p>
-                                                    </a>
-                                                    <a href="" className="social-info">
-                                                        <span className="lnr lnr-sync"/>
-                                                        <p className="hover-text">compare</p>
-                                                    </a>
-                                                    <a href="" className="social-info">
-                                                        <span className="lnr lnr-move"/>
-                                                        <p className="hover-text">view more</p>
-                                                    </a>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div className="col-lg-3 col-md-6">
-                                        <div className="single-product">
-                                            <img className="img-fluid" src={imgProduct8} alt=""/>
-                                            <div className="product-details">
-                                                <h6>addidas New Hammer sole
-                                                    for Sports person</h6>
-                                                <div className="price">
-                                                    <h6>$150.00</h6>
-                                                    <h6 className="l-through">$210.00</h6>
-                                                </div>
-                                                <div className="prd-bottom">
-
-                                                    <a href="" className="social-info">
-                                                        <span className="ti-bag"/>
-                                                        <p className="hover-text">add to bag</p>
-                                                    </a>
-                                                    <a href="" className="social-info">
-                                                        <span className="lnr lnr-heart"/>
-                                                        <p className="hover-text">Wishlist</p>
-                                                    </a>
-                                                    <a href="" className="social-info">
-                                                        <span className="lnr lnr-sync"/>
-                                                        <p className="hover-text">compare</p>
-                                                    </a>
-                                                    <a href="" className="social-info">
-                                                        <span className="lnr lnr-move"/>
-                                                        <p className="hover-text">view more</p>
-                                                    </a>
-                                                </div>
-                                            </div>
-                                        </div>
+                    <div className="single-product-slider">
+                        <div className="container">
+                            <div className="row justify-content-center">
+                                <div className="col-lg-6 text-center">
+                                    <div className="section-title">
+                                        <h1>Latest Products</h1>
+                                        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
+                                            tempor incididunt ut labore et
+                                            dolore
+                                            magna aliqua.</p>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-
-                        <div className="single-product-slider">
-                            <div className="container">
-                                <div className="row justify-content-center">
-                                    <div className="col-lg-6 text-center">
-                                        <div className="section-title">
-                                            <h1>Coming Products</h1>
-                                            <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
-                                                tempor incididunt ut labore et
-                                                dolore
-                                                magna aliqua.</p>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="row">
-                                    <div className="col-lg-3 col-md-6">
-                                        <div className="single-product">
-                                            <img className="img-fluid" src={imgProduct6} alt=""/>
-                                            <div className="product-details">
-                                                <h6>addidas New Hammer sole
-                                                    for Sports person</h6>
-                                                <div className="price">
-                                                    <h6>$150.00</h6>
-                                                    <h6 className="l-through">$210.00</h6>
-                                                </div>
-                                                <div className="prd-bottom">
-
-                                                    <a href="" className="social-info">
-                                                        <span className="ti-bag"/>
-                                                        <p className="hover-text">add to bag</p>
-                                                    </a>
-                                                    <a href="" className="social-info">
-                                                        <span className="lnr lnr-heart"/>
-                                                        <p className="hover-text">Wishlist</p>
-                                                    </a>
-                                                    <a href="" className="social-info">
-                                                        <span className="lnr lnr-sync"/>
-                                                        <p className="hover-text">compare</p>
-                                                    </a>
-                                                    <a href="" className="social-info">
-                                                        <span className="lnr lnr-move"/>
-                                                        <p className="hover-text">view more</p>
-                                                    </a>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div className="col-lg-3 col-md-6">
-                                        <div className="single-product">
-                                            <img className="img-fluid" src={imgProduct8} alt=""/>
-                                            <div className="product-details">
-                                                <h6>addidas New Hammer sole
-                                                    for Sports person</h6>
-                                                <div className="price">
-                                                    <h6>$150.00</h6>
-                                                    <h6 className="l-through">$210.00</h6>
-                                                </div>
-                                                <div className="prd-bottom">
-
-                                                    <a href="" className="social-info">
-                                                        <span className="ti-bag"/>
-                                                        <p className="hover-text">add to bag</p>
-                                                    </a>
-                                                    <a href="" className="social-info">
-                                                        <span className="lnr lnr-heart"/>
-                                                        <p className="hover-text">Wishlist</p>
-                                                    </a>
-                                                    <a href="" className="social-info">
-                                                        <span className="lnr lnr-sync"/>
-                                                        <p className="hover-text">compare</p>
-                                                    </a>
-                                                    <a href="" className="social-info">
-                                                        <span className="lnr lnr-move"/>
-                                                        <p className="hover-text">view more</p>
-                                                    </a>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div className="col-lg-3 col-md-6">
-                                        <div className="single-product">
-                                            <img className="img-fluid" src={imgProduct3} alt=""/>
-                                            <div className="product-details">
-                                                <h6>addidas New Hammer sole
-                                                    for Sports person</h6>
-                                                <div className="price">
-                                                    <h6>$150.00</h6>
-                                                    <h6 className="l-through">$210.00</h6>
-                                                </div>
-                                                <div className="prd-bottom">
-
-                                                    <a href="" className="social-info">
-                                                        <span className="ti-bag"/>
-                                                        <p className="hover-text">add to bag</p>
-                                                    </a>
-                                                    <a href="" className="social-info">
-                                                        <span className="lnr lnr-heart"/>
-                                                        <p className="hover-text">Wishlist</p>
-                                                    </a>
-                                                    <a href="" className="social-info">
-                                                        <span className="lnr lnr-sync"/>
-                                                        <p className="hover-text">compare</p>
-                                                    </a>
-                                                    <a href="" className="social-info">
-                                                        <span className="lnr lnr-move"/>
-                                                        <p className="hover-text">view more</p>
-                                                    </a>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div className="col-lg-3 col-md-6">
-                                        <div className="single-product">
-                                            <img className="img-fluid" src={imgProduct5} alt=""/>
-                                            <div className="product-details">
-                                                <h6>addidas New Hammer sole
-                                                    for Sports person</h6>
-                                                <div className="price">
-                                                    <h6>$150.00</h6>
-                                                    <h6 className="l-through">$210.00</h6>
-                                                </div>
-                                                <div className="prd-bottom">
-
-                                                    <a href="" className="social-info">
-                                                        <span className="ti-bag"/>
-                                                        <p className="hover-text">add to bag</p>
-                                                    </a>
-                                                    <a href="" className="social-info">
-                                                        <span className="lnr lnr-heart"/>
-                                                        <p className="hover-text">Wishlist</p>
-                                                    </a>
-                                                    <a href="" className="social-info">
-                                                        <span className="lnr lnr-sync"/>
-                                                        <p className="hover-text">compare</p>
-                                                    </a>
-                                                    <a href="" className="social-info">
-                                                        <span className="lnr lnr-move"/>
-                                                        <p className="hover-text">view more</p>
-                                                    </a>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div className="col-lg-3 col-md-6">
-                                        <div className="single-product">
-                                            <img className="img-fluid" src={imgProduct1} alt=""/>
-                                            <div className="product-details">
-                                                <h6>addidas New Hammer sole
-                                                    for Sports person</h6>
-                                                <div className="price">
-                                                    <h6>$150.00</h6>
-                                                    <h6 className="l-through">$210.00</h6>
-                                                </div>
-                                                <div className="prd-bottom">
-
-                                                    <a href="" className="social-info">
-                                                        <span className="ti-bag"/>
-                                                        <p className="hover-text">add to bag</p>
-                                                    </a>
-                                                    <a href="" className="social-info">
-                                                        <span className="lnr lnr-heart"/>
-                                                        <p className="hover-text">Wishlist</p>
-                                                    </a>
-                                                    <a href="" className="social-info">
-                                                        <span className="lnr lnr-sync"/>
-                                                        <p className="hover-text">compare</p>
-                                                    </a>
-                                                    <a href="" className="social-info">
-                                                        <span className="lnr lnr-move"/>
-                                                        <p className="hover-text">view more</p>
-                                                    </a>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div className="col-lg-3 col-md-6">
-                                        <div className="single-product">
-                                            <img className="img-fluid" src={imgProduct4} alt=""/>
-                                            <div className="product-details">
-                                                <h6>addidas New Hammer sole
-                                                    for Sports person</h6>
-                                                <div className="price">
-                                                    <h6>$150.00</h6>
-                                                    <h6 className="l-through">$210.00</h6>
-                                                </div>
-                                                <div className="prd-bottom">
-
-                                                    <a href="" className="social-info">
-                                                        <span className="ti-bag"/>
-                                                        <p className="hover-text">add to bag</p>
-                                                    </a>
-                                                    <a href="" className="social-info">
-                                                        <span className="lnr lnr-heart"/>
-                                                        <p className="hover-text">Wishlist</p>
-                                                    </a>
-                                                    <a href="" className="social-info">
-                                                        <span className="lnr lnr-sync"/>
-                                                        <p className="hover-text">compare</p>
-                                                    </a>
-                                                    <a href="" className="social-info">
-                                                        <span className="lnr lnr-move"/>
-                                                        <p className="hover-text">view more</p>
-                                                    </a>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div className="col-lg-3 col-md-6">
-                                        <div className="single-product">
-                                            <img className="img-fluid" src={imgProduct1} alt=""/>
-                                            <div className="product-details">
-                                                <h6>addidas New Hammer sole
-                                                    for Sports person</h6>
-                                                <div className="price">
-                                                    <h6>$150.00</h6>
-                                                    <h6 className="l-through">$210.00</h6>
-                                                </div>
-                                                <div className="prd-bottom">
-
-                                                    <a href="" className="social-info">
-                                                        <span className="ti-bag"/>
-                                                        <p className="hover-text">add to bag</p>
-                                                    </a>
-                                                    <a href="" className="social-info">
-                                                        <span className="lnr lnr-heart"/>
-                                                        <p className="hover-text">Wishlist</p>
-                                                    </a>
-                                                    <a href="" className="social-info">
-                                                        <span className="lnr lnr-sync"/>
-                                                        <p className="hover-text">compare</p>
-                                                    </a>
-                                                    <a href="" className="social-info">
-                                                        <span className="lnr lnr-move"/>
-                                                        <p className="hover-text">view more</p>
-                                                    </a>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div className="col-lg-3 col-md-6">
-                                        <div className="single-product">
-                                            <img className="img-fluid" src={imgProduct8} alt=""/>
-                                            <div className="product-details">
-                                                <h6>addidas New Hammer sole
-                                                    for Sports person</h6>
-                                                <div className="price">
-                                                    <h6>$150.00</h6>
-                                                    <h6 className="l-through">$210.00</h6>
-                                                </div>
-                                                <div className="prd-bottom">
-
-                                                    <a href="" className="social-info">
-                                                        <span className="ti-bag"/>
-                                                        <p className="hover-text">add to bag</p>
-                                                    </a>
-                                                    <a href="" className="social-info">
-                                                        <span className="lnr lnr-heart"/>
-                                                        <p className="hover-text">Wishlist</p>
-                                                    </a>
-                                                    <a href="" className="social-info">
-                                                        <span className="lnr lnr-sync"/>
-                                                        <p className="hover-text">compare</p>
-                                                    </a>
-                                                    <a href="" className="social-info">
-                                                        <span className="lnr lnr-move"/>
-                                                        <p className="hover-text">view more</p>
-                                                    </a>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
+                            <div className="row">
+                                {latestProductsHTML()}
                             </div>
                         </div>
-                    </OwlCarousel>
+                    </div>
                 </section>
 
                 <section className="exclusive-deal-area">
@@ -910,59 +400,33 @@ class Index extends Component {
                                         </div>
                                     </div>
                                 </div>
-                                <a href="" className="primary-btn">Shop Now</a>
+
+                                <Link to={'/shop'} className='primary-btn'>Shop now</Link>
+
                             </div>
                             <div className="col-lg-6 no-padding exclusive-right">
-                                <OwlCarousel className="active-exclusive-product-slider"
-                                             items={1}
-                                             autoPlay={false}
-                                             autoplayTimeout={5000}
-                                             loop={true}
-                                             nav={true}
-                                             dots={false}
-                                             navText={[
-                                                 "<img src='assets/img/product/prev.png'>",
-                                                 "<img src='assets/img/product/next.png'>"
-                                             ]}
-                                             navClass={[
-                                                 "owl-prev button-without-background",
-                                                 "owl-next button-without-background"
-                                             ]}
-                                >
-                                    <div className="single-exclusive-slider">
-                                        <img className="img-fluid" src={imgProductE1} alt=""/>
-                                        <div className="product-details">
-                                            <div className="price">
-                                                <h6>$150.00</h6>
-                                                <h6 className="l-through">$210.00</h6>
-                                            </div>
-                                            <h4>addidas New Hammer sole
-                                                for Sports person</h4>
-                                            <div
-                                                className="add-bag d-flex align-items-center justify-content-center">
-                                                <a className="add-btn" href=""><span className="ti-bag"/></a>
-                                                <span className="add-text text-uppercase">Add to Bag</span>
-                                            </div>
-                                        </div>
-                                    </div>
+                                {
+                                    latestProducts.length &&
 
-                                    <div className="single-exclusive-slider">
-                                        <img className="img-fluid" src={imgProductE1} alt=""/>
-                                        <div className="product-details">
-                                            <div className="price">
-                                                <h6>$150.00</h6>
-                                                <h6 className="l-through">$210.00</h6>
-                                            </div>
-                                            <h4>addidas New Hammer sole
-                                                for Sports person</h4>
-                                            <div
-                                                className="add-bag d-flex align-items-center justify-content-center">
-                                                <a className="add-btn" href=""><span className="ti-bag"/></a>
-                                                <span className="add-text text-uppercase">Add to Bag</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </OwlCarousel>
+                                    <OwlCarousel className="active-exclusive-product-slider"
+                                                 items={1}
+                                                 autoPlay={false}
+                                                 autoplayTimeout={5000}
+                                                 loop={true}
+                                                 nav={true}
+                                                 dots={false}
+                                                 navText={[
+                                                     "<img src='assets/img/product/prev.png'>",
+                                                     "<img src='assets/img/product/next.png'>"
+                                                 ]}
+                                                 navClass={[
+                                                     "owl-prev button-without-background",
+                                                     "owl-next button-without-background"
+                                                 ]}
+                                    >
+                                        {exclusiveProductsFromLatestProducts()}
+                                    </OwlCarousel>
+                                }
                             </div>
                         </div>
                     </div>
@@ -989,8 +453,6 @@ class Index extends Component {
                         </div>
                     </div>
                 </section>
-
-                <DealsRelatedProducts />
             </BaseTemplate>
         );
     }

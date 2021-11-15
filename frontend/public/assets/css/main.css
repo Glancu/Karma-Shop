@@ -1,3 +1,4 @@
+@charset "UTF-8";
 /*--------------------------- Color variations ----------------------*/
 /*--------------------------- Fonts ----------------------*/
 @import url("https://fonts.googleapis.com/css?family=Poppins:500,700|Roboto:400,500");
@@ -54,7 +55,7 @@
 
 /* Start Gradient Area css
 ============================================================================================ */
-.gradient-bg, .primary-btn, .add-bag .add-btn, .single-product .product-details .prd-bottom .social-info span:after, .grid-btn:hover, .list-btn:hover, .grid-btn.active, .list-btn.active, .pagination a.active, .pagination a:hover, .s_Product_carousel .owl-dots div.active, .s_product_text .card_area .icon_btn:after, .product_description_area .nav.nav-tabs li a.active, .blog-pagination .page-item.active .page-link, .single-footer-widget .click-btn {
+.gradient-bg, .primary-btn, .add-bag .add-btn, .single-product .product-details .prd-bottom .social-info span:after, .grid-btn:hover, .list-btn:hover, .grid-btn.active, .list-btn.active, .pagination a.active, .pagination a:hover, .s_Product_carousel .owl-dots button.active, .s_product_text .card_area .icon_btn:after, .product_description_area .nav.nav-tabs li a.active, .blog-pagination .page-item.active .page-link, .single-footer-widget .click-btn {
   background: -webkit-linear-gradient(90deg, #ffba00 0%, #ff6c00 100%);
   background: -moz-linear-gradient(90deg, #ffba00 0%, #ff6c00 100%);
   background: -o-linear-gradient(90deg, #ffba00 0%, #ff6c00 100%);
@@ -1004,6 +1005,39 @@ h1, h2, h3, h4, h5, h6 {
   background: none;
   border: none; }
 
+.loader {
+  height: 100px;
+  width: 100%; }
+
+.message {
+  margin-top: 20px;
+  font-size: 24px;
+  text-align: center; }
+  .message.error {
+    color: red; }
+
+.margin-bottom-40 {
+  margin-bottom: 40px; }
+
+.text-center {
+  text-align: center; }
+
+.hide {
+  display: none; }
+
+.error-input {
+  border: 1px solid red !important; }
+
+.success-message {
+  color: green; }
+
+.error-message {
+  color: red; }
+
+.margin-p-normalize {
+  margin-top: 1rem !important;
+  margin-bottom: 1rem !important; }
+
 .is-sticky .header_area .main_menu .main_box {
   max-width: 100%;
   margin-top: 0;
@@ -1151,6 +1185,9 @@ h1, h2, h3, h4, h5, h6 {
           margin-top: 0px; }
       .header_area .navbar .nav .nav-item:last-child {
         margin-right: 0px; }
+    .header_area .navbar .nav.navbar-nav.navbar-right .cart-count-products {
+      color: #ffba00;
+      margin-left: 3px; }
     @media (min-width: 991px) {
       .header_area .navbar .nav.navbar-nav.navbar-right {
         display: -webkit-inline-box; } }
@@ -1174,6 +1211,8 @@ h1, h2, h3, h4, h5, h6 {
       border: 0;
       cursor: pointer;
       padding: 0; }
+    .header_area .navbar .navbar-collapse .menu_nav li a.active {
+      color: #ffba00; }
 
 #search_input_box {
   position: fixed;
@@ -1224,7 +1263,30 @@ h1, h2, h3, h4, h5, h6 {
 @media (max-width: 575px) {
   .navbar-expand-lg > .container,
   .navbar-expand-lg > .container-fluid {
-    padding: 0px 15px; } }
+    padding: 0 15px; } }
+
+.autocomplete-suggestions {
+  border: 1px solid #999;
+  background: #FFF;
+  overflow: auto; }
+
+.autocomplete-suggestion {
+  padding: 2px 5px;
+  white-space: nowrap;
+  overflow: hidden; }
+
+.autocomplete-selected {
+  background: #F0F0F0; }
+
+.autocomplete-suggestions strong {
+  font-weight: normal;
+  color: #ffba00; }
+
+.autocomplete-group {
+  padding: 2px 5px; }
+  .autocomplete-group strong {
+    display: block;
+    border-bottom: 1px solid #000; }
 
 /* banner area css
 ============================================================================================ */
@@ -3041,9 +3103,10 @@ label {
 
 .sorting {
   margin-top: 10px;
-  margin-right: 10px; }
+  margin-right: 10px;
+  text-align: center; }
   .sorting .nice-select {
-    border-radius: 0px;
+    border-radius: 0;
     border: 1px solid #eee;
     padding-right: 50px; }
     .sorting .nice-select:after {
@@ -3217,6 +3280,8 @@ label {
   .sidebar-categories .main-nav-list a .lnr {
     margin-right: 10px;
     display: none; }
+  .sidebar-categories .main-nav-list a.active {
+    color: #ffba00; }
 .sidebar-categories .main-nav-list.child a {
   padding-left: 32px; }
 
@@ -3785,15 +3850,16 @@ label {
   right: 20px;
   top: 50%;
   transform: translateY(-50%); }
-  .s_Product_carousel .owl-dots div {
+  .s_Product_carousel .owl-dots button {
     height: 5px;
     width: 20px;
     background: #dddddd;
     margin: 5px;
     display: block;
     content: "";
+    border: 0;
     border-radius: 50px; }
-    .s_Product_carousel .owl-dots div.active {
+    .s_Product_carousel .owl-dots button.active {
       width: 30px; }
 
 .s_product_text {
@@ -4087,6 +4153,8 @@ label {
   padding-bottom: 30px;
   vertical-align: middle;
   align-self: center; }
+  .cart_inner .table tbody tr td:last-child {
+    width: 100px; }
   .cart_inner .table tbody tr td .media .d-flex {
     padding-right: 30px; }
     .cart_inner .table tbody tr td .media .d-flex img {
@@ -4277,7 +4345,8 @@ label {
   display: inline-block;
   color: #222222;
   text-transform: uppercase;
-  font-weight: 500; }
+  font-weight: 500;
+  white-space: nowrap; }
 
 /* End Cart Area css
 ============================================================================================ */
@@ -4461,24 +4530,22 @@ label {
     font-weight: 500;
     color: #222222;
     padding-bottom: 15px; }
-  .order_box .list li a {
+  .order_box .list li {
     font-size: 14px;
     color: #777777;
     font-weight: normal;
     border-bottom: 1px solid #eeeeee;
     display: block;
     line-height: 42px; }
-    .order_box .list li a span {
+    .order_box .list li span {
       float: right; }
-    .order_box .list li a .middle {
+    .order_box .list li .middle {
       float: none;
       width: 50px;
       text-align: right;
       display: inline-block;
       margin-left: 30px;
       color: #222222; }
-  .order_box .list li:nth-child(4) a .middle {
-    margin-left: 48px; }
   .order_box .list_2 li a {
     text-transform: uppercase;
     color: #222222;
@@ -4815,6 +4882,51 @@ label {
 
 .radion_btn input[type=radio]:checked ~ label {
   color: #000; }
+
+.product-title {
+  color: #222222; }
+
+.search-list {
+  position: relative;
+  background: white;
+  padding: 15px 5px 0 5px;
+  text-align: left; }
+  .search-list .single-item {
+    margin-bottom: 10px; }
+    .search-list .single-item .text {
+      display: inline-block;
+      vertical-align: top;
+      margin-left: 5px; }
+      .search-list .single-item .text a {
+        color: #777777; }
+        .search-list .single-item .text a:hover {
+          color: #007bff; }
+
+.rate {
+  display: inline-block;
+  vertical-align: bottom; }
+  .rate:not(:checked) > input {
+    display: none; }
+  .rate:not(:checked) > label {
+    float: right;
+    width: 1em;
+    overflow: hidden;
+    white-space: nowrap;
+    cursor: pointer;
+    font-size: 18px;
+    color: #ccc; }
+  .rate:not(:checked) > label:before {
+    content: '★ '; }
+  .rate > input:checked ~ label {
+    color: #ffc700; }
+  .rate:not(:checked) > label:hover, .rate:not(:checked) > label:hover ~ label {
+    color: #deb217; }
+  .rate > input:checked + label:hover,
+  .rate > input:checked + label:hover ~ label,
+  .rate > input:checked ~ label:hover,
+  .rate > input:checked ~ label:hover ~ label,
+  .rate > label:hover ~ input:checked ~ label {
+    color: #c59b08; }
 
 /* Latest Blog Area css
 ============================================================================================ */
@@ -5698,5 +5810,27 @@ label {
   .footer-text a,
   .footer-text i {
     color: #ffba00; }
+
+.header {
+  position: relative;
+  display: block; }
+  .header ul {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    list-style: none;
+    padding: 0;
+    white-space: nowrap; }
+    .header ul a:nth-child(2n+0) {
+      margin: 0 10px; }
+    .header ul li {
+      padding: 10px 45px;
+      border: 1px solid grey;
+      transition: .2s all;
+      color: #777777;
+      text-transform: uppercase; }
+      .header ul li:hover {
+        border-color: #ffba00;
+        color: #ffba00; }
 
 /*# sourceMappingURL=main.css.map */

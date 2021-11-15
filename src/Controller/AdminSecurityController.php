@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace App\Controller;
 
@@ -33,7 +34,7 @@ class AdminSecurityController extends AbstractController
         // last username entered by the user
         $lastUsername = $authenticationUtils->getLastUsername();
 
-        return $this->render('AdminSecurity/login.html.twig', [
+        return $this->render('admin_security/login.html.twig', [
             'last_username' => $lastUsername,
             'error' => $error
         ]);

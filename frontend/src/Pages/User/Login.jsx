@@ -3,8 +3,12 @@ import BaseTemplate from '../../Components/BaseTemplate';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import ValidateEmail from '../../Components/ValidateEmail';
+import CONFIG from '../../config';
 
 import imgLogin from '../../../public/assets/img/login.jpg';
+
+const userStorageLoginToken = CONFIG.user.storage_login_token;
+const userStorageLoginRefreshToken = CONFIG.user.storage_login_refresh_token;
 
 class Login extends Component {
     constructor(props) {
@@ -12,6 +16,7 @@ class Login extends Component {
         this.state = {
             email: '',
             password: '',
+            keepLoggedIn: false,
             errors: {
                 email: '',
                 password: ''
@@ -22,6 +27,7 @@ class Login extends Component {
         };
 
         this.handleChange = this.handleChange.bind(this);
+        this.toggleLoggedIn = this.toggleLoggedIn.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
     }
 
@@ -34,16 +40,15 @@ class Login extends Component {
             });
         }
 
-        const token = localStorage.getItem(process.env.LOGIN_TOKEN_STORAGE_PREFIX);
-
-        const formData = new FormData();
-        formData.append('token', token);
-
+        let token = localStorage.getItem(userStorageLoginToken);
+        if(!token) {
+            token = sessionStorage.getItem(userStorageLoginToken);
+        }
         if(token) {
-            axios.post("/api/user/validate_token", formData, {
-                headers: { 'Content-Type': 'multipart/form-data' }
+            axios.post("/api/user/validate-token", {'token': token}, {
+                headers: { 'Content-Type': 'application/json' }
             }).then(result => {
-                if(result.data.success) {
+                if(result.data.error === false) {
                     return this.props.history.push('/');
                 }
             }).catch(e => {
@@ -63,12 +68,27 @@ class Login extends Component {
         }
     }
 
-    handleSubmit(event) {
-        event.preventDefault();
+    toggleLoggedIn(e) {
+        this.setState({keepLoggedIn: e.target.checked});
+    }
+
+    addUserTokenToStorage(token, refreshToken = null) {
+        const {keepLoggedIn} = this.state;
+
+        if(keepLoggedIn) {
+            localStorage.setItem(userStorageLoginToken, token);
+            localStorage.setItem(userStorageLoginRefreshToken, refreshToken);
+        } else {
+            sessionStorage.setItem(userStorageLoginToken, token);
+            sessionStorage.setItem(userStorageLoginRefreshToken, refreshToken);
+        }
+    }
+
+    handleSubmit(e) {
+        e.preventDefault();
         const { email, password } = this.state;
         let errors = this.state.errors;
 
-        // Clear error message while send form
         this.setState({errorMessage: ''});
 
         errors.email = ValidateEmail(email) ?
@@ -84,21 +104,20 @@ class Login extends Component {
         if(errors.email.length === 0 && errors.password.length === 0) {
             const errorMessageStr = 'Bad email or password. Try again.';
 
-            // getting token to login with email and password
-            axios.post("/api/login_check", {
+            axios.post("/api/user/generate-token", {
                 email,
                 password
             }).then(result => {
                 const token = result.data ? result.data.token : null;
                 if (result.status === 200 && token) {
-                    localStorage.setItem(process.env.LOGIN_TOKEN_STORAGE_PREFIX, token);
+                    this.addUserTokenToStorage(token, result.data.refresh_token);
 
                     const locationReferrer = this.state.locationReferrer;
-                    if(locationReferrer) {
-                        return this.props.history.push(locationReferrer)
-                    }
 
-                    return this.props.history.push('/');
+                    return locationReferrer ?
+                        this.props.history.push(locationReferrer) :
+                        this.props.history.push('/');
+
                 } else {
                     this.setState({errorMessage: errorMessageStr, noticeMessage: ''});
                 }
@@ -144,14 +163,12 @@ class Login extends Component {
                             <div className="col-lg-6">
                                 <div className="login_form_inner">
                                     <h3>Log in to enter</h3>
-                                    { errorMessage ?
-                                        <span className="form-error-message">{errorMessage}</span> :
-                                        null
+                                    { errorMessage &&
+                                        <span className="form-error-message">{errorMessage}</span>
                                     }
 
-                                    { noticeMessage ?
-                                        <span className="form-notice-message">{noticeMessage}</span> :
-                                        null
+                                    { noticeMessage &&
+                                        <span className="form-notice-message">{noticeMessage}</span>
                                     }
 
                                     <form className="row login_form"
@@ -159,7 +176,7 @@ class Login extends Component {
                                           onSubmit={this.handleSubmit}
                                     >
                                         <div className="col-md-12 form-group">
-                                            {errors.email > 0 &&
+                                            {errors.email &&
                                                 <span className='error-message-input'>{errors.email}</span>}
                                             <input type="text"
                                                    className="form-control"
@@ -171,7 +188,7 @@ class Login extends Component {
                                             />
                                         </div>
                                         <div className="col-md-12 form-group">
-                                            {errors.password > 0 &&
+                                            {errors.password &&
                                                 <span className='error-message-input'>{errors.password}</span>}
                                             <input type="password"
                                                    className="form-control"
@@ -179,12 +196,17 @@ class Login extends Component {
                                                    name="password"
                                                    placeholder="Password"
                                                    value={this.state.value}
+                                                   defaultValue='current-password'
                                                    onChange={this.handleChange}
                                             />
                                         </div>
                                         <div className="col-md-12 form-group">
                                             <div className="creat_account">
-                                                <input type="checkbox" id="f-option2" name="selector" />
+                                                <input type="checkbox"
+                                                       id="f-option2"
+                                                       name="selector"
+                                                       onClick={this.toggleLoggedIn}
+                                                />
                                                 <label htmlFor="f-option2">Keep me logged in</label>
                                             </div>
                                         </div>
@@ -192,7 +214,6 @@ class Login extends Component {
                                             <button type="submit" value="submit" className="primary-btn">
                                                 Log In
                                             </button>
-                                            <a href="#">Forgot Password?</a>
                                         </div>
                                     </form>
                                 </div>

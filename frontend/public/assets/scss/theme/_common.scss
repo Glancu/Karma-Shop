@@ -1042,8 +1042,10 @@
 .sorting {
 	margin-top: 10px;
 	margin-right: 10px;
+	text-align: center;
+
 	.nice-select {
-		border-radius: 0px;
+		border-radius: 0;
 		border: 1px solid #eee;
 		padding-right: 50px;
 		&:after {
@@ -1267,6 +1269,9 @@
 			.lnr {
 				margin-right: 10px;
 				display: none;
+			}
+			&.active {
+				color: #ffba00;
 			}
 		}
 		&.child {

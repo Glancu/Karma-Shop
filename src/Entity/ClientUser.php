@@ -3,10 +3,14 @@
 namespace App\Entity;
 
 use App\Repository\ClientUserRepository;
-use App\Traits\CreatedAtTrait;
-use App\Traits\UuidTrait;
+use App\Entity\Traits\CreatedAtTrait;
+use App\Entity\Traits\UuidTrait;
+use DateTime;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\ORM\PersistentCollection;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -15,89 +19,67 @@ use Symfony\Component\Validator\Constraints as Assert;
 class ClientUser implements UserInterface
 {
     use CreatedAtTrait, UuidTrait {
-        CreatedAtTrait::__construct as private __CreatedAtTraitConstructor;
         UuidTrait::__construct as private __UuidTraitConstructor;
     }
 
     /**
+     * @var int|null
+     *
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
      */
-    private int $id;
+    private ?int $id = 0;
 
     /**
-     * @Assert\NotBlank()
+     * @var string
      *
-     * @ORM\Column(type="string", length=255)
-     */
-    private string $firstName;
-
-    /**
-     * @Assert\NotBlank()
-     *
-     * @ORM\Column(type="string", length=255)
-     */
-    private string $lastName;
-
-    /**
      * @Assert\NotBlank()
      * @Assert\Email(
      *     message = "The email '{{ value }}' is not a valid email."
      * )
      *
+     * @Groups({"email"})
+     *
      * @ORM\Column(type="string", length=255)
      */
-    private string $email;
+    private string $email = '';
 
     /**
+     * @var string
+     *
      * @Assert\NotBlank(
      *     message = "The password cannot be empty."
      * )
      *
      * @ORM\Column(type="string", length=255)
      */
-    public string $password;
+    public string $password = '';
 
     /**
-     * @Assert\NotBlank()
+     * @var ArrayCollection|PersistentCollection
      *
-     * @ORM\Column(type="string", length=255)
+     * @ORM\OneToMany(targetEntity="App\Entity\Order", mappedBy="user")
      */
-    private string $phoneNumber;
+    private $orders;
 
     /**
-     * @Assert\NotBlank()
+     * @var DateTime
      *
-     * @ORM\Column(type="string", length=10)
+     * @ORM\Column(name="password_changed_at", type="datetime", nullable=true)
      */
-    private string $postalCode;
+    private ?DateTime $passwordChangedAt;
 
-    /**
-     * @Assert\NotBlank()
-     *
-     * @ORM\Column(type="string", length=100)
-     */
-    private string $city;
-
-    /**
-     * @Assert\NotBlank()
-     *
-     * @ORM\Column(type="string", length=100)
-     */
-    private string $country;
-
-    /**
-     * @Assert\NotBlank()
-     *
-     * @ORM\Column(type="string", length=255)
-     */
-    private string $street;
-
-    public function __construct()
-    {
-        $this->__CreatedAtTraitConstructor();
+    public function __construct(string $email, string $encodedPassword) {
         $this->__UuidTraitConstructor();
+        $this->email = $email;
+        $this->password = $encodedPassword;
+        $this->orders = new ArrayCollection();
+    }
+
+    public function __toString(): string
+    {
+        return $this->email;
     }
 
     public function getId(): ?int
@@ -105,113 +87,75 @@ class ClientUser implements UserInterface
         return $this->id;
     }
 
-    public function getFirstName(): ?string
-    {
-        return $this->firstName;
-    }
-
-    public function setFirstName(string $firstName): self
-    {
-        $this->firstName = $firstName;
-
-        return $this;
-    }
-
-    public function getLastName(): ?string
-    {
-        return $this->lastName;
-    }
-
-    public function setLastName(string $lastName): self
-    {
-        $this->lastName = $lastName;
-
-        return $this;
-    }
-
+    /**
+     * @return null|string
+     */
     public function getEmail(): ?string
     {
         return $this->email;
     }
 
-    public function setEmail(string $email): self
+    /**
+     * @param string $email
+     */
+    public function setEmail(string $email): void
     {
         $this->email = $email;
-
-        return $this;
     }
 
+    /**
+     * @return null|string
+     */
     public function getPassword(): ?string
     {
         return $this->password;
     }
 
-    public function setPassword(string $password): self
+    /**
+     * @param string $password
+     */
+    public function setPassword(string $password): void
     {
         $this->password = $password;
-
-        return $this;
     }
 
-    public function getPhoneNumber(): ?string
+    /**
+     * @param Order $order
+     */
+    public function addOrder(Order $order): void
     {
-        return $this->phoneNumber;
+        $this->orders[] = $order;
     }
 
-    public function setPhoneNumber(string $phoneNumber): self
+    /**
+     * @param Order $order
+     */
+    public function removeOrder(Order $order): void
     {
-        $this->phoneNumber = $phoneNumber;
-
-        return $this;
+        $this->orders->removeElement($order);
     }
 
-    public function getPostalCode(): ?string
+    /**
+     * @param null|ArrayCollection $orders
+     */
+    public function setOrders(?ArrayCollection $orders): void
     {
-        return $this->postalCode;
+        $this->orders = $orders;
     }
 
-    public function setPostalCode(string $postalCode): self
+    public function getPasswordChangedAt(): ?DateTime
     {
-        $this->postalCode = $postalCode;
-
-        return $this;
+        return $this->passwordChangedAt;
     }
 
-    public function getCity(): ?string
+    public function setPasswordChangedAt(?DateTime $passwordChangedAt): void
     {
-        return $this->city;
+        $this->passwordChangedAt = $passwordChangedAt;
     }
 
-    public function setCity(string $city): self
-    {
-        $this->city = $city;
-
-        return $this;
-    }
-
-    public function getCountry(): ?string
-    {
-        return $this->country;
-    }
-
-    public function setCountry(string $country): self
-    {
-        $this->country = $country;
-
-        return $this;
-    }
-
-    public function getStreet(): ?string
-    {
-        return $this->street;
-    }
-
-    public function setStreet(string $street): self
-    {
-        $this->street = $street;
-
-        return $this;
-    }
+    /**
+     * CUSTOM
+     */
 
     public function getRoles(): array
     {

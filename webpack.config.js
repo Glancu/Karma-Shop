@@ -1,4 +1,5 @@
 var Encore = require('@symfony/webpack-encore');
+var dotenv = require('dotenv');
 
 // Manually configure the runtime environment if not already configured yet by the "encore" command.
 // It's useful when you use tools that rely on webpack.config.js file.
@@ -52,6 +53,22 @@ Encore
     .configureBabelPresetEnv(() => {}, {
         useBuiltIns: 'usage',
         corejs: 3
+    })
+
+    .configureBabel((config)=>{
+        config.plugins.push('@babel/plugin-proposal-class-properties');
+        config.plugins.push('@babel/plugin-transform-runtime');
+    })
+
+    // define the environment variables
+    .configureDefinePlugin(options => {
+        const env = dotenv.config();
+
+        if (env.error) {
+            throw env.error;
+        }
+
+        options['process.env'].CURRENCY_SYMBOL = JSON.stringify(env.parsed.CURRENCY_SYMBOL);
     })
 
     // enables Sass/SCSS support

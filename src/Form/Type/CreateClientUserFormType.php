@@ -16,16 +16,9 @@ class CreateClientUserFormType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
-        $builder->add('firstName', TextType::class)
-                ->add('lastName', EmailType::class)
+        $builder
                 ->add('email', EmailType::class)
-                ->add('password', PasswordType::class)
-                ->add('phoneNumber', TextType::class)
-                ->add('postalCode', TextType::class)
-                ->add('city', TextType::class)
-                ->add('country', TextType::class)
-                ->add('street', TextType::class)
-                ->add('save', SubmitType::class);
+                ->add('password', PasswordType::class);
     }
 
     public function configureOptions(OptionsResolver $resolver): void
