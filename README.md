@@ -15,10 +15,10 @@ To clone and run this application, you'll need [Git](https://git-scm.com) and [y
 
 ```bash
 # Clone this repository
-$ git clone https://github.com/Glancu/Karma-Shop
+$ git clone https://github.com/Glancu/Karma-Shop karma-shop
 
 # Go into the repository
-$ cd Karma-Shop
+$ cd karma-shop
 
 # .env from .env.dist
 Create .env file from .env.dist and update DATABASE_URL variable
@@ -64,6 +64,7 @@ $ yarn watch
 $ php bin/console app:create-admin-account
 
 # Update .css from .scss files (in frontend folder)
+$ cd frontend
 $ sass public/assets/scss/main.scss public/assets/css/main.css
 ```
 
