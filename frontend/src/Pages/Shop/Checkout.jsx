@@ -8,6 +8,7 @@ import { userLoggedIn, userEmail } from '../../Components/User/UserData';
 import axios from 'axios';
 import ValidateEmail from '../../Components/ValidateEmail';
 import CONFIG from '../../config';
+import $ from 'jquery';
 
 import imgProductCard from '../../../public/assets/img/product/card.jpg';
 

@@ -181,7 +181,7 @@ class ProductDetail extends Component {
             'subject': productReviewForm.subject,
             'message': productReviewForm.message,
             'rating': parseInt(ratingValue),
-            'dataProcessingAgreement': dataProcessingAgreement,
+            'dataProcessingAgreement': productReviewForm.dataProcessingAgreement,
             'productUuid': this.state.product.uuid
         })
             .then(result => {
@@ -265,7 +265,7 @@ class ProductDetail extends Component {
             'name': commentForm.name,
             'email': commentForm.email,
             'message': commentForm.message,
-            'dataProcessingAgreement': dataProcessingAgreement,
+            'dataProcessingAgreement': commentForm.dataProcessingAgreement,
             'productUuid': this.state.product.uuid
         })
             .then(result => {

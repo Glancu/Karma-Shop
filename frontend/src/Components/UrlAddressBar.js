@@ -1,3 +1,5 @@
+import { useHistory } from 'react-router-dom';
+
 class UrlAddressBar {
     static updateOrRemovePageFromStringURL(url, subpage, newValue) {
         const urlObj = new URL(url);
@@ -71,10 +73,14 @@ class UrlAddressBar {
     }
 
     static pushAddressUrl(data, title, url) {
+        let history = useHistory();
+
         history.pushState(data, title, url);
     }
 
     static replaceAddressUrl(data, title, url) {
+        let history = useHistory();
+
         history.replaceState(data, title, url);
     }
 

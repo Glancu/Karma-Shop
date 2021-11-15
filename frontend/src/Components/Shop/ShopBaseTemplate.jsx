@@ -9,6 +9,7 @@ import PropTypes from 'prop-types';
 import GetPage from '../GetPage';
 import Loader from '../Loader';
 import { windowScrollTo } from '../WindowScroll';
+import $ from 'jquery';
 import '../../../public/assets/js/jquery.nice-select.min';
 
 class ShopBaseTemplate extends Component {

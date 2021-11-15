@@ -4,6 +4,7 @@ import CONFIG from '../../config';
 import PropTypes from 'prop-types';
 import UrlAddressBar from '../UrlAddressBar';
 import { windowScrollTo } from '../WindowScroll';
+import $ from 'jquery';
 import '../../../public/assets/js/jquery.nice-select.min';
 
 const sortItems = CONFIG.shop.sortItems;
@@ -142,9 +143,9 @@ class ShopSortingPagination extends Component {
                 const element = select.querySelector(`option[value='${value}']`);
                 if(element) {
                     const currentSelectedOption = select.querySelector('option[selected="selected"]');
-                    currentSelectedOption ?
-                        currentSelectedOption.removeAttribute('selected') :
-                        null;
+                    if(currentSelectedOption) {
+                        currentSelectedOption.removeAttribute('selected');
+                    }
 
                     const items = document.querySelectorAll(`.sorting.${querySelectorClass} div.nice-select`);
                     Array.from(items).map((item) => {
