@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import UrlAddressBar from "./UrlAddressBar";
 import GetPage from './GetPage';
 import CONFIG from '../config';
-import { useHistory } from "react-router-dom";
 
 const PREFIX_PAGE = CONFIG.shop.prefixPage;
 const LEFT_PAGE = 'LEFT';
@@ -63,8 +62,6 @@ class Pagination extends Component {
         }
 
         const pager = countPages ? this.getPager(countPages, page) : null;
-
-        let history = useHistory();
 
         if(pager && page) {
             const currentUrl = window.location.href;

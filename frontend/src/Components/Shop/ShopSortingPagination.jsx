@@ -4,7 +4,6 @@ import CONFIG from '../../config';
 import PropTypes from 'prop-types';
 import UrlAddressBar from '../UrlAddressBar';
 import { windowScrollTo } from '../WindowScroll';
-import $ from 'jquery';
 import '../../../public/assets/js/jquery.nice-select.min';
 
 const sortItems = CONFIG.shop.sortItems;
