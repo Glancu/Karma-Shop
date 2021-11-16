@@ -3,8 +3,6 @@ services:
   mysql:
     image: mysql:8.0
     container_name: karma-shop-mysql-v2
-    volumes:
-      - ./karma-shop.sql:/docker-entrypoint-initdb.d/karma-shop.sql
     command: ['--default-authentication-plugin=mysql_native_password']
     environment:
       - MYSQL_ROOT_PASSWORD=root
