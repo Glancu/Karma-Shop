@@ -28,14 +28,21 @@ $ cp .env.dist .env
 If u have docker, you can use it for this project. Go to docker directory and run
 $ docker-compose up -d
 
+# Install packages for frontend
+$ cd frontend/
+$ yarn install
+
+# Install packages to build view
+$ yarn install
+
+# Build view 
+$ yarn build
+
 # Install symfony dependencies
 $ composer install
 
 # Create database
 $ php bin/console doctrine:database:create
-
-# Build view 
-$ yarn build
 
 # Load fixtures
 $ php bin/console doctrine:fixtures:load
