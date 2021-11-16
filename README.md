@@ -24,10 +24,6 @@ $ cd karma-shop
 Create .env file from .env.dist and update DATABASE_URL variable
 $ cp .env.dist .env
 
-# docker
-If u have docker, you can use it for this project. Go to docker directory and run
-$ docker-compose up -d
-
 # Install packages for frontend
 $ cd frontend/
 $ yarn install
@@ -35,7 +31,7 @@ $ yarn install
 # Install packages to build view
 $ yarn install
 
-# Build view 
+# Build view
 $ yarn build
 
 # Install symfony dependencies
@@ -43,6 +39,9 @@ $ composer install
 
 # Create database
 $ php bin/console doctrine:database:create
+
+# Generate database structure
+$ php bin/console doctrine:schema:update --force
 
 # Load fixtures
 $ php bin/console doctrine:fixtures:load
@@ -65,7 +64,7 @@ $ php bin/console messenger:consume
 # Remove expired jwt tokens
 $ php bin/console gesdinet:jwt:clear
 
-# Edit frontend
+# Edit frontend live
 $ yarn watch
 
 # Create another admin account (for admin panel)
@@ -79,7 +78,11 @@ $ sass public/assets/scss/main.scss public/assets/css/main.css
 ## Links
 
 ### Docker
-If you use docker, you can run [localhost:8600](http://localhost:8600) for website and [localhost:8601](http://localhost:8601) for phpmyadmin (login and password **root**).
+If you want to use docker, you can run [localhost:8600](http://localhost:8600) for website and [localhost:8601](http://localhost:8601) for phpmyadmin (login and password **root**). But you must run this command, to run containers
+```bash
+$ cd docker/
+$ docker-compose up -d
+```
 
 ### API Docs
 If you want check api links, you can go **/api/doc**.
