@@ -328,7 +328,15 @@ class BlogPost
      */
     public function addTag(BlogTag $tag): void
     {
-        if(!$this->tags->contains($tag)) {
+        if(!$this->tags) {
+            $this->tags[] = $tag;
+        }
+
+        if(is_array($this->tags) && !in_array($tag, $this->tags, true)) {
+            $this->tags[] = $tag;
+        }
+
+        if($this->tags instanceof PersistentCollection && !$this->tags->contains($tag)) {
             $this->tags[] = $tag;
         }
     }
