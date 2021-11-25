@@ -97,6 +97,16 @@ security:
         - { path: ^/api/shop/colors/list, roles: IS_AUTHENTICATED_ANONYMOUSLY }
 
         - { path: ^/api/shop/create-order, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+
+        - { path: ^/api/blog/posts/list, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/api/blog/posts/popular, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/api/blog/post/*, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/api/blog/categories/latest, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/api/blog/categories/list, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/api/blog/tags/list, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+
+        - { path: ^/api/search, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+
         - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }
         - { path: /admin/login, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/admin, role: ROLE_ADMIN }

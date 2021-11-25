@@ -79,10 +79,21 @@ class Header extends Component {
         });
 
         $('#autocomplete').autocomplete({
-            serviceUrl: '/api/shop/products/search',
+            serviceUrl: '/api/search/list',
             onSelect: function (suggestion) {
-                if(suggestion && suggestion.url) {
-                    window.location.href = suggestion.url;
+                if(suggestion && suggestion.slug && suggestion.type) {
+                    const type = suggestion.type;
+                    const slug = suggestion.slug;
+
+                    if(type === 'blog_post') {
+                        window.location.href = `/blog/${slug}`;
+                        return;
+                    }
+
+                    if(type === 'shop_product') {
+                        window.location.href = `/shop/product/${slug}`;
+                        return;
+                    }
                 }
             }
         });
@@ -134,23 +145,8 @@ class Header extends Component {
                                     <li className="nav-item">
                                         <NavLink className="nav-link" to={'/shop'}>Shop</NavLink>
                                     </li>
-                                    <li className="nav-item submenu dropdown">
-                                        <NavLink className="nav-link dropdown-toggle"
-                                                 data-toggle="dropdown"
-                                                 role="button"
-                                                 aria-haspopup="true"
-                                                 aria-expanded="false"
-                                                 to={'/blog'}>
-                                            Blog
-                                        </NavLink>
-                                        <ul className="dropdown-menu">
-                                            <li className="nav-item">
-                                                <NavLink className="nav-link" to={'/blog'}>Blog</NavLink>
-                                            </li>
-                                            <li className="nav-item">
-                                                <NavLink className="nav-link" to={'/blog/id'}>Blog Details</NavLink>
-                                            </li>
-                                        </ul>
+                                    <li className="nav-item">
+                                        <NavLink className="nav-link" to={'/blog'}>Blog</NavLink>
                                     </li>
                                     <li className="nav-item">
                                         <NavLink className="nav-link" to={'/contact'}>Contact</NavLink>

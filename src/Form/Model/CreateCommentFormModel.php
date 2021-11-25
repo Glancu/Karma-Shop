@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Form\Model;
 
 use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 class CreateCommentFormModel
 {
@@ -23,12 +24,27 @@ class CreateCommentFormModel
     public string $message;
 
     /**
-     * @Assert\NotNull(message="Product uuid cannot be null")
-     */
-    public string $productUuid;
-
-    /**
      * @Assert\IsTrue(message="Accept terms before create comment")
      */
     public bool $dataProcessingAgreement;
+
+    public ?string $productUuid = '';
+
+    public ?string $blogPostUuid = '';
+
+    /**
+     * @Assert\Callback()
+     *
+     * @param ExecutionContextInterface $context
+     */
+    public function validateData(ExecutionContextInterface $context): void
+    {
+        if(!$this->productUuid && !$this->blogPostUuid) {
+            $context
+                ->buildViolation('Not found object to add comment')
+                ->atPath('productUuid')
+                ->atPath('blogPostUuid')
+                ->addViolation();
+        }
+    }
 }

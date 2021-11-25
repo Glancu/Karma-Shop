@@ -24,7 +24,6 @@ class Pagination extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            subPagePrefix: props.subPagePrefix,
             currentPage: GetPage.getSubPage() || 1,
             pageNeighbours: 1,
             pager: {}
@@ -45,11 +44,6 @@ class Pagination extends Component {
         const countPages = this.props.countPages;
         const currentPage = GetPage.getSubPage(PREFIX_PAGE);
         const page = (countPages < currentPage) || (currentPage < 1) ? 1 : currentPage;
-        const subPagePrefix = this.props.subPagePrefix;
-
-        if(subPagePrefix !== this.state.subPagePrefix) {
-            this.setState({subPagePrefix});
-        }
 
         this.setPage(page);
     }
@@ -198,8 +192,57 @@ class Pagination extends Component {
     render() {
         const {currentPage} = this.state;
         const pages = this.fetchPageNumbers();
-        const classes = 'link-prevent-default';
+        const paginationType = this.props.paginationType ? this.props.paginationType : 'shop';
+
+        const classes = paginationType === 'blog' ? 'page-item' : 'link-prevent-default';
         const activeClasses = `${classes} active`;
+
+        if(paginationType === 'blog') {
+            return (
+                <>
+                    { pages.map((page, index) => {
+                        if (page === LEFT_PAGE) return (
+                            <li className="page-item" key={index}>
+                                <a href={UrlAddressBar.setPageAfterPrefix(PREFIX_PAGE, parseInt(currentPage) - 1)}
+                                   className="page-link" aria-label="Previous"
+                                   onClick={(e) => this.changePaginationClick(parseInt(currentPage) - 1, e)}
+                                >
+                                    <span aria-hidden="true">
+                                        <span className="lnr lnr-chevron-left"/>
+                                    </span>
+                                </a>
+                            </li>
+                        );
+
+                        if (page === RIGHT_PAGE) return (
+                            <li className="page-item" key={index}>
+                                <a href={UrlAddressBar.setPageAfterPrefix(PREFIX_PAGE, parseInt(currentPage) + 1)}
+                                   className="page-link" aria-label="Next"
+                                   onClick={(e) => this.changePaginationClick(parseInt(currentPage) + 1, e)}
+                                >
+                                    <span aria-hidden="true">
+                                        <span className="lnr lnr-chevron-right"/>
+                                    </span>
+                                </a>
+                            </li>
+                        );
+
+                        return (
+                            <li className={parseInt(currentPage) === parseInt(page) ? activeClasses : classes}
+                                key={index}
+                            >
+                                <a href={UrlAddressBar.setPageAfterPrefix(PREFIX_PAGE, page)}
+                                   className="page-link"
+                                   onClick={(e) => this.changePaginationClick(page, e) }
+                                >
+                                    { page }
+                                </a>
+                            </li>
+                        );
+                    }) }
+                </>
+            );
+        }
 
         return (
             <>
@@ -244,8 +287,8 @@ class Pagination extends Component {
 Pagination.propTypes = {
     countPages: PropTypes.number.isRequired,
     itemsPerPage: PropTypes.number.isRequired,
-    subPagePrefix: PropTypes.string.isRequired,
-    setCurrentPage: PropTypes.func.isRequired
+    setCurrentPage: PropTypes.func.isRequired,
+    paginationType: PropTypes.string,
 };
 
 export default Pagination;

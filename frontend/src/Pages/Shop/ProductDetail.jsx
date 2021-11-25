@@ -588,7 +588,7 @@ class ProductDetail extends Component {
                                                                name="name"
                                                                placeholder="Your Full name"
                                                                required={true}
-                                                                  onChange={this.setAddCommentValueToState}/>
+                                                               onChange={this.setAddCommentValueToState}/>
                                                     </div>
                                                 </div>
                                                 <div className="col-md-12">
@@ -599,7 +599,7 @@ class ProductDetail extends Component {
                                                                name="email"
                                                                placeholder="Email Address"
                                                                required={true}
-                                                                  onChange={this.setAddCommentValueToState}/>
+                                                               onChange={this.setAddCommentValueToState}/>
                                                     </div>
                                                 </div>
                                                 <div className="col-md-12">

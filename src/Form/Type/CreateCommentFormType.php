@@ -16,8 +16,9 @@ class CreateCommentFormType extends AbstractType
         $builder->add('name')
                 ->add('email', EmailType::class)
                 ->add('message')
-                ->add('productUuid')
                 ->add('dataProcessingAgreement')
+                ->add('productUuid', null, ['required' => false])
+                ->add('blogPostUuid', null, ['required' => false])
         ;
     }
 

@@ -997,7 +997,7 @@ h1, h2, h3, h4, h5, h6 {
   width: auto;
   margin-right: 10px;
   height: 20px; }
-.col-md-12.form-group label[for=dataProcessingAgreement], .col-md-12.form-group label[for=dataProcessingAgreement_newsletter], .col-md-6.form-group label[for=dataProcessingAgreement], .col-md-6.form-group label[for=dataProcessingAgreement_newsletter] {
+.col-md-12.form-group label[for=dataProcessingAgreement], .col-md-12.form-group label[for=dataProcessingAgreement_newsletter], .col-md-12.form-group label[for=dataProcessingAgreement_sidebar_newsletter], .col-md-6.form-group label[for=dataProcessingAgreement], .col-md-6.form-group label[for=dataProcessingAgreement_newsletter], .col-md-6.form-group label[for=dataProcessingAgreement_sidebar_newsletter] {
   display: inline;
   vertical-align: super; }
 

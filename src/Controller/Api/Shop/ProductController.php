@@ -183,63 +183,6 @@ class ProductController
     }
 
     /**
-     * @Route("/search", name="app_shop_product_search", methods={"GET"})
-     *
-     * @OA\Parameter(
-     *     name="query",
-     *     in="query",
-     *     description="Search by product name",
-     *     required=true,
-     *     example="product"
-     * )
-     *
-     * @OA\Response(
-     *     response=200,
-     *     description="List of products by product name",
-     *     @OA\JsonContent(
-     *        type="string",
-     *        example={{ "name": "product1", "slug": "product1", "quantity": 100, "description": "<p>qwert</p>", "enable": true, "uuid": "e363025f-5c91-11eb-8a84-0242ac1fsdf", "priceNet": 11, "priceGross": 13, "image": { "name": "image.jpg", "url": "https://website.com/image.jpg" } }}
-     *     )
-     * )
-     *
-     * @Security()
-     *
-     * @return JsonResponse
-     */
-    public function getProductsByNameLikeAction(Request $request, RouterInterface $router): JsonResponse
-    {
-        // This API was created for https://github.com/devbridge/jQuery-Autocomplete
-
-        $query = htmlspecialchars($request->get('query'), ENT_QUOTES);
-
-        $products = $this->shopProductRepository->findByNameLike($query);
-
-        $suggestions = [];
-
-        /**
-         * @var ShopProduct $product
-         */
-        foreach($products as $product) {
-            $url = $router->generate(
-                'homepage',
-                [],
-                UrlGeneratorInterface::ABSOLUTE_URL
-            ) . 'shop/product/'.$product->getSlug();
-
-            $suggestions[] = [
-                'value' => $product->getName(),
-                'data' => $product->getName(),
-                'url' => $url
-            ];
-        }
-
-        return new JsonResponse([
-            'query' => $query,
-            'suggestions' => $suggestions
-        ]);
-    }
-
-    /**
      * @Route("/product/{slug}", name="app_shop_product_show", methods={"GET"})
      *
      * @OA\Parameter(

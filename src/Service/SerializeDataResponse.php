@@ -2,12 +2,14 @@
 
 namespace App\Service;
 
+use App\Entity\BlogPost;
 use App\Entity\ClientUser;
 use App\Entity\Contact;
 use App\Entity\Newsletter;
 use App\Entity\ShopBrand;
 use App\Entity\ShopColor;
 use App\Entity\ShopProduct;
+use App\Serializer\BlogSerializer;
 use App\Serializer\ShopSerializer;
 use DateTime;
 use DateTimeInterface;
@@ -22,13 +24,17 @@ use Symfony\Component\Serializer\SerializerInterface;
 class SerializeDataResponse
 {
     private SerializerInterface $serializer;
-
     private ShopSerializer $shopSerializer;
+    private BlogSerializer $blogSerializer;
 
-    public function __construct(SerializerInterface $serializer, ShopSerializer $shopSerializer)
-    {
+    public function __construct(
+        SerializerInterface $serializer,
+        ShopSerializer $shopSerializer,
+        BlogSerializer $blogSerializer
+    ) {
         $this->serializer = $serializer;
         $this->shopSerializer = $shopSerializer;
+        $this->blogSerializer = $blogSerializer;
     }
 
     /**
@@ -208,7 +214,7 @@ class SerializeDataResponse
 
         $countItems = count($categories);
 
-        foreach($categories as $key => $category) {
+        foreach ($categories as $key => $category) {
             $normalizer = new GetSetMethodNormalizer();
             $encoder = new JsonEncoder();
 
@@ -226,16 +232,16 @@ class SerializeDataResponse
                 throw new RuntimeException($e);
             }
 
-            if(!empty($data) && is_array($data)) {
+            if (!empty($data) && is_array($data)) {
                 $items .= $serializer->serialize($data, 'json');
 
-                if($key + 1 !== $countItems) {
+                if ($key + 1 !== $countItems) {
                     $items .= ',';
                 }
             }
         }
 
-        if(substr($items, -1) === ',') {
+        if (substr($items, -1) === ',') {
             $items = substr($items, 0, -1);
         }
 
@@ -251,7 +257,7 @@ class SerializeDataResponse
         /**
          * @var ShopBrand $brand
          */
-        foreach($brands as $key => $brand) {
+        foreach ($brands as $key => $brand) {
             $normalizer = new GetSetMethodNormalizer();
             $encoder = new JsonEncoder();
 
@@ -267,16 +273,16 @@ class SerializeDataResponse
                 throw new RuntimeException($e);
             }
 
-            if(!empty($data) && is_array($data)) {
+            if (!empty($data) && is_array($data)) {
                 $items .= $serializer->serialize($data, 'json');
 
-                if($key + 1 !== $countItems) {
+                if ($key + 1 !== $countItems) {
                     $items .= ',';
                 }
             }
         }
 
-        if(substr($items, -1) === ',') {
+        if (substr($items, -1) === ',') {
             $items = substr($items, 0, -1);
         }
 
@@ -292,7 +298,7 @@ class SerializeDataResponse
         /**
          * @var ShopColor $color
          */
-        foreach($colors as $key => $color) {
+        foreach ($colors as $key => $color) {
             $normalizer = new GetSetMethodNormalizer();
             $encoder = new JsonEncoder();
 
@@ -308,20 +314,107 @@ class SerializeDataResponse
                 throw new RuntimeException($e);
             }
 
-            if(!empty($data) && is_array($data)) {
+            if (!empty($data) && is_array($data)) {
                 $items .= $serializer->serialize($data, 'json');
 
-                if($key + 1 !== $countItems) {
+                if ($key + 1 !== $countItems) {
                     $items .= ',';
                 }
             }
         }
 
-        if(substr($items, -1) === ',') {
+        if (substr($items, -1) === ',') {
             $items = substr($items, 0, -1);
         }
 
         return '[' . $items . ']';
+    }
+
+    public function getBlogPostsData(array $posts, int $countPosts = 0): string
+    {
+        $items = [];
+
+        /**
+         * @var BlogPost $post
+         */
+        foreach ($posts as $post) {
+            $data = $this->blogSerializer->normalizeBlogPostsList($post, 'json', [
+                'groups' => [
+                    'uuid_trait',
+                    'enable_trait',
+                    'blog_post_list',
+                    'blog_category_list',
+                    'blog_tag_list'
+                ],
+                'datetime_format' => 'Y-m-d H:i:s'
+            ]);
+
+            $items[] = $data;
+        }
+
+        $return = [
+            'countItems' => $countPosts,
+            'items' => $items
+        ];
+
+        return $this->serializer->serialize($return, 'json');
+    }
+
+    public function getSingleBlogPostData(BlogPost $post): array
+    {
+        return $this->blogSerializer->normalizeSingleBlogPost($post, 'json', [
+            'groups' => [
+                'uuid_trait',
+                'enable_trait',
+                'price_trait',
+                'blog_post_show',
+                'blog_category_show',
+                'blog_tag_show',
+                'comment'
+            ],
+            'datetime_format' => 'Y-m-d H:i:s'
+        ]);
+    }
+
+    public function getBlogPopularPosts(array $posts): string
+    {
+        $items = [];
+
+        /**
+         * @var BlogPost $post
+         */
+        foreach ($posts as $post) {
+            $data = $this->blogSerializer->normalizeBlogPopularPosts($post, 'json', [
+                'groups' => [
+                    'uuid_trait',
+                    'enable_trait',
+                    'blog_post_list',
+                ],
+                'datetime_format' => 'Y-m-d H:i:s'
+            ]);
+
+            $items[] = $data;
+        }
+
+        return $this->serializer->serialize($items, 'json');
+    }
+
+    public function getCategoriesLatestData(array $categories): string
+    {
+        $items = [];
+
+        foreach ($categories as $category) {
+            $items[] = $this->blogSerializer->normalizeBlogCategoriesLatest($category, 'json', [
+                'groups' => [
+                    'uuid_trait',
+                    'enable_trait',
+                    'blog_category_show'
+                ],
+                'datetime_format' => 'Y-m-d H:i:s'
+            ]);
+        }
+
+        return $this->serializer->serialize($items, 'json');
     }
 
     /**

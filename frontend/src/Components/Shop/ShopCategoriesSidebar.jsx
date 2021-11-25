@@ -32,7 +32,7 @@ class ShopCategoriesSidebar extends Component {
                     {(items && items.length > 0) &&
                         items.map((category) => {
                             let classes = 'nav-link';
-                            if(this.props.categorySlug === category.slug) {
+                            if(this.props.category === category.slug) {
                                 classes += ' active';
                             }
 
@@ -52,7 +52,7 @@ class ShopCategoriesSidebar extends Component {
 }
 
 ShopCategoriesSidebar.propTypes = {
-    categorySlug: PropTypes.string
+    category: PropTypes.string
 }
 
 export default ShopCategoriesSidebar;
