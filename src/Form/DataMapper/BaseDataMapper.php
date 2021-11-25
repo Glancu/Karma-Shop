@@ -4,8 +4,9 @@ namespace App\Form\DataMapper;
 
 use Symfony\Component\Form\FormInterface;
 use Traversable;
+use Symfony\Component\Form\DataMapperInterface;
 
-abstract class BaseDataMapper implements \Symfony\Component\Form\DataMapperInterface
+abstract class BaseDataMapper implements DataMapperInterface
 {
     /**
      * @param object $viewData

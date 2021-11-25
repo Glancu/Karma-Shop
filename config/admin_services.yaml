@@ -23,6 +23,24 @@ services:
     tags:
       - { name: sonata.admin, manager_type: orm, group: Shop, label: Product review }
 
+  admin.blog.post:
+    class: App\Admin\BlogPostAdmin
+    arguments: [~, App\Entity\BlogPost, ~]
+    tags:
+      - { name: sonata.admin, manager_type: orm, group: Blog, label: Post, icon: "<i class=\"fa fa-pencil\"></i>" }
+
+  admin.blog.tag:
+    class: App\Admin\BlogTagAdmin
+    arguments: [ ~, App\Entity\BlogTag, ~ ]
+    tags:
+      - { name: sonata.admin, manager_type: orm, group: Blog, label: Tag }
+
+  admin.blog.category:
+    class: App\Admin\BlogCategoryAdmin
+    arguments: [ ~, App\Entity\BlogCategory, ~ ]
+    tags:
+      - { name: sonata.admin, manager_type: orm, group: Blog, label: Category }
+
   admin.shop.contact:
     class: App\Admin\ContactAdmin
     arguments: [~, App\Entity\Contact, ~]

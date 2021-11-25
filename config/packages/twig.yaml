@@ -2,5 +2,6 @@ twig:
     default_path: '%kernel.project_dir%/templates'
     form_themes:
         - '@FOSCKEditor/Form/ckeditor_widget.html.twig'
+        - 'admin/form/fields.html.twig'
     globals:
         currency_symbol: '%env(CURRENCY_SYMBOL)%'

@@ -2,7 +2,7 @@ import React from 'react';
 import Index from "./Pages/Index";
 import { Route, BrowserRouter as Router, Switch, Redirect } from 'react-router-dom';
 import Contact from "./Pages/Contact";
-import Category from './Pages/Shop/Category';
+import {default as ShopCategory} from './Pages/Shop/Category';
 import NotFound from './Pages/NotFound';
 import ProductsList from './Pages/Shop/ProductsList';
 import ProductDetail from './Pages/Shop/ProductDetail';
@@ -19,6 +19,8 @@ import ShoppingCart from './Components/Shop/ShoppingCart';
 import ChangePassword from './Pages/User/ChangePassword';
 import ClientPanelRoute from './Routers/ClientPanelRoute';
 import Orders from './Pages/User/Orders';
+import {default as BlogCategory} from './Pages/Blog/Category';
+import {default as BlogTag} from './Pages/Blog/Tag';
 
 const App = () => (
     <Router>
@@ -35,10 +37,13 @@ const App = () => (
             <Route path='/shop/cart' component={Cart} />
             <Route path='/shop/confirmation' component={Confirmation} />
             <Route path='/shop/page/:page' component={ProductsList} />
-            <Route path='/shop/category/:slug' component={Category} />
+            <Route path='/shop/category/:slug' component={ShopCategory} />
             <Route exact path='/shop' component={ProductsList} />
 
-            <Route path='/blog/:id' component={Show} />
+            <Route path='/blog/page/:page' component={List} />
+            <Route path='/blog/category/:slug' component={BlogCategory} />
+            <Route path='/blog/tag/:slug' component={BlogTag} />
+            <Route path='/blog/:slug' component={Show} />
             <Route path='/blog' component={List} />
 
             <Route path='/login' component={Login} />
@@ -46,7 +51,6 @@ const App = () => (
             <Route path='/register' component={Register} />
             <ClientPanelAppRoute path='/user/panel' component={ChangePassword} />
             <ClientPanelAppRoute path='/user/orders' component={Orders} />
-
 
             <Route component={NotFound} />
         </Switch>

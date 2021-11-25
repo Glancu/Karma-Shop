@@ -341,7 +341,7 @@ class ShopSidebar extends Component {
 
         return (
             <div className="col-xl-3 col-lg-4 col-md-5">
-                <ShopCategoriesSidebar categorySlug={this.props.categorySlug} />
+                <ShopCategoriesSidebar category={this.props.category} />
                 <div className="sidebar-filter mt-50">
                     <div className="top-filter-head">Product Filters</div>
                     <div className="common-filter">
@@ -398,7 +398,7 @@ class ShopSidebar extends Component {
 
 ShopSidebar.propTypes = {
     updateFilters: PropTypes.func.isRequired,
-    categorySlug: PropTypes.string
+    category: PropTypes.string
 }
 
 export default ShopSidebar;

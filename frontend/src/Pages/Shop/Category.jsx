@@ -19,7 +19,7 @@ class Category extends Component {
         const {slug} = this.state;
 
         return (
-            <ShopBaseTemplate itemsUrl={`/api/shop/products/list?categorySlug=${slug}`} categorySlug={slug} />
+            <ShopBaseTemplate itemsUrl={`/api/shop/products/list?category=${slug}`} category={slug} />
         )
     }
 }
