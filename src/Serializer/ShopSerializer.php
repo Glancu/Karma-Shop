@@ -3,9 +3,6 @@
 namespace App\Serializer;
 
 use App\Entity\ProductReview;
-use App\Entity\ShopBrand;
-use App\Entity\ShopCategory;
-use App\Entity\ShopColor;
 use App\Entity\ShopProduct;
 use App\Entity\SonataMediaMedia;
 use App\Service\MoneyService;
@@ -17,10 +14,10 @@ use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 
 class ShopSerializer
 {
-    private $router;
-    private $normalizer;
-    private $imageProvider;
-    private $request;
+    private UrlGeneratorInterface $router;
+    private ObjectNormalizer $normalizer;
+    private ImageProvider $imageProvider;
+    private RequestStack $request;
     private MoneyService $moneyService;
 
     public function __construct(
@@ -37,6 +34,15 @@ class ShopSerializer
         $this->moneyService = $moneyService;
     }
 
+    /**
+     * @param ShopProduct $topic
+     * @param null $format
+     * @param array $context
+     *
+     * @return array
+     *
+     * @throws ExceptionInterface
+     */
     public function normalizeShopProducts(ShopProduct $topic, $format = null, array $context = []): array
     {
         $moneyService = $this->moneyService;
@@ -116,7 +122,7 @@ class ShopSerializer
     }
 
     /**
-     * @param ShopCategory $topic
+     * @param $topic
      * @param null $format
      * @param array $context
      *
@@ -141,7 +147,7 @@ class ShopSerializer
     }
 
     /**
-     * @param ShopBrand $topic
+     * @param $topic
      * @param null $format
      * @param array $context
      *
@@ -166,7 +172,7 @@ class ShopSerializer
     }
 
     /**
-     * @param ShopColor $topic
+     * @param $topic
      * @param null $format
      * @param array $context
      *
@@ -190,6 +196,15 @@ class ShopSerializer
         return $data;
     }
 
+    /**
+     * @param $topic
+     * @param null $format
+     * @param array $context
+     *
+     * @return array
+     *
+     * @throws ExceptionInterface
+     */
     public function normalizeShopProductSearchList($topic, $format = null, array $context = []): array
     {
         $data = $this->normalizer->normalize($topic, $format, $context);

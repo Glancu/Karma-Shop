@@ -9,14 +9,15 @@ use App\Entity\SonataMediaMedia;
 use Sonata\MediaBundle\Provider\ImageProvider;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Component\Serializer\Exception\ExceptionInterface;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 
 class BlogSerializer
 {
-    private $router;
-    private $normalizer;
-    private $imageProvider;
-    private $request;
+    private UrlGeneratorInterface $router;
+    private ObjectNormalizer $normalizer;
+    private ImageProvider $imageProvider;
+    private RequestStack $request;
 
     public function __construct(
         UrlGeneratorInterface $router,
@@ -30,6 +31,15 @@ class BlogSerializer
         $this->request = $request;
     }
 
+    /**
+     * @param BlogPost $topic
+     * @param null $format
+     * @param array $context
+     *
+     * @return array
+     *
+     * @throws ExceptionInterface
+     */
     public function normalizeBlogPostsList(BlogPost $topic, $format = null, array $context = []): array
     {
         $data = $this->normalizer->normalize($topic, $format, $context);
@@ -46,6 +56,15 @@ class BlogSerializer
         return $data;
     }
 
+    /**
+     * @param BlogPost $topic
+     * @param null $format
+     * @param array $context
+     *
+     * @return array
+     *
+     * @throws ExceptionInterface
+     */
     public function normalizeSingleBlogPost(BlogPost $topic, $format = null, array $context = []): array
     {
         $data = $this->normalizer->normalize($topic, $format, $context);
@@ -83,6 +102,15 @@ class BlogSerializer
         return $data;
     }
 
+    /**
+     * @param BlogPost $topic
+     * @param null $format
+     * @param array $context
+     *
+     * @return array
+     *
+     * @throws ExceptionInterface
+     */
     public function normalizeBlogPopularPosts(BlogPost $topic, $format = null, array $context = []): array
     {
         $data = $this->normalizer->normalize($topic, $format, $context);
@@ -92,13 +120,20 @@ class BlogSerializer
 
         $data['image'] = current($this->getUrlImages([$topic->getImage()]));
 
-        unset($data['shortContent']);
-        unset($data['category']);
-        unset($data['tags']);
+        unset($data['shortContent'], $data['category'], $data['tags']);
 
         return $data;
     }
 
+    /**
+     * @param BlogCategory $topic
+     * @param null $format
+     * @param array $context
+     *
+     * @return array
+     *
+     * @throws ExceptionInterface
+     */
     public function normalizeBlogCategoriesLatest(BlogCategory $topic, $format = null, array $context = []): array
     {
         return $this->normalizer->normalize($topic, $format, $context);
