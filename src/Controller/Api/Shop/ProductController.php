@@ -58,14 +58,14 @@ class ProductController
      *     in="query",
      *     description="Limit of products (default 12)",
      *     required=false,
-     *     @OA\Schema(type="integer", example=10)
+     *     @OA\Schema(type="integer", example=12)
      * )
      * @OA\Parameter(
      *     name="offset",
      *     in="query",
      *     description="Offset of products list (default 0)",
      *     required=false,
-     *     @OA\Schema(type="integer", example=10)
+     *     @OA\Schema(type="integer", example=0)
      * )
      * @OA\Parameter(
      *     name="color",
@@ -169,6 +169,8 @@ class ProductController
         if ($countProducts < 5) {
             $parameters['limit'] = 10;
             $parameters['offset'] = 0;
+        } elseif($countProducts / 2 <= $parameters['limit']) {
+            $parameters['limit'] = $countProducts;
         }
 
         $products = $productRepository->getProductsWithLimitAndOffsetAndCountItems($parameters);
@@ -199,6 +201,14 @@ class ProductController
      *     @OA\JsonContent(
      *        type="string",
      *        example={{ "name": "product1", "slug": "product1", "quantity": 100, "description": "<p>qwert</p>", "shopBrand": { "title": "Apple", "slug": "apple", "enable": true, "uuid": "891e2b3b-3b04-4f29-9574-d051358aab7e" }, "shopCategory": { "title": "Fruits and Vegetables", "slug": "fruits-and-vegetables", "enable": true, "uuid": "6f77f136-1627-4fda-837b-cc5677eba9e2" }, "shopProductSpecifications": { { "value": "20", "uuid": "3abb3164-ffffW331d-11eb-b126-0242ac130004", "name": "Width" }, { "value": "19", "uuid": "3abb34f1111d-331d-11eb-b126-0242ac130004", "name": "Height" } }, "reviews": {}, "shopColors": {}, "comments": {}, "enable": true, "uuid": "e363025f-5c91-11eb-8a84-0242ac1fsdf", "priceNet": "0.11", "priceGross": "0.13", "images": { { "name": "image1.jpg", "url": "https://website.com/image1.jpg" }, { "name": "image2.jpg", "url": "https://website.com/image2.jpg" } } }}
+     *     )
+     * )
+     * @OA\Response(
+     *     response=404,
+     *     description="Not found",
+     *     @OA\JsonContent(
+     *        type="json",
+     *        example={"error": true, "message": "Product was not found."}
      *     )
      * )
      *

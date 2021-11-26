@@ -19,9 +19,9 @@ export default {
             }
         },
         sortPerPage: {
-            1: 1,
-            2: 2,
-            3: 4
+            1: 12,
+            2: 21,
+            3: 48
         },
         filters: {
             brand: null,

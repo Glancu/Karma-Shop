@@ -30,7 +30,11 @@ final class BlogPostAdmin extends AbstractAdmin
             ->add('tags', null, ['label' => 'Tags'])
             ->add('author', HiddenType::class, [
                 'label' => 'Author',
-                'data' => $this->getConfigurationPool()->getContainer()->get('security.token_storage')->getToken()->getUser()
+                'data' => $this->getConfigurationPool()
+                               ->getContainer()
+                               ->get('security.token_storage')
+                               ->getToken()
+                               ->getUser()
             ]);
 
         $entityManager = $this->getConfigurationPool()->getContainer()->get('doctrine.orm.entity_manager');
@@ -43,6 +47,7 @@ final class BlogPostAdmin extends AbstractAdmin
     {
         $listMapper->add('id', null, ['label' => 'ID'])
                    ->add('title', null, ['label' => 'Title'])
+                   ->add('tags', null, ['label' => 'Tags'])
                    ->add('category', null, ['label' => 'Category'])
                    ->add('enable', null, ['label' => 'Enable', 'editable' => true])
                    ->add('_action', null, [
