@@ -28,8 +28,11 @@ class OrderRepository extends ServiceEntityRepository
             ->setParameter('userEmail', $clientId)
             ->orderBy('o.id', 'DESC');
 
-        return $queryBuilder
-            ->getQuery()
+        $query = $queryBuilder->getQuery();
+
+        $query->setCacheable(true);
+
+        return $query
             ->getResult();
     }
 }

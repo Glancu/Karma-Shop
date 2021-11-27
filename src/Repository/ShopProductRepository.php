@@ -64,8 +64,11 @@ class ShopProductRepository extends ServiceEntityRepository
             ->orderBy('sp.id', 'DESC')
             ->setMaxResults(8);
 
-        return $queryBuilder
-            ->getQuery()
+        $query = $queryBuilder->getQuery();
+
+        $query->setCacheable(true);
+
+        return $query
             ->getResult();
     }
 
@@ -135,8 +138,11 @@ class ShopProductRepository extends ServiceEntityRepository
             ->setParameter('name', '%'.$name.'%')
             ->setMaxResults(4);
 
-        return $queryBuilder
-            ->getQuery()
+        $query = $queryBuilder->getQuery();
+
+        $query->setCacheable(true);
+
+        return $query
             ->getResult();
     }
 
@@ -154,8 +160,11 @@ class ShopProductRepository extends ServiceEntityRepository
             ->andWhere('sp.uuid = :uuid')
             ->setParameter('uuid', $uuid);
 
-        return $queryBuilder
-            ->getQuery()
+        $query = $queryBuilder->getQuery();
+
+        $query->setCacheable(true);
+
+        return $query
             ->getOneOrNullResult();
     }
 }

@@ -13,6 +13,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
+ * @ORM\Cache(usage="NONSTRICT_READ_WRITE")
  * @ORM\Table(name="blog_categories")
  * @ORM\Entity(repositoryClass=BlogCategoryRepository::class)
  */
@@ -49,7 +50,7 @@ class BlogCategory
      *
      * @ORM\Column(name="slug", type="string")
      */
-    private string $slug;
+    private string $slug = '';
 
     /**
      * @var ArrayCollection|PersistentCollection

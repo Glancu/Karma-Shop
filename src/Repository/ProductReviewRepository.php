@@ -18,33 +18,4 @@ class ProductReviewRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, ProductReview::class);
     }
-
-    // /**
-    //  * @return ProductReview[] Returns an array of ProductReview objects
-    //  */
-    /*
-    public function findByExampleField($value)
-    {
-        return $this->createQueryBuilder('s')
-            ->andWhere('s.exampleField = :val')
-            ->setParameter('val', $value)
-            ->orderBy('s.id', 'ASC')
-            ->setMaxResults(10)
-            ->getQuery()
-            ->getResult()
-        ;
-    }
-    */
-
-    /*
-    public function findOneBySomeField($value): ?ProductReview
-    {
-        return $this->createQueryBuilder('s')
-            ->andWhere('s.exampleField = :val')
-            ->setParameter('val', $value)
-            ->getQuery()
-            ->getOneOrNullResult()
-        ;
-    }
-    */
 }

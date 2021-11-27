@@ -18,33 +18,4 @@ class ShopBrandRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, ShopBrand::class);
     }
-
-    // /**
-    //  * @return ShopBrand[] Returns an array of ShopBrand objects
-    //  */
-    /*
-    public function findByExampleField($value)
-    {
-        return $this->createQueryBuilder('s')
-            ->andWhere('s.exampleField = :val')
-            ->setParameter('val', $value)
-            ->orderBy('s.id', 'ASC')
-            ->setMaxResults(10)
-            ->getQuery()
-            ->getResult()
-        ;
-    }
-    */
-
-    /*
-    public function findOneBySomeField($value): ?ShopBrand
-    {
-        return $this->createQueryBuilder('s')
-            ->andWhere('s.exampleField = :val')
-            ->setParameter('val', $value)
-            ->getQuery()
-            ->getOneOrNullResult()
-        ;
-    }
-    */
 }

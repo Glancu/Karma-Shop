@@ -59,7 +59,8 @@ class ColorController
 
         $items = $this->shopColorRepository->findBy(
             ['enable' => true],
-            ['id' => 'DESC']);
+            ['id' => 'DESC']
+        );
 
         return JsonResponse::fromJsonString($serializer->getColorsList($items));
     }

@@ -13,6 +13,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
+ * @ORM\Cache(usage="NONSTRICT_READ_WRITE")
  * @ORM\Entity(repositoryClass=ShopBrandRepository::class)
  * @ORM\HasLifecycleCallbacks()
  */

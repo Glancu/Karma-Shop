@@ -8,6 +8,7 @@ use App\Entity\Traits\CreatedAtTrait;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
+ * @ORM\Cache(usage="NONSTRICT_READ_WRITE")
  * @ORM\Table(name="email_templates")
  * @ORM\Entity(repositoryClass=EmailTemplateRepository::class)
  * @ORM\HasLifecycleCallbacks()
