@@ -40,6 +40,7 @@ services:
     restart: always
     links:
       - php
+      - redis
     networks:
       - app-network
 
@@ -51,11 +52,21 @@ services:
     restart: always
     links:
       - mysql
+      - redis
     networks:
       - app-network
     volumes:
       - ./..:/var/www/html
       - './php/php-ini-overrides.ini:/etc/php/7.4/fpm/conf.d/99-overrides.ini'
+
+  redis:
+    container_name: karma-shop-redis-v2
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+    hostname: redis
+    networks:
+      - app-network
 
 networks:
   app-network:

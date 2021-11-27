@@ -15,7 +15,7 @@ trait UuidTrait
      *
      * @ORM\Column(type="string", unique=true)
      */
-    private string $uuid;
+    private string $uuid = '';
 
     public function __construct()
     {

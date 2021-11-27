@@ -7,17 +7,15 @@ use App\Entity\ShopProduct;
 use App\Repository\ShopProductRepository;
 use App\Serializer\ShopSerializer;
 use App\Service\MoneyService;
+use App\Service\RedisCacheService;
 use App\Service\SerializeDataResponse;
-use Doctrine\ORM\NonUniqueResultException;
-use Doctrine\ORM\NoResultException;
 use JsonException;
 use Nelmio\ApiDocBundle\Annotation\Security;
 use OpenApi\Annotations as OA;
+use Psr\Cache\InvalidArgumentException;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
-use Symfony\Component\Routing\RouterInterface;
 
 /**
  * Class ProductController
@@ -33,6 +31,7 @@ class ProductController
     private SerializeDataResponse $serializeDataResponse;
     private ShopProductRepository $shopProductRepository;
     private ShopSerializer $shopSerializer;
+    private RedisCacheService $redisCacheService;
 
     /**
      * ProductController constructor.
@@ -43,11 +42,13 @@ class ProductController
     public function __construct(
         SerializeDataResponse $serializeDataResponse,
         ShopProductRepository $shopProductRepository,
-        ShopSerializer $shopSerializer
+        ShopSerializer $shopSerializer,
+        RedisCacheService $redisCacheService
     ) {
         $this->serializeDataResponse = $serializeDataResponse;
         $this->shopProductRepository = $shopProductRepository;
         $this->shopSerializer = $shopSerializer;
+        $this->redisCacheService = $redisCacheService;
     }
 
     /**
@@ -127,13 +128,12 @@ class ProductController
      * @return JsonResponse
      *
      * @throws JsonException
-     * @throws NoResultException
-     * @throws NonUniqueResultException
+     * @throws InvalidArgumentException
      */
     public function getProductsList(Request $request, MoneyService $moneyService): JsonResponse
     {
-        $productRepository = $this->shopProductRepository;
         $serializer = $this->serializeDataResponse;
+        $redisCacheService = $this->redisCacheService;
 
         $limit = $request->query->get('limit') ?: 12;
         $offset = $request->query->get('offset') ?: 0;
@@ -165,7 +165,12 @@ class ProductController
             'categorySlug' => $request->query->get('categorySlug')
         ];
 
-        $countProducts = $productRepository->getCountProductsByParameters($parameters);
+        $countProducts = $redisCacheService->getAndSaveIfNotExist(
+            'product_getProductsList__countItems',
+            ShopProduct::class,
+            'getCountProductsByParameters',
+            $parameters
+        );
         if ($countProducts < 5) {
             $parameters['limit'] = 10;
             $parameters['offset'] = 0;
@@ -173,9 +178,14 @@ class ProductController
             $parameters['limit'] = $countProducts;
         }
 
-        $products = $productRepository->getProductsWithLimitAndOffsetAndCountItems($parameters);
+        $products = $redisCacheService->getAndSaveIfNotExist(
+            'product_getProductsList__getProductsWithLimitAndOffsetAndCountItems',
+            ShopProduct::class,
+            'getProductsWithLimitAndOffsetAndCountItems',
+            $parameters
+        );
 
-        $productData = $serializer->getProductsData($products, $countProducts);
+        $productData = $serializer->getProductsData($products, (int)$countProducts);
 
         if ($countProducts === 0 && !$products) {
             $productData = json_encode(['errorMessage' => 'Products was not found.'], JSON_THROW_ON_ERROR);

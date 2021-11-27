@@ -59,7 +59,8 @@ class BrandController
 
         $items = $this->shopBrandRepository->findBy(
             ['enable' => true],
-            ['id' => 'DESC']);
+            ['id' => 'DESC']
+        );
 
         return JsonResponse::fromJsonString($serializer->getBrandsList($items));
     }

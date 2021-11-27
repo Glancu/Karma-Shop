@@ -276,6 +276,9 @@
     "pixassociates/sortable-behavior-bundle": {
         "version": "v1.5"
     },
+    "predis/predis": {
+        "version": "v1.1.9"
+    },
     "psr/cache": {
         "version": "1.0.1"
     },

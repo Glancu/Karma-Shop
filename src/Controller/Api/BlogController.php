@@ -3,11 +3,13 @@ declare(strict_types=1);
 
 namespace App\Controller\Api;
 
+use App\Entity\BlogCategory;
 use App\Entity\BlogPost;
+use App\Entity\BlogTag;
 use App\Repository\BlogCategoryRepository;
 use App\Repository\BlogPostRepository;
-use App\Repository\BlogTagRepository;
 use App\Service\ImageService;
+use App\Service\RedisCacheService;
 use App\Service\SerializeDataResponse;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
@@ -15,6 +17,7 @@ use Exception;
 use JsonException;
 use Nelmio\ApiDocBundle\Annotation\Security;
 use OpenApi\Annotations as OA;
+use Psr\Cache\InvalidArgumentException;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -35,6 +38,7 @@ class BlogController
     private BlogPostRepository $blogPostRepository;
     private RouterInterface $router;
     private BlogCategoryRepository $blogCategoryRepository;
+    private RedisCacheService $redisCacheService;
 
     /**
      * BlogController constructor.
@@ -43,17 +47,20 @@ class BlogController
      * @param BlogPostRepository $blogPostRepository
      * @param RouterInterface $router
      * @param BlogCategoryRepository $blogCategoryRepository
+     * @param RedisCacheService $redisCacheService
      */
     public function __construct(
         SerializeDataResponse $serializeDataResponse,
         BlogPostRepository $blogPostRepository,
         RouterInterface $router,
-        BlogCategoryRepository $blogCategoryRepository
+        BlogCategoryRepository $blogCategoryRepository,
+        RedisCacheService $redisCacheService
     ) {
         $this->serializeDataResponse = $serializeDataResponse;
         $this->blogPostRepository = $blogPostRepository;
         $this->router = $router;
         $this->blogCategoryRepository = $blogCategoryRepository;
+        $this->redisCacheService = $redisCacheService;
     }
 
     /**
@@ -106,6 +113,7 @@ class BlogController
      * @throws JsonException
      * @throws NoResultException
      * @throws NonUniqueResultException
+     * @throws InvalidArgumentException
      */
     public function getBlogPostsList(Request $request): JsonResponse
     {
@@ -134,7 +142,7 @@ class BlogController
             $parameters['limit'] = $countPosts;
         }
 
-        $posts = $blogPostRepository->getPostsWithLimitAndOffsetAndCountItems($parameters);
+        $posts = $this->redisCacheService->getAndSaveIfNotExist('blog_getBlogPostsList', BlogPost::class, 'getPostsWithLimitAndOffsetAndCountItems', $parameters);
 
         $postsData = $serializer->getBlogPostsData($posts, $countPosts);
 
@@ -340,10 +348,12 @@ class BlogController
      * @Security()
      *
      * @return JsonResponse
+     *
+     * @throws InvalidArgumentException
      */
     public function getCategoriesList(): JsonResponse
     {
-        $categories = $this->blogCategoryRepository->getNamesWithCount();
+        $categories = $this->redisCacheService->getAndSaveIfNotExist('blog_getCategoriesList', BlogCategory::class, 'getNamesWithCount');
 
         return new JsonResponse($categories);
     }
@@ -363,9 +373,13 @@ class BlogController
      * @Security()
      *
      * @return JsonResponse
+     *
+     * @throws InvalidArgumentException
      */
-    public function getTagsList(BlogTagRepository $blogTagRepository): JsonResponse
+    public function getTagsList(): JsonResponse
     {
-        return new JsonResponse($blogTagRepository->getNamesList());
+        $tags = $this->redisCacheService->getAndSaveIfNotExist('blog_getTagsList', BlogTag::class, 'getNamesList');
+
+        return new JsonResponse($tags);
     }
 }

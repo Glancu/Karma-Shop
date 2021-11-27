@@ -59,7 +59,8 @@ class CategoryController
 
         $items = $this->shopCategoryRepository->findBy(
             ['enable' => true],
-            ['id' => 'DESC']);
+            ['id' => 'DESC']
+        );
 
         return JsonResponse::fromJsonString($serializer->getCategoriesList($items));
     }

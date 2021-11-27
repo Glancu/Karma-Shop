@@ -84,8 +84,11 @@ class BlogPostRepository extends ServiceEntityRepository
                              ->andWhere('p.slug = :slug')
                              ->setParameter('slug', $slug);
 
-        return $queryBuilder
-            ->getQuery()
+        $query = $queryBuilder->getQuery();
+
+        $query->setCacheable(true);
+
+        return $query
             ->getOneOrNullResult();
     }
 
@@ -127,8 +130,11 @@ class BlogPostRepository extends ServiceEntityRepository
             ->orderBy('b.views' , 'DESC')
             ->setMaxResults($limit);
 
-        return $queryBuilder
-            ->getQuery()
+        $query = $queryBuilder->getQuery();
+
+        $query->setCacheable(true);
+
+        return $query
             ->getResult();
     }
 
@@ -146,8 +152,11 @@ class BlogPostRepository extends ServiceEntityRepository
             ->andWhere('bp.uuid = :uuid')
             ->setParameter('uuid', $uuid);
 
-        return $queryBuilder
-            ->getQuery()
+        $query = $queryBuilder->getQuery();
+
+        $query->setCacheable(true);
+
+        return $query
             ->getOneOrNullResult();
     }
 
@@ -158,8 +167,11 @@ class BlogPostRepository extends ServiceEntityRepository
             ->andWhere('b.title LIKE :title')
             ->setParameter('title', "%${title}%");
 
-        return $queryBuilder
-            ->getQuery()
+        $query = $queryBuilder->getQuery();
+
+        $query->setCacheable(true);
+
+        return $query
             ->getResult();
     }
 

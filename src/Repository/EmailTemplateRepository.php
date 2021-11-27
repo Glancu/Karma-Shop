@@ -33,8 +33,11 @@ class EmailTemplateRepository extends ServiceEntityRepository
             ->where('e.type = :type')
             ->setParameter('type', $type);
 
-        return $queryBuilder
-            ->getQuery()
+        $query = $queryBuilder->getQuery();
+
+        $query->setCacheable(true);
+
+        return $query
             ->getOneOrNullResult();
     }
 }

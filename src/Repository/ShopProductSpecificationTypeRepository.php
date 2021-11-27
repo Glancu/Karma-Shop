@@ -18,33 +18,4 @@ class ShopProductSpecificationTypeRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, ShopProductSpecificationType::class);
     }
-
-    // /**
-    //  * @return ShopProductSpecificationType[] Returns an array of ShopProductSpecificationType objects
-    //  */
-    /*
-    public function findByExampleField($value)
-    {
-        return $this->createQueryBuilder('s')
-            ->andWhere('s.exampleField = :val')
-            ->setParameter('val', $value)
-            ->orderBy('s.id', 'ASC')
-            ->setMaxResults(10)
-            ->getQuery()
-            ->getResult()
-        ;
-    }
-    */
-
-    /*
-    public function findOneBySomeField($value): ?ShopProductSpecificationType
-    {
-        return $this->createQueryBuilder('s')
-            ->andWhere('s.exampleField = :val')
-            ->setParameter('val', $value)
-            ->getQuery()
-            ->getOneOrNullResult()
-        ;
-    }
-    */
 }

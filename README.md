@@ -11,7 +11,7 @@ This project was created for training my skills. Please don't use this project f
 
 ## How To Use
 
-To clone and run this application, you'll need [Git](https://git-scm.com) and [yarn](https://yarnpkg.com/) installed on your computer. From your command line:
+To clone and run this application, you'll need [Git](https://git-scm.com), [yarn](https://yarnpkg.com/) and [Redis](https://redis.io/) installed on your computer. **If u wanna use docker, you don't need this few packages installed on your computer.**
 
 ```bash
 # Clone this repository
