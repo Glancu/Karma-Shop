@@ -50,7 +50,7 @@ class BlogCategory
      *
      * @ORM\Column(name="slug", type="string")
      */
-    private string $slug = '';
+    private ?string $slug = null;
 
     /**
      * @var ArrayCollection|PersistentCollection
@@ -96,9 +96,9 @@ class BlogCategory
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getSlug(): string
+    public function getSlug(): ?string
     {
         return $this->slug;
     }
@@ -131,7 +131,7 @@ class BlogCategory
      * CUSTOM
      */
 
-    public function getCountProducts(): int
+    public function getCountPosts(): int
     {
         return $this->posts->count();
     }
