@@ -124,10 +124,13 @@ class SerializeDataResponse
     /**
      * @param array $products
      * @param int $countProducts
+     * @param array $parameters
      *
      * @return string
+     *
+     * @throws ExceptionInterface
      */
-    public function getProductsData(array $products, int $countProducts = 0): string
+    public function getProductsData(array $products, int $countProducts = 0, array $parameters = []): string
     {
         $items = [];
 
@@ -159,6 +162,10 @@ class SerializeDataResponse
             'countItems' => $countProducts,
             'items' => $items
         ];
+
+        if(isset($parameters['categorySlug']) && $parameters['categorySlug']) {
+            $return['categoryName'] = $items[0]['shopCategory']['title'];
+        }
 
         return $this->serializer->serialize($return, 'json');
     }
@@ -330,7 +337,7 @@ class SerializeDataResponse
         return '[' . $items . ']';
     }
 
-    public function getBlogPostsData(array $posts, int $countPosts = 0): string
+    public function getBlogPostsData(array $posts, int $countPosts = 0, array $parameters = []): string
     {
         $items = [];
 
@@ -356,6 +363,18 @@ class SerializeDataResponse
             'countItems' => $countPosts,
             'items' => $items
         ];
+
+        if($parameters['category']) {
+            $return['categoryName'] = $items[0]['category']['name'];
+        }
+
+        if($parameters['tag']) {
+            foreach($items[0]['tags'] as $tag) {
+                if($parameters['tag'] === $tag['slug']) {
+                    $return['tagName'] = $tag['name'];
+                }
+            }
+        }
 
         return $this->serializer->serialize($return, 'json');
     }

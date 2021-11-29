@@ -5,6 +5,7 @@ import axios from 'axios';
 import Loader from '../../Components/Loader';
 import ValidateEmail from '../../Components/ValidateEmail';
 import BlogSidebar from '../../Components/Blog/BlogSidebar';
+import SetPageTitle from '../../Components/SetPageTitle';
 
 class Show extends Component {
     constructor(props) {
@@ -35,6 +36,8 @@ class Show extends Component {
             .then(result => {
                 if(result && result.data) {
                     this.setState({post: result.data});
+
+                    SetPageTitle(`${result.data.title} - Blog`)
 
                     setTimeout(() => {
                         _this.setState({loader: false});

@@ -3,6 +3,7 @@ import BaseTemplate from '../../Components/BaseTemplate';
 import { Link } from 'react-router-dom';
 import ShoppingCart from '../../Components/Shop/ShoppingCart';
 import $ from 'jquery';
+import SetPageTitle from '../../Components/SetPageTitle';
 
 class Cart extends Component {
     constructor(props) {
@@ -15,6 +16,8 @@ class Cart extends Component {
     }
 
     componentDidMount() {
+        SetPageTitle('Cart - Shop');
+
         const removeProductAlertModalEl = $('#removeProductAlertModal');
         removeProductAlertModalEl.on('show.bs.modal', (event) => {
             const product = event.relatedTarget.product;

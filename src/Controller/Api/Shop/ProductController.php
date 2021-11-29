@@ -162,7 +162,7 @@ class ProductController
             'color' => $color,
             'priceFrom' => $priceFrom,
             'priceTo' => $priceTo,
-            'categorySlug' => $request->query->get('categorySlug')
+            'categorySlug' => $request->query->get('category')
         ];
 
         $countProducts = $redisCacheService->getAndSaveIfNotExist(
@@ -178,14 +178,9 @@ class ProductController
             $parameters['limit'] = $countProducts;
         }
 
-        $products = $redisCacheService->getAndSaveIfNotExist(
-            'product_getProductsList__getProductsWithLimitAndOffsetAndCountItems',
-            ShopProduct::class,
-            'getProductsWithLimitAndOffsetAndCountItems',
-            $parameters
-        );
+        $products = $this->shopProductRepository->getProductsWithLimitAndOffsetAndCountItems($parameters);
 
-        $productData = $serializer->getProductsData($products, (int)$countProducts);
+        $productData = $serializer->getProductsData($products, (int)$countProducts, $parameters);
 
         if ($countProducts === 0 && !$products) {
             $productData = json_encode(['errorMessage' => 'Products was not found.'], JSON_THROW_ON_ERROR);

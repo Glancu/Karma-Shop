@@ -3,9 +3,12 @@ import BaseTemplate from '../../Components/BaseTemplate';
 import { Link, Redirect } from 'react-router-dom';
 import ShoppingCart from '../../Components/Shop/ShoppingCart';
 import CONFIG from '../../config';
+import SetPageTitle from '../../Components/SetPageTitle';
 
 class Confirmation extends Component {
     componentDidMount() {
+        SetPageTitle('Confirmation - Shop');
+
         window.localStorage.removeItem(ShoppingCart.localStorageShopKeyName);
     }
 

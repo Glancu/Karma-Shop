@@ -7,10 +7,16 @@ class Logout extends Component {
         const userStorageLoginToken = CONFIG.user.storage_login_token;
         const userStorageLoginRefreshToken = CONFIG.user.storage_login_refresh_token;
 
-        const token = localStorage.getItem(userStorageLoginToken);
+        let token = localStorage.getItem(userStorageLoginToken);
+        if(!token) {
+            token = sessionStorage.getItem(userStorageLoginToken);
+        }
         if(token) {
             localStorage.removeItem(userStorageLoginToken);
             localStorage.removeItem(userStorageLoginRefreshToken);
+
+            sessionStorage.removeItem(userStorageLoginToken);
+            sessionStorage.removeItem(userStorageLoginRefreshToken);
         }
     }
 

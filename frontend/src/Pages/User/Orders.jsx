@@ -2,9 +2,9 @@ import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import { UserPanelHeader } from '../../Components/User/UserPanelHeader';
 import BaseTemplate from '../../Components/BaseTemplate';
-import ShoppingCart from '../../Components/Shop/ShoppingCart';
 import axios from 'axios';
 import { getUserToken } from '../../Components/User/UserData';
+import SetPageTitle from '../../Components/SetPageTitle';
 
 class Orders extends Component {
     constructor(props) {
@@ -16,6 +16,8 @@ class Orders extends Component {
     }
 
     componentDidMount() {
+        SetPageTitle('Orders - Panel');
+
         const userToken = getUserToken();
 
         const config = {

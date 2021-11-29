@@ -9,6 +9,7 @@ import { toast } from 'react-toastify';
 import CONFIG from '../../config';
 import ValidateEmail from '../../Components/ValidateEmail';
 import ProductDetailComment from '../../Components/Shop/ProductDetailComment';
+import SetPageTitle from '../../Components/SetPageTitle';
 
 class ProductDetail extends Component {
     constructor(props) {
@@ -53,6 +54,8 @@ class ProductDetail extends Component {
                         if(result.data) {
                             this.state.product = result.data;
                             this.state.notFoundProduct = false;
+
+                            SetPageTitle(`Product: ${result.data.name}`);
 
                             setTimeout(() => {
                                 _this.setState({loader: false});

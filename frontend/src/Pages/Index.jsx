@@ -9,6 +9,7 @@ import axios from 'axios';
 import CONFIG from '../config';
 import ShoppingCart from '../Components/Shop/ShoppingCart';
 import { toast } from 'react-toastify';
+import SetPageTitle from '../Components/SetPageTitle';
 
 // Images
 import imgBanner from '../../public/assets/img/banner/banner-img.png';
@@ -40,6 +41,8 @@ class Index extends Component {
     }
 
     componentDidMount() {
+        SetPageTitle('Index');
+
         $(document).ready(function() {
             const window_height = window.innerHeight,
                   header_height = $(".default-header").height(),

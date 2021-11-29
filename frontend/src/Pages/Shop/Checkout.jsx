@@ -11,6 +11,7 @@ import CONFIG from '../../config';
 import $ from 'jquery';
 
 import imgProductCard from '../../../public/assets/img/product/card.jpg';
+import SetPageTitle from '../../Components/SetPageTitle';
 
 class Checkout extends Component {
     constructor(props) {
@@ -68,6 +69,8 @@ class Checkout extends Component {
     }
 
     componentDidMount() {
+        SetPageTitle('Checkout - Shop');
+
         $('select').niceSelect();
 
         this.updateLocalStorageDataInputs(true);

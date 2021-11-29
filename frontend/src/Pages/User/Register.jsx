@@ -3,6 +3,7 @@ import axios from 'axios';
 import { Link } from 'react-router-dom';
 import BaseTemplate from '../../Components/BaseTemplate';
 import ValidateEmail from '../../Components/ValidateEmail';
+import SetPageTitle from '../../Components/SetPageTitle';
 
 class Register extends Component {
     constructor(props) {
@@ -18,6 +19,10 @@ class Register extends Component {
 
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
+    }
+
+    componentDidMount() {
+        SetPageTitle('Register');
     }
 
     handleChange(event) {

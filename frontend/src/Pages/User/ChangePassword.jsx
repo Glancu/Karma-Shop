@@ -5,6 +5,7 @@ import removeUserTokensStorage, { getUserToken, userData } from '../../Component
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import { UserPanelHeader } from '../../Components/User/UserPanelHeader';
+import SetPageTitle from '../../Components/SetPageTitle';
 
 class ChangePassword extends Component {
     constructor(props) {
@@ -27,6 +28,8 @@ class ChangePassword extends Component {
     }
 
     componentDidMount() {
+        SetPageTitle('Change password - Panel');
+
         userData().then(data => {
             this.setState({userEmail: data.email, userUuid: data.uuid});
         });

@@ -1,4 +1,7 @@
 export default {
+    website: {
+        afterTitle: 'Karma Shop'
+    },
     shop: {
         prefixPage: 'page',
         sortItems: {

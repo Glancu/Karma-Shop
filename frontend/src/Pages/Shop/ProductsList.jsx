@@ -1,9 +1,10 @@
 import React, { Component } from 'react';
 import ShopBaseTemplate from '../../Components/Shop/ShopBaseTemplate';
+import SetPageTitle from '../../Components/SetPageTitle';
 
 class ProductsList extends Component {
     componentDidMount() {
-        document.body.id = 'products-list';
+        SetPageTitle('Shop');
     }
 
     render() {

@@ -51,7 +51,7 @@ class ShopBrand
      *
      * @ORM\Column(type="string", length=255, unique=true)
      */
-    private string $slug;
+    private string $slug = '';
 
     /**
      * @var ArrayCollection|PersistentCollection

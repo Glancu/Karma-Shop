@@ -113,7 +113,6 @@ class BlogController
      * @throws JsonException
      * @throws NoResultException
      * @throws NonUniqueResultException
-     * @throws InvalidArgumentException
      */
     public function getBlogPostsList(Request $request): JsonResponse
     {
@@ -142,9 +141,9 @@ class BlogController
             $parameters['limit'] = $countPosts;
         }
 
-        $posts = $this->redisCacheService->getAndSaveIfNotExist('blog_getBlogPostsList', BlogPost::class, 'getPostsWithLimitAndOffsetAndCountItems', $parameters);
+        $posts = $this->blogPostRepository->getPostsWithLimitAndOffsetAndCountItems($parameters);
 
-        $postsData = $serializer->getBlogPostsData($posts, $countPosts);
+        $postsData = $serializer->getBlogPostsData($posts, $countPosts, $parameters);
 
         if ($countPosts === 0 && !$posts) {
             $postsData = json_encode(['errorMessage' => 'Posts was not found.'], JSON_THROW_ON_ERROR);

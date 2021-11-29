@@ -5,10 +5,10 @@ namespace App\Controller\Api;
 
 use App\Entity\BlogPost;
 use App\Entity\ShopProduct;
-use App\Service\RedisCacheService;
+use App\Repository\BlogPostRepository;
+use App\Repository\ShopProductRepository;
 use Nelmio\ApiDocBundle\Annotation\Security;
 use OpenApi\Annotations as OA;
-use Psr\Cache\InvalidArgumentException;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -25,11 +25,13 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class SearchController
 {
-    private RedisCacheService $redisCacheService;
+    private ShopProductRepository $shopProductRepository;
+    private BlogPostRepository $blogPostRepository;
 
-    public function __construct(RedisCacheService $redisCacheService)
+    public function __construct(ShopProductRepository $shopProductRepository, BlogPostRepository $blogPostRepository)
     {
-        $this->redisCacheService = $redisCacheService;
+        $this->shopProductRepository = $shopProductRepository;
+        $this->blogPostRepository = $blogPostRepository;
     }
 
     /**
@@ -56,8 +58,6 @@ class SearchController
      * @param Request $request
      *
      * @return JsonResponse
-     *
-     * @throws InvalidArgumentException
      */
     public function list(Request $request): JsonResponse
     {
@@ -70,23 +70,11 @@ class SearchController
             ]);
         }
 
-        $redisCacheService = $this->redisCacheService;
-
         $query = htmlspecialchars($request->get('query'), ENT_QUOTES);
 
-        $shopProducts = $redisCacheService->getAndSaveIfNotExist(
-            'search_list__shop_products',
-            ShopProduct::class,
-            'findByNameLike',
-            $query
-        );
+        $shopProducts = $this->shopProductRepository->findByNameLike($query);
 
-        $blogPosts = $redisCacheService->getAndSaveIfNotExist(
-            'search_list__blog_posts',
-            BlogPost::class,
-            'findByTitleLike',
-            $query
-        );
+        $blogPosts = $this->blogPostRepository->findByTitleLike($query);
 
         $suggestions = [];
 

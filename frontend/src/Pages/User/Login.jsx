@@ -6,6 +6,7 @@ import ValidateEmail from '../../Components/ValidateEmail';
 import CONFIG from '../../config';
 
 import imgLogin from '../../../public/assets/img/login.jpg';
+import SetPageTitle from '../../Components/SetPageTitle';
 
 const userStorageLoginToken = CONFIG.user.storage_login_token;
 const userStorageLoginRefreshToken = CONFIG.user.storage_login_refresh_token;
@@ -32,6 +33,8 @@ class Login extends Component {
     }
 
     componentDidMount() {
+        SetPageTitle('Login - Panel');
+
         const locationState = this.props.location.state;
         if(locationState && locationState.referrer) {
             this.setState({

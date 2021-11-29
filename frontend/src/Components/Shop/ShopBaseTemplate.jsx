@@ -10,6 +10,7 @@ import GetPage from '../GetPage';
 import Loader from '../Loader';
 import { windowScrollTo } from '../WindowScroll';
 import '../../../public/assets/js/jquery.nice-select.min';
+import SetPageTitle from '../SetPageTitle';
 
 class ShopBaseTemplate extends Component {
     constructor(props) {
@@ -109,6 +110,12 @@ class ShopBaseTemplate extends Component {
                                 pagination.countItems = result.data.countItems;
 
                                 this.setState({items: result.data.items, pagination});
+
+                                if(result.data.categoryName) {
+                                    SetPageTitle(`Category: ${result.data.categoryName}`);
+                                } else {
+                                    SetPageTitle('Shop');
+                                }
 
                                 setTimeout(() => {
                                     _this.setState({loader: false});

@@ -10,6 +10,7 @@ import { windowScrollTo } from '../WindowScroll';
 import BlogSidebar from '../../Components/Blog/BlogSidebar';
 import BlogListCategoriesLatest from '../../Components/Blog/BlogListCategoriesLatest';
 import PropTypes from 'prop-types';
+import SetPageTitle from '../SetPageTitle';
 
 class BlogBaseTemplate extends Component {
     constructor(props) {
@@ -47,6 +48,14 @@ class BlogBaseTemplate extends Component {
             .then(result => {
                 if(result && result.data.countItems && result.data.countItems > 0 && result.data.items && result.data.items.length > 0) {
                     this.setState({blogPosts: result.data.items, countItems: result.data.countItems});
+
+                    if(result.data.categoryName) {
+                        SetPageTitle(`Category: ${result.data.categoryName}`);
+                    } else if(result.data.tagName) {
+                        SetPageTitle(`Tag: ${result.data.tagName}`);
+                    } else {
+                        SetPageTitle('Blog');
+                    }
 
                     setTimeout(() => {
                         _this.setState({loader: false});

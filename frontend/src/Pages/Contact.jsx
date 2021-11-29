@@ -4,6 +4,7 @@ import BaseTemplate from '../Components/BaseTemplate';
 import GMaps from '../../public/assets/js/gmaps.min';
 import axios from 'axios';
 import ValidateEmail from '../Components/ValidateEmail';
+import SetPageTitle from '../Components/SetPageTitle';
 
 class Contact extends Component {
     constructor(props) {
@@ -30,6 +31,8 @@ class Contact extends Component {
     }
 
     componentDidMount() {
+        SetPageTitle('Contact');
+
         const mapBox = document.getElementById('mapBox');
         if(mapBox) {
             const lat = mapBox.getAttribute('data-lat');
