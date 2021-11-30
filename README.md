@@ -84,6 +84,14 @@ $ cd docker/
 $ docker-compose up -d
 ```
 
+## Redis
+If you want to clear redis cache and you are using docker:
+```bash
+$ docker exec -it karma-shop-redis-v2 sh
+$ redis-cli
+$ flushall
+```
+
 ### API Docs
 If you want check api links, you can go **/api/doc**.
 
