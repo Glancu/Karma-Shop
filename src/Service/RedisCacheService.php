@@ -5,16 +5,17 @@ namespace App\Service;
 
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Cache\InvalidArgumentException;
-use Symfony\Component\Cache\Adapter\RedisAdapter;
-use Symfony\Component\Cache\CacheItem;
+use Symfony\Component\Cache\Adapter\AdapterInterface;
 
 class RedisCacheService
 {
     private EntityManagerInterface $entityManager;
+    private AdapterInterface $adapter;
 
-    public function __construct(EntityManagerInterface $entityManager)
+    public function __construct(EntityManagerInterface $entityManager, AdapterInterface $adapter)
     {
         $this->entityManager = $entityManager;
+        $this->adapter = $adapter;
     }
 
     /**
@@ -35,13 +36,8 @@ class RedisCacheService
         $parameters = null,
         $expiresAfter = 3600
     ) {
-        $clientRedis = RedisAdapter::createConnection(getenv('REDIS_URL'));
+        $cacheRedis = $this->adapter;
 
-        $cacheRedis = new RedisAdapter($clientRedis);
-
-        /**
-         * @var CacheItem $itemsRedis
-         */
         $itemsRedis = $cacheRedis->getItem($redisKeyName);
         if (!$itemsRedis->isHit()) {
             if(!$parameters) {
