@@ -4,7 +4,7 @@ declare(strict_types=1);
 namespace App\Controller\Api\Shop;
 
 use App\Repository\ShopBrandRepository;
-use App\Serializer\SerializeDataResponse;
+use App\Serializer\ShopSerializeDataResponse;
 use Nelmio\ApiDocBundle\Annotation\Security;
 use OpenApi\Annotations as OA;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -21,21 +21,21 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class BrandController
 {
-    private SerializeDataResponse $serializeDataResponse;
     private ShopBrandRepository $shopBrandRepository;
+    private ShopSerializeDataResponse $shopSerializeDataResponse;
 
     /**
      * BrandController constructor.
      *
-     * @param SerializeDataResponse $serializeDataResponse
      * @param ShopBrandRepository $shopBrandRepository
+     * @param ShopSerializeDataResponse $shopSerializeDataResponse
      */
     public function __construct(
-        SerializeDataResponse $serializeDataResponse,
-        ShopBrandRepository $shopBrandRepository
+        ShopBrandRepository $shopBrandRepository,
+        ShopSerializeDataResponse $shopSerializeDataResponse
     ) {
-        $this->serializeDataResponse = $serializeDataResponse;
         $this->shopBrandRepository = $shopBrandRepository;
+        $this->shopSerializeDataResponse = $shopSerializeDataResponse;
     }
 
     /**
@@ -55,13 +55,11 @@ class BrandController
      */
     public function getShopBrandsList(): JsonResponse
     {
-        $serializer = $this->serializeDataResponse;
-
         $items = $this->shopBrandRepository->findBy(
             ['enable' => true],
             ['id' => 'DESC']
         );
 
-        return JsonResponse::fromJsonString($serializer->getShopBrandsList($items));
+        return JsonResponse::fromJsonString($this->shopSerializeDataResponse->getShopBrandsList($items));
     }
 }

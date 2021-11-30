@@ -4,7 +4,7 @@ declare(strict_types=1);
 namespace App\Controller\Api\Shop;
 
 use App\Repository\ShopColorRepository;
-use App\Serializer\SerializeDataResponse;
+use App\Serializer\ShopSerializeDataResponse;
 use Nelmio\ApiDocBundle\Annotation\Security;
 use OpenApi\Annotations as OA;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -21,21 +21,21 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class ColorController
 {
-    private SerializeDataResponse $serializeDataResponse;
     private ShopColorRepository $shopColorRepository;
+    private ShopSerializeDataResponse $shopSerializeDataResponse;
 
     /**
      * ColorController constructor.
      *
-     * @param SerializeDataResponse $serializeDataResponse
      * @param ShopColorRepository $shopColorRepository
+     * @param ShopSerializeDataResponse $shopSerializeDataResponse
      */
     public function __construct(
-        SerializeDataResponse $serializeDataResponse,
-        ShopColorRepository $shopColorRepository
+        ShopColorRepository $shopColorRepository,
+        ShopSerializeDataResponse $shopSerializeDataResponse
     ) {
-        $this->serializeDataResponse = $serializeDataResponse;
         $this->shopColorRepository = $shopColorRepository;
+        $this->shopSerializeDataResponse = $shopSerializeDataResponse;
     }
 
     /**
@@ -55,13 +55,11 @@ class ColorController
      */
     public function getShopColorsList(): JsonResponse
     {
-        $serializer = $this->serializeDataResponse;
-
         $items = $this->shopColorRepository->findBy(
             ['enable' => true],
             ['id' => 'DESC']
         );
 
-        return JsonResponse::fromJsonString($serializer->getShopColorsList($items));
+        return JsonResponse::fromJsonString($this->shopSerializeDataResponse->getShopColorsList($items));
     }
 }

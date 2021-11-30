@@ -4,7 +4,7 @@ declare(strict_types=1);
 namespace App\Controller\Api\Shop;
 
 use App\Repository\ShopCategoryRepository;
-use App\Serializer\SerializeDataResponse;
+use App\Serializer\ShopSerializeDataResponse;
 use Nelmio\ApiDocBundle\Annotation\Security;
 use OpenApi\Annotations as OA;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -21,21 +21,21 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class CategoryController
 {
-    private SerializeDataResponse $serializeDataResponse;
     private ShopCategoryRepository $shopCategoryRepository;
+    private ShopSerializeDataResponse $shopSerializeDataResponse;
 
     /**
      * CategoryController constructor.
      *
-     * @param SerializeDataResponse $serializeDataResponse
      * @param ShopCategoryRepository $shopCategoryRepository
+     * @param ShopSerializeDataResponse $shopSerializeDataResponse
      */
     public function __construct(
-        SerializeDataResponse $serializeDataResponse,
-        ShopCategoryRepository $shopCategoryRepository
+        ShopCategoryRepository $shopCategoryRepository,
+        ShopSerializeDataResponse $shopSerializeDataResponse
     ) {
-        $this->serializeDataResponse = $serializeDataResponse;
         $this->shopCategoryRepository = $shopCategoryRepository;
+        $this->shopSerializeDataResponse = $shopSerializeDataResponse;
     }
 
     /**
@@ -55,13 +55,11 @@ class CategoryController
      */
     public function getShopCategoriesList(): JsonResponse
     {
-        $serializer = $this->serializeDataResponse;
-
         $items = $this->shopCategoryRepository->findBy(
             ['enable' => true],
             ['id' => 'DESC']
         );
 
-        return JsonResponse::fromJsonString($serializer->getShopCategoriesList($items));
+        return JsonResponse::fromJsonString($this->shopSerializeDataResponse->getShopCategoriesList($items));
     }
 }
