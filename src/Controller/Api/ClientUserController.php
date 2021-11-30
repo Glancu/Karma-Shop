@@ -7,7 +7,7 @@ use App\Entity\ClientUser;
 use App\Form\Type\ClientUserChangePasswordType;
 use App\Form\Type\CreateClientUserFormType;
 use App\Service\RequestService;
-use App\Service\SerializeDataResponse;
+use App\Serializer\SerializeDataResponse;
 use App\Service\UserService;
 use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
@@ -432,7 +432,7 @@ class ClientUserController
      *
      * @Security()
      */
-    public function generateTokenAction()
+    public function generateTokenAction(): void
     {
         throw new NotFoundHttpException('Not found configuration for generate user token');
     }

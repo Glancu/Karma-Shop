@@ -4,7 +4,7 @@ declare(strict_types=1);
 namespace App\Controller\Api\Shop;
 
 use App\Repository\ShopColorRepository;
-use App\Service\SerializeDataResponse;
+use App\Serializer\SerializeDataResponse;
 use Nelmio\ApiDocBundle\Annotation\Security;
 use OpenApi\Annotations as OA;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -53,7 +53,7 @@ class ColorController
      *
      * @return JsonResponse
      */
-    public function getColorsList(): JsonResponse
+    public function getShopColorsList(): JsonResponse
     {
         $serializer = $this->serializeDataResponse;
 
@@ -62,6 +62,6 @@ class ColorController
             ['id' => 'DESC']
         );
 
-        return JsonResponse::fromJsonString($serializer->getColorsList($items));
+        return JsonResponse::fromJsonString($serializer->getShopColorsList($items));
     }
 }

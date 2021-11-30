@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Service;
+namespace App\Serializer;
 
 use App\Entity\BlogPost;
 use App\Entity\ClientUser;
@@ -9,8 +9,6 @@ use App\Entity\Newsletter;
 use App\Entity\ShopBrand;
 use App\Entity\ShopColor;
 use App\Entity\ShopProduct;
-use App\Serializer\BlogSerializer;
-use App\Serializer\ShopSerializer;
 use DateTime;
 use DateTimeInterface;
 use RuntimeException;
@@ -24,17 +22,17 @@ use Symfony\Component\Serializer\SerializerInterface;
 class SerializeDataResponse
 {
     private SerializerInterface $serializer;
-    private ShopSerializer $shopSerializer;
-    private BlogSerializer $blogSerializer;
+    private ShopNormalizer $shopNormalizer;
+    private BlogNormalizer $blogNormalizer;
 
     public function __construct(
         SerializerInterface $serializer,
-        ShopSerializer $shopSerializer,
-        BlogSerializer $blogSerializer
+        ShopNormalizer $shopNormalizer,
+        BlogNormalizer $blogNormalizer
     ) {
         $this->serializer = $serializer;
-        $this->shopSerializer = $shopSerializer;
-        $this->blogSerializer = $blogSerializer;
+        $this->shopNormalizer = $shopNormalizer;
+        $this->blogNormalizer = $blogNormalizer;
     }
 
     /**
@@ -130,7 +128,7 @@ class SerializeDataResponse
      *
      * @throws ExceptionInterface
      */
-    public function getProductsData(array $products, int $countProducts = 0, array $parameters = []): string
+    public function getShopProductsData(array $products, int $countProducts = 0, array $parameters = []): string
     {
         $items = [];
 
@@ -138,7 +136,7 @@ class SerializeDataResponse
          * @var ShopProduct $product
          */
         foreach ($products as $product) {
-            $data = $this->shopSerializer->normalizeShopProducts($product, 'json', [
+            $data = $this->shopNormalizer->normalizeShopProducts($product, 'json', [
                 'groups' => [
                     'uuid_trait',
                     'enable_trait',
@@ -170,9 +168,16 @@ class SerializeDataResponse
         return $this->serializer->serialize($return, 'json');
     }
 
-    public function getSingleProductData(ShopProduct $product): array
+    /**
+     * @param ShopProduct $product
+     *
+     * @return array
+     *
+     * @throws ExceptionInterface
+     */
+    public function getSingleShopProductData(ShopProduct $product): array
     {
-        return $this->shopSerializer->normalizeShopProducts($product, 'json', [
+        return $this->shopNormalizer->normalizeShopProducts($product, 'json', [
             'groups' => [
                 'uuid_trait',
                 'enable_trait',
@@ -191,31 +196,7 @@ class SerializeDataResponse
         ]);
     }
 
-    public function getProductsSearchData(array $products): string
-    {
-        $items = [];
-
-        /**
-         * @var ShopProduct $product
-         */
-        foreach ($products as $product) {
-            $data = $this->shopSerializer->normalizeShopProductSearchList($product, 'json', [
-                'groups' => [
-                    'uuid_trait',
-                    'enable_trait',
-                    'price_trait',
-                    'shop_product',
-                ],
-                'datetime_format' => 'Y-m-d H:i:s'
-            ]);
-
-            $items[] = $data;
-        }
-
-        return $this->serializer->serialize($items, 'json');
-    }
-
-    public function getCategoriesList(array $categories): string
+    public function getShopCategoriesList(array $categories): string
     {
         $items = '';
 
@@ -228,7 +209,7 @@ class SerializeDataResponse
             $serializer = new Serializer([$normalizer], [$encoder]);
 
             try {
-                $data = $this->shopSerializer->normalizeCategoriesList($category, 'json', [
+                $data = $this->shopNormalizer->normalizeCategoriesList($category, 'json', [
                     'groups' => [
                         'shop_category',
                         'uuid_trait',
@@ -255,7 +236,7 @@ class SerializeDataResponse
         return '[' . $items . ']';
     }
 
-    public function getBrandsList(array $brands): string
+    public function getShopBrandsList(array $brands): string
     {
         $items = '';
 
@@ -271,7 +252,7 @@ class SerializeDataResponse
             $serializer = new Serializer([$normalizer], [$encoder]);
 
             try {
-                $data = $this->shopSerializer->normalizeBrandsList($brand, 'json', [
+                $data = $this->shopNormalizer->normalizeBrandsList($brand, 'json', [
                     'groups' => [
                         'shop_brand'
                     ]
@@ -296,7 +277,7 @@ class SerializeDataResponse
         return '[' . $items . ']';
     }
 
-    public function getColorsList(array $colors): string
+    public function getShopColorsList(array $colors): string
     {
         $items = '';
 
@@ -312,7 +293,7 @@ class SerializeDataResponse
             $serializer = new Serializer([$normalizer], [$encoder]);
 
             try {
-                $data = $this->shopSerializer->normalizeColorsList($color, 'json', [
+                $data = $this->shopNormalizer->normalizeColorsList($color, 'json', [
                     'groups' => [
                         'shop_color'
                     ]
@@ -337,6 +318,15 @@ class SerializeDataResponse
         return '[' . $items . ']';
     }
 
+    /**
+     * @param array $posts
+     * @param int $countPosts
+     * @param array $parameters
+     *
+     * @return string
+     *
+     * @throws ExceptionInterface
+     */
     public function getBlogPostsData(array $posts, int $countPosts = 0, array $parameters = []): string
     {
         $items = [];
@@ -345,7 +335,7 @@ class SerializeDataResponse
          * @var BlogPost $post
          */
         foreach ($posts as $post) {
-            $data = $this->blogSerializer->normalizeBlogPostsList($post, 'json', [
+            $data = $this->blogNormalizer->normalizeBlogPostsList($post, 'json', [
                 'groups' => [
                     'uuid_trait',
                     'enable_trait',
@@ -379,9 +369,16 @@ class SerializeDataResponse
         return $this->serializer->serialize($return, 'json');
     }
 
+    /**
+     * @param BlogPost $post
+     *
+     * @return array
+     *
+     * @throws ExceptionInterface
+     */
     public function getSingleBlogPostData(BlogPost $post): array
     {
-        return $this->blogSerializer->normalizeSingleBlogPost($post, 'json', [
+        return $this->blogNormalizer->normalizeSingleBlogPost($post, 'json', [
             'groups' => [
                 'uuid_trait',
                 'enable_trait',
@@ -395,6 +392,13 @@ class SerializeDataResponse
         ]);
     }
 
+    /**
+     * @param array $posts
+     *
+     * @return string
+     *
+     * @throws ExceptionInterface
+     */
     public function getBlogPopularPosts(array $posts): string
     {
         $items = [];
@@ -403,7 +407,7 @@ class SerializeDataResponse
          * @var BlogPost $post
          */
         foreach ($posts as $post) {
-            $data = $this->blogSerializer->normalizeBlogPopularPosts($post, 'json', [
+            $data = $this->blogNormalizer->normalizeBlogPopularPosts($post, 'json', [
                 'groups' => [
                     'uuid_trait',
                     'enable_trait',
@@ -418,12 +422,19 @@ class SerializeDataResponse
         return $this->serializer->serialize($items, 'json');
     }
 
-    public function getCategoriesLatestData(array $categories): string
+    /**
+     * @param array $categories
+     *
+     * @return string
+     *
+     * @throws ExceptionInterface
+     */
+    public function getBlogCategoriesLatestData(array $categories): string
     {
         $items = [];
 
         foreach ($categories as $category) {
-            $items[] = $this->blogSerializer->normalizeBlogCategoriesLatest($category, 'json', [
+            $items[] = $this->blogNormalizer->normalizeBlogCategoriesLatest($category, 'json', [
                 'groups' => [
                     'uuid_trait',
                     'enable_trait',

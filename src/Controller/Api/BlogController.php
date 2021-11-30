@@ -10,7 +10,7 @@ use App\Repository\BlogCategoryRepository;
 use App\Repository\BlogPostRepository;
 use App\Service\ImageService;
 use App\Service\RedisCacheService;
-use App\Service\SerializeDataResponse;
+use App\Serializer\SerializeDataResponse;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
 use Exception;
@@ -22,6 +22,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\RouterInterface;
+use Symfony\Component\Serializer\Exception\ExceptionInterface;
 
 /**
  * Class BlogController
@@ -113,6 +114,7 @@ class BlogController
      * @throws JsonException
      * @throws NoResultException
      * @throws NonUniqueResultException
+     * @throws ExceptionInterface
      */
     public function getBlogPostsList(Request $request): JsonResponse
     {
@@ -188,6 +190,7 @@ class BlogController
      *
      * @return JsonResponse
      *
+     * @throws ExceptionInterface
      * @throws NoResultException
      * @throws NonUniqueResultException
      * @throws Exception
@@ -294,6 +297,8 @@ class BlogController
      * @Security()
      *
      * @return JsonResponse
+     *
+     * @throws ExceptionInterface
      */
     public function getPopularPosts(): JsonResponse
     {
@@ -322,12 +327,14 @@ class BlogController
      * @param int $limit
      *
      * @return JsonResponse
+     *
+     * @throws ExceptionInterface
      */
     public function getLatestCategories(BlogCategoryRepository $blogCategoryRepository, int $limit = 3): JsonResponse
     {
         $categories = $blogCategoryRepository->getItemsByLimit($limit);
 
-        $data = $this->serializeDataResponse->getCategoriesLatestData($categories);
+        $data = $this->serializeDataResponse->getBlogCategoriesLatestData($categories);
 
         return JsonResponse::fromJsonString($data);
     }

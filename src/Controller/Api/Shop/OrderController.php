@@ -7,7 +7,7 @@ use App\Entity\Order;
 use App\Form\Type\CreateOrderType;
 use App\Service\OrderService;
 use App\Service\RequestService;
-use App\Service\SerializeDataResponse;
+use App\Serializer\SerializeDataResponse;
 use Doctrine\ORM\EntityManagerInterface;
 use JsonException;
 use Nelmio\ApiDocBundle\Annotation\Security;
@@ -214,7 +214,7 @@ class OrderController
             $products = [];
 
             foreach ($order->getProducts() as $product) {
-                $products[] = $serializer->getSingleProductData($product);
+                $products[] = $serializer->getSingleShopProductData($product);
             }
 
             $data[] = [

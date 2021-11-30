@@ -4,7 +4,7 @@ declare(strict_types=1);
 namespace App\Controller\Api\Shop;
 
 use App\Repository\ShopBrandRepository;
-use App\Service\SerializeDataResponse;
+use App\Serializer\SerializeDataResponse;
 use Nelmio\ApiDocBundle\Annotation\Security;
 use OpenApi\Annotations as OA;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -53,7 +53,7 @@ class BrandController
      *
      * @return JsonResponse
      */
-    public function getBrandsList(): JsonResponse
+    public function getShopBrandsList(): JsonResponse
     {
         $serializer = $this->serializeDataResponse;
 
@@ -62,6 +62,6 @@ class BrandController
             ['id' => 'DESC']
         );
 
-        return JsonResponse::fromJsonString($serializer->getBrandsList($items));
+        return JsonResponse::fromJsonString($serializer->getShopBrandsList($items));
     }
 }

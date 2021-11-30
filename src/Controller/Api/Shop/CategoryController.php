@@ -4,7 +4,7 @@ declare(strict_types=1);
 namespace App\Controller\Api\Shop;
 
 use App\Repository\ShopCategoryRepository;
-use App\Service\SerializeDataResponse;
+use App\Serializer\SerializeDataResponse;
 use Nelmio\ApiDocBundle\Annotation\Security;
 use OpenApi\Annotations as OA;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -53,7 +53,7 @@ class CategoryController
      *
      * @return JsonResponse
      */
-    public function getCategoriesList(): JsonResponse
+    public function getShopCategoriesList(): JsonResponse
     {
         $serializer = $this->serializeDataResponse;
 
@@ -62,6 +62,6 @@ class CategoryController
             ['id' => 'DESC']
         );
 
-        return JsonResponse::fromJsonString($serializer->getCategoriesList($items));
+        return JsonResponse::fromJsonString($serializer->getShopCategoriesList($items));
     }
 }

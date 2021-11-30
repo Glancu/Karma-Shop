@@ -5,10 +5,10 @@ namespace App\Controller\Api\Shop;
 
 use App\Entity\ShopProduct;
 use App\Repository\ShopProductRepository;
-use App\Serializer\ShopSerializer;
+use App\Serializer\ShopNormalizer;
 use App\Service\MoneyService;
 use App\Service\RedisCacheService;
-use App\Service\SerializeDataResponse;
+use App\Serializer\SerializeDataResponse;
 use JsonException;
 use Nelmio\ApiDocBundle\Annotation\Security;
 use OpenApi\Annotations as OA;
@@ -30,7 +30,7 @@ class ProductController
 {
     private SerializeDataResponse $serializeDataResponse;
     private ShopProductRepository $shopProductRepository;
-    private ShopSerializer $shopSerializer;
+    private ShopNormalizer $shopSerializer;
     private RedisCacheService $redisCacheService;
 
     /**
@@ -42,7 +42,7 @@ class ProductController
     public function __construct(
         SerializeDataResponse $serializeDataResponse,
         ShopProductRepository $shopProductRepository,
-        ShopSerializer $shopSerializer,
+        ShopNormalizer $shopSerializer,
         RedisCacheService $redisCacheService
     ) {
         $this->serializeDataResponse = $serializeDataResponse;
@@ -180,7 +180,7 @@ class ProductController
 
         $products = $this->shopProductRepository->getProductsWithLimitAndOffsetAndCountItems($parameters);
 
-        $productData = $serializer->getProductsData($products, (int)$countProducts, $parameters);
+        $productData = $serializer->getShopProductsData($products, (int)$countProducts, $parameters);
 
         if ($countProducts === 0 && !$products) {
             $productData = json_encode(['errorMessage' => 'Products was not found.'], JSON_THROW_ON_ERROR);
@@ -234,7 +234,7 @@ class ProductController
             return new JsonResponse(['error' => true, 'message' => 'Product was not found.'], 404);
         }
 
-        return new JsonResponse($serializer->getSingleProductData($product));
+        return new JsonResponse($serializer->getSingleShopProductData($product));
     }
 
     /**
@@ -264,7 +264,7 @@ class ProductController
 
         $products = $productRepository->getLatestProducts();
 
-        $productData = $serializer->getProductsData($products, $countProducts);
+        $productData = $serializer->getShopProductsData($products, $countProducts);
 
         if ($countProducts === 0 && !$products) {
             $productData = json_encode(['errorMessage' => 'Products was not found.'], JSON_THROW_ON_ERROR);

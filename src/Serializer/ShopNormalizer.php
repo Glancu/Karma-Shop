@@ -4,7 +4,6 @@ namespace App\Serializer;
 
 use App\Entity\ProductReview;
 use App\Entity\ShopProduct;
-use App\Entity\SonataMediaMedia;
 use App\Service\MoneyService;
 use Sonata\MediaBundle\Provider\ImageProvider;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -12,7 +11,7 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Serializer\Exception\ExceptionInterface;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 
-class ShopSerializer
+class ShopNormalizer extends BaseNormalizer
 {
     private UrlGeneratorInterface $router;
     private ObjectNormalizer $normalizer;
@@ -27,6 +26,8 @@ class ShopSerializer
         RequestStack $request,
         MoneyService $moneyService
     ) {
+        parent::__construct($imageProvider, $request);
+
         $this->router = $router;
         $this->normalizer = $normalizer;
         $this->imageProvider = $imageProvider;
@@ -96,27 +97,7 @@ class ShopSerializer
             $data['priceGross'] = $moneyService->convertIntToFloat($data['priceGross']);
         }
 
-        if (isset($data['comments'])) {
-            foreach ($data['comments'] as $commentKey => $comment) {
-                if (isset($comment['enable']) && $comment['enable'] === false) {
-                    unset($data['comments'][$commentKey]);
-                } else {
-                    /**
-                     * @var ProductReview $commentObj
-                     */
-                    $commentObj = $topic->getComments()->filter(function($commentObject) use ($comment) {
-                        return $commentObject->getUuid() === $comment['uuid'];
-                    })->first();
-                    if($commentObj && $commentObj->getCreatedAt()) {
-                        $data['comments'][$commentKey]['createdAt'] = $commentObj->getCreatedAt()->format('d-m-Y H:i:s');
-                    } else {
-                        unset($data['comments'][$commentKey]);
-                    }
-                }
-            }
-
-            $data['comments'] = array_values($data['comments']);
-        }
+        $data = $this->generateCommentsForSingleObject($topic, $data);
 
         return $data;
     }
@@ -132,18 +113,7 @@ class ShopSerializer
      */
     public function normalizeCategoriesList($topic, $format = null, array $context = []): array
     {
-        $data = $this->normalizer->normalize($topic, $format, $context);
-        if (isset($data['enable']) && $data['enable'] === false) {
-            return [];
-        }
-
-        if($topic->getCountProducts() === 0) {
-            return [];
-        }
-
-        $data['countProducts'] = $topic->getCountProducts();
-
-        return $data;
+        return $this->getSimpleNormalizeWithCountProducts($topic, $format, $context);
     }
 
     /**
@@ -157,18 +127,7 @@ class ShopSerializer
      */
     public function normalizeBrandsList($topic, $format = null, array $context = []): array
     {
-        $data = $this->normalizer->normalize($topic, $format, $context);
-        if (isset($data['enable']) && $data['enable'] === false) {
-            return [];
-        }
-
-        if($topic->getCountProducts() === 0) {
-            return [];
-        }
-
-        $data['countProducts'] = $topic->getCountProducts();
-
-        return $data;
+        return $this->getSimpleNormalizeWithCountProducts($topic, $format, $context);
     }
 
     /**
@@ -182,18 +141,7 @@ class ShopSerializer
      */
     public function normalizeColorsList($topic, $format = null, array $context = []): array
     {
-        $data = $this->normalizer->normalize($topic, $format, $context);
-        if (isset($data['enable']) && $data['enable'] === false) {
-            return [];
-        }
-
-        if($topic->getCountProducts() === 0) {
-            return [];
-        }
-
-        $data['countProducts'] = $topic->getCountProducts();
-
-        return $data;
+        return $this->getSimpleNormalizeWithCountProducts($topic, $format, $context);
     }
 
     /**
@@ -213,29 +161,28 @@ class ShopSerializer
         return $data;
     }
 
-    private function getUrlImages($images, $format = 'big'): array
+    /**
+     * @param $topic
+     * @param null $format
+     * @param array $context
+     *
+     * @return array
+     *
+     * @throws ExceptionInterface
+     */
+    private function getSimpleNormalizeWithCountProducts($topic, $format = null, array $context = []): array
     {
-        $imagesArr = [];
-
-        /**
-         * @var SonataMediaMedia $image
-         */
-        foreach ($images as $image) {
-            $request = $this->request->getCurrentRequest();
-            $provider = $this->imageProvider;
-            $format = $provider->getFormatName($image, $format);
-            $imageUrl = $provider->generatePublicUrl($image, $format);
-
-            $baseUrl = $request ? ($request->getSchemeAndHttpHost() . $request->getBaseUrl()) : '';
-
-            $fullImageUrl = $baseUrl . $imageUrl;
-
-            $imagesArr[] = [
-                'name' => $image->getName(),
-                'url' => $fullImageUrl
-            ];
+        $data = $this->normalizer->normalize($topic, $format, $context);
+        if (isset($data['enable']) && $data['enable'] === false) {
+            return [];
         }
 
-        return $imagesArr;
+        if($topic->getCountProducts() === 0) {
+            return [];
+        }
+
+        $data['countProducts'] = $topic->getCountProducts();
+
+        return $data;
     }
 }
