@@ -8,6 +8,7 @@ use App\Entity\BlogPost;
 use App\Entity\BlogTag;
 use App\Repository\BlogCategoryRepository;
 use App\Repository\BlogPostRepository;
+use App\Serializer\BlogSerializeDataResponse;
 use App\Service\ImageService;
 use App\Service\RedisCacheService;
 use App\Serializer\SerializeDataResponse;
@@ -40,6 +41,7 @@ class BlogController
     private RouterInterface $router;
     private BlogCategoryRepository $blogCategoryRepository;
     private RedisCacheService $redisCacheService;
+    private BlogSerializeDataResponse $blogSerializeDataResponse;
 
     /**
      * BlogController constructor.
@@ -49,19 +51,22 @@ class BlogController
      * @param RouterInterface $router
      * @param BlogCategoryRepository $blogCategoryRepository
      * @param RedisCacheService $redisCacheService
+     * @param BlogSerializeDataResponse $blogSerializeDataResponse
      */
     public function __construct(
         SerializeDataResponse $serializeDataResponse,
         BlogPostRepository $blogPostRepository,
         RouterInterface $router,
         BlogCategoryRepository $blogCategoryRepository,
-        RedisCacheService $redisCacheService
+        RedisCacheService $redisCacheService,
+        BlogSerializeDataResponse $blogSerializeDataResponse
     ) {
         $this->serializeDataResponse = $serializeDataResponse;
         $this->blogPostRepository = $blogPostRepository;
         $this->router = $router;
         $this->blogCategoryRepository = $blogCategoryRepository;
         $this->redisCacheService = $redisCacheService;
+        $this->blogSerializeDataResponse = $blogSerializeDataResponse;
     }
 
     /**
@@ -119,7 +124,6 @@ class BlogController
     public function getBlogPostsList(Request $request): JsonResponse
     {
         $blogPostRepository = $this->blogPostRepository;
-        $serializer = $this->serializeDataResponse;
 
         $defaultLimit = 12;
 
@@ -145,7 +149,7 @@ class BlogController
 
         $posts = $this->blogPostRepository->getPostsWithLimitAndOffsetAndCountItems($parameters);
 
-        $postsData = $serializer->getBlogPostsData($posts, $countPosts, $parameters);
+        $postsData = $this->blogSerializeDataResponse->getBlogPostsData($posts, $countPosts, $parameters);
 
         if ($countPosts === 0 && !$posts) {
             $postsData = json_encode(['errorMessage' => 'Posts was not found.'], JSON_THROW_ON_ERROR);
@@ -197,8 +201,6 @@ class BlogController
      */
     public function getSinglePost(Request $request, ImageService $imageService, string $slug): JsonResponse
     {
-        $serializer = $this->serializeDataResponse;
-
         $post = $this->blogPostRepository->findOneBy([
             'slug' => $slug
         ]);
@@ -212,7 +214,7 @@ class BlogController
 
         $nextAndPreviousPostsIds = $this->blogPostRepository->getNextAndPreviousPostsIsById($post->getId());
 
-        $data = $serializer->getSingleBlogPostData($post);
+        $data = $this->blogSerializeDataResponse->getSingleBlogPostData($post);
 
         if (isset($nextAndPreviousPostsIds['previous']) && $nextAndPreviousPostsIds['previous']) {
             $previousPost = $this->blogPostRepository->find($nextAndPreviousPostsIds['previous']);
@@ -304,7 +306,7 @@ class BlogController
     {
         $items = $this->blogPostRepository->getPopularPosts();
 
-        $data = $this->serializeDataResponse->getBlogPopularPosts($items);
+        $data = $this->blogSerializeDataResponse->getBlogPopularPosts($items);
 
         return JsonResponse::fromJsonString($data);
     }
@@ -334,7 +336,7 @@ class BlogController
     {
         $categories = $blogCategoryRepository->getItemsByLimit($limit);
 
-        $data = $this->serializeDataResponse->getBlogCategoriesLatestData($categories);
+        $data = $this->blogSerializeDataResponse->getBlogCategoriesLatestData($categories);
 
         return JsonResponse::fromJsonString($data);
     }

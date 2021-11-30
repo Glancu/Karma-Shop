@@ -5,10 +5,11 @@ namespace App\Controller\Api\Shop;
 
 use App\Entity\ShopProduct;
 use App\Repository\ShopProductRepository;
+use App\Serializer\SerializeDataResponse;
 use App\Serializer\ShopNormalizer;
+use App\Serializer\ShopSerializeDataResponse;
 use App\Service\MoneyService;
 use App\Service\RedisCacheService;
-use App\Serializer\SerializeDataResponse;
 use JsonException;
 use Nelmio\ApiDocBundle\Annotation\Security;
 use OpenApi\Annotations as OA;
@@ -16,6 +17,7 @@ use Psr\Cache\InvalidArgumentException;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Serializer\Exception\ExceptionInterface;
 
 /**
  * Class ProductController
@@ -32,23 +34,29 @@ class ProductController
     private ShopProductRepository $shopProductRepository;
     private ShopNormalizer $shopSerializer;
     private RedisCacheService $redisCacheService;
+    private ShopSerializeDataResponse $shopSerializeDataResponse;
 
     /**
      * ProductController constructor.
      *
      * @param SerializeDataResponse $serializeDataResponse
      * @param ShopProductRepository $shopProductRepository
+     * @param ShopNormalizer $shopSerializer
+     * @param RedisCacheService $redisCacheService
+     * @param ShopSerializeDataResponse $shopSerializeDataResponse
      */
     public function __construct(
         SerializeDataResponse $serializeDataResponse,
         ShopProductRepository $shopProductRepository,
         ShopNormalizer $shopSerializer,
-        RedisCacheService $redisCacheService
+        RedisCacheService $redisCacheService,
+        ShopSerializeDataResponse $shopSerializeDataResponse
     ) {
         $this->serializeDataResponse = $serializeDataResponse;
         $this->shopProductRepository = $shopProductRepository;
         $this->shopSerializer = $shopSerializer;
         $this->redisCacheService = $redisCacheService;
+        $this->shopSerializeDataResponse = $shopSerializeDataResponse;
     }
 
     /**
@@ -129,10 +137,10 @@ class ProductController
      *
      * @throws JsonException
      * @throws InvalidArgumentException
+     * @throws ExceptionInterface
      */
     public function getProductsList(Request $request, MoneyService $moneyService): JsonResponse
     {
-        $serializer = $this->serializeDataResponse;
         $redisCacheService = $this->redisCacheService;
 
         $limit = $request->query->get('limit') ?: 12;
@@ -174,13 +182,14 @@ class ProductController
         if ($countProducts < 5) {
             $parameters['limit'] = 10;
             $parameters['offset'] = 0;
-        } elseif($countProducts / 2 <= $parameters['limit']) {
+        } elseif ($countProducts / 2 <= $parameters['limit']) {
             $parameters['limit'] = $countProducts;
         }
 
         $products = $this->shopProductRepository->getProductsWithLimitAndOffsetAndCountItems($parameters);
 
-        $productData = $serializer->getShopProductsData($products, (int)$countProducts, $parameters);
+        $productData = $this->shopSerializeDataResponse->getShopProductsData($products, (int)$countProducts,
+            $parameters);
 
         if ($countProducts === 0 && !$products) {
             $productData = json_encode(['errorMessage' => 'Products was not found.'], JSON_THROW_ON_ERROR);
@@ -222,11 +231,11 @@ class ProductController
      * @param $slug
      *
      * @return JsonResponse
+     *
+     * @throws ExceptionInterface
      */
     public function getProductAction($slug): JsonResponse
     {
-        $serializer = $this->serializeDataResponse;
-
         $product = $this->shopProductRepository->findOneBy([
             'slug' => $slug
         ]);
@@ -234,7 +243,7 @@ class ProductController
             return new JsonResponse(['error' => true, 'message' => 'Product was not found.'], 404);
         }
 
-        return new JsonResponse($serializer->getSingleShopProductData($product));
+        return new JsonResponse($this->shopSerializeDataResponse->getSingleShopProductData($product));
     }
 
     /**
@@ -254,17 +263,17 @@ class ProductController
      * @return JsonResponse
      *
      * @throws JsonException
+     * @throws ExceptionInterface
      */
     public function getLatestProducts(): JsonResponse
     {
         $productRepository = $this->shopProductRepository;
-        $serializer = $this->serializeDataResponse;
 
         $countProducts = 8;
 
         $products = $productRepository->getLatestProducts();
 
-        $productData = $serializer->getShopProductsData($products, $countProducts);
+        $productData = $this->shopSerializeDataResponse->getShopProductsData($products, $countProducts);
 
         if ($countProducts === 0 && !$products) {
             $productData = json_encode(['errorMessage' => 'Products was not found.'], JSON_THROW_ON_ERROR);
