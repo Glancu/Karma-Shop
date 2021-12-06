@@ -20,7 +20,8 @@ import ChangePassword from './Pages/User/ChangePassword';
 import ClientPanelRoute from './Routers/ClientPanelRoute';
 import Orders from './Pages/User/Orders';
 import {default as BlogCategory} from './Pages/Blog/Category';
-import {default as BlogTag} from './Pages/Blog/Tag';
+import { default as BlogTag } from './Pages/Blog/Tag';
+import Notify from './Pages/Payment/PayPal/Notify';
 
 const App = () => (
     <Router>
@@ -30,25 +31,27 @@ const App = () => (
 
             <Route path='/contact' component={Contact} />
 
-            <Route path='/shop/product/:slug' component={ProductDetail} />
+            <Route path="/shop/product/:slug" component={ProductDetail}/>
 
-            <ShopCheckoutRoute path='/shop/checkout' component={Checkout} />
+            <ShopCheckoutRoute path="/shop/checkout" component={Checkout}/>
 
-            <Route path='/shop/cart' component={Cart} />
-            <Route path='/shop/confirmation' component={Confirmation} />
-            <Route path='/shop/page/:page' component={ProductsList} />
-            <Route path='/shop/category/:slug' component={ShopCategory} />
-            <Route exact path='/shop' component={ProductsList} />
+            <Route path="/shop/cart" component={Cart}/>
+            <Route path="/shop/confirmation" component={Confirmation}/>
+            <Route path="/shop/page/:page" component={ProductsList}/>
+            <Route path="/shop/category/:slug" component={ShopCategory}/>
+            <Route exact path="/shop" component={ProductsList}/>
 
-            <Route path='/blog/page/:page' component={List} />
-            <Route path='/blog/category/:slug' component={BlogCategory} />
-            <Route path='/blog/tag/:slug' component={BlogTag} />
-            <Route path='/blog/:slug' component={Show} />
-            <Route path='/blog' component={List} />
+            <Route path="/payment/pay-pal/notify" component={Notify}/>
 
-            <Route path='/login' component={Login} />
-            <Route path='/logout' component={Logout} />
-            <Route path='/register' component={Register} />
+            <Route path="/blog/page/:page" component={List}/>
+            <Route path="/blog/category/:slug" component={BlogCategory}/>
+            <Route path="/blog/tag/:slug" component={BlogTag}/>
+            <Route path="/blog/:slug" component={Show}/>
+            <Route path="/blog" component={List}/>
+
+            <Route path="/login" component={Login}/>
+            <Route path="/logout" component={Logout}/>
+            <Route path="/register" component={Register}/>
             <ClientPanelAppRoute path='/user/panel' component={ChangePassword} />
             <ClientPanelAppRoute path='/user/orders' component={Orders} />
 

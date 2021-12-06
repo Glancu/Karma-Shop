@@ -5,6 +5,7 @@ import BaseTemplate from '../../Components/BaseTemplate';
 import axios from 'axios';
 import { getUserToken } from '../../Components/User/UserData';
 import SetPageTitle from '../../Components/SetPageTitle';
+import { generatePath } from 'react-router';
 
 class Orders extends Component {
     constructor(props) {
@@ -41,6 +42,8 @@ class Orders extends Component {
     render() {
         const {orders} = this.state;
 
+        const paymentNotifyUrl = window.location.origin + generatePath('/payment/pay-pal/notify');
+
         return (
             <BaseTemplate>
                 <section className="banner-area organic-breadcrumb">
@@ -73,7 +76,7 @@ class Orders extends Component {
                                                     orders.map(order => {
                                                         return (
                                                             <div key={order.uuid}>
-                                                                <h3>Order <b>{order.orderNumber}</b></h3>
+                                                                <h3>Order <b>{order.uuid}</b></h3>
 
                                                                 <table className="table">
                                                                     <thead>
@@ -88,7 +91,15 @@ class Orders extends Component {
                                                                     <tr>
                                                                         <td>{order.createdAt}</td>
                                                                         <td>{order.methodPayment}</td>
-                                                                        <td>{order.status}</td>
+                                                                        <td>
+                                                                            {order.status}
+                                                                            {
+                                                                                order.payPalUrl &&
+                                                                                <p>(<a
+                                                                                    href={order.payPalUrl + '?notifyUrl=' + paymentNotifyUrl}>Pay
+                                                                                    now</a>)</p>
+                                                                            }
+                                                                        </td>
                                                                     </tr>
                                                                     </tbody>
                                                                 </table>
@@ -108,19 +119,16 @@ class Orders extends Component {
                                                                     <tbody>
                                                                     {
                                                                         order.products.map(product => {
-                                                                            const productQuantity = product.quantity;
-                                                                            const priceGross = product.priceGross;
-                                                                            const total = priceGross * productQuantity;
-
                                                                             return (
                                                                                 <tr key={product.uuid}>
                                                                                     <td>
-                                                                                        <img src={product.images[0].url} alt="" height="50px"/>
+                                                                                        <img src={product.image.url}
+                                                                                             alt="" height="50px"/>
                                                                                     </td>
                                                                                     <td>{product.name}</td>
-                                                                                    <td>{productQuantity}</td>
-                                                                                    <td>{priceGross}</td>
-                                                                                    <td>{total}</td>
+                                                                                    <td>{product.quantity}</td>
+                                                                                    <td>{product.priceGross}</td>
+                                                                                    <td>{product.total}</td>
                                                                                 </tr>
                                                                             )
                                                                         })

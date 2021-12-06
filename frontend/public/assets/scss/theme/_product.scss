@@ -1880,11 +1880,17 @@
 		color: #deb217;
 	}
 
-	> input:checked + label:hover,
-	> input:checked + label:hover ~ label,
-	> input:checked ~ label:hover,
-	> input:checked ~ label:hover ~ label,
-	> label:hover ~ input:checked ~ label {
-		color: #c59b08;
-	}
+    > input:checked + label:hover,
+    > input:checked + label:hover ~ label,
+    > input:checked ~ label:hover,
+    > input:checked ~ label:hover ~ label,
+    > label:hover ~ input:checked ~ label {
+        color: #c59b08;
+    }
+}
+
+.shop-payment-pay_pal {
+    display: block;
+    width: max-content;
+    margin-left: auto;
 }

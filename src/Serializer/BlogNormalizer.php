@@ -4,8 +4,8 @@ namespace App\Serializer;
 
 use App\Entity\BlogCategory;
 use App\Entity\BlogPost;
+use App\Service\ImageService;
 use Sonata\MediaBundle\Provider\ImageProvider;
-use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Serializer\Exception\ExceptionInterface;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
@@ -15,20 +15,20 @@ class BlogNormalizer extends BaseNormalizer
     private UrlGeneratorInterface $router;
     private ObjectNormalizer $normalizer;
     private ImageProvider $imageProvider;
-    private RequestStack $request;
+    private ImageService $imageService;
 
     public function __construct(
         UrlGeneratorInterface $router,
         ObjectNormalizer $normalizer,
         ImageProvider $imageProvider,
-        RequestStack $request
+        ImageService $imageService
     ) {
-        parent::__construct($imageProvider, $request);
+        parent::__construct($imageProvider, $imageService);
 
         $this->router = $router;
         $this->normalizer = $normalizer;
         $this->imageProvider = $imageProvider;
-        $this->request = $request;
+        $this->imageService = $imageService;
     }
 
     /**

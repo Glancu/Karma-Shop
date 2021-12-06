@@ -73,6 +73,7 @@ class OrderCRUDController extends CRUDController
                                     ->findByType(EmailTemplate::TYPE_ORDER_NOT_PAID_USER);
 
                 $order->setStatus(OrderStatus::STATUS_NOT_PAID);
+                $order->setTransaction(null);
                 break;
             case 'sent-products':
                 $emailTemplate = $em->getRepository('App:EmailTemplate')

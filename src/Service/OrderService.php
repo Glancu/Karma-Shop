@@ -9,12 +9,14 @@ use App\Entity\Order;
 use App\Entity\OrderAddress;
 use App\Entity\OrderPersonalDataInfo;
 use App\Entity\ShopProduct;
+use App\Entity\ShopProductItem;
 use App\Message\SendOrderMailMessage;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
-use JsonException;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Messenger\MessageBusInterface;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Component\Routing\RouterInterface;
 use Twig\Environment;
 
 final class OrderService
@@ -24,19 +26,29 @@ final class OrderService
     private MailerService $mailerService;
     private Environment $templating;
     private MessageBusInterface $messageBus;
+    private RouterInterface $router;
 
     public function __construct(
         UserService $userService,
         EntityManagerInterface $entityManager,
         MailerService $mailerService,
         Environment $templating,
-        MessageBusInterface $messageBus
+        MessageBusInterface $messageBus,
+        RouterInterface $router
     ) {
         $this->userService = $userService;
         $this->entityManager = $entityManager;
         $this->mailerService = $mailerService;
         $this->templating = $templating;
         $this->messageBus = $messageBus;
+        $this->router = $router;
+    }
+
+    public function generatePayPalAbsoluteUrl(Order $order): string
+    {
+        return $this->router->generate('api_app_payment_pay_pal_create', [
+            'orderUuid' => $order->getUuid()
+        ], UrlGeneratorInterface::ABSOLUTE_URL);
     }
 
     /**
@@ -44,7 +56,6 @@ final class OrderService
      *
      * @return JsonResponse
      *
-     * @throws JsonException
      * @throws Exception
      */
     public function createOrderAndSendMailAndReturnResponse($data): JsonResponse
@@ -58,10 +69,12 @@ final class OrderService
             return $clientUser;
         }
 
-        $products = $this->validateProductsAndDecreaseQuantityOfProducts($data['products']);
-        if ($products instanceof JsonResponse) {
-            return $products;
+        $shopProducts = $this->validateProductsAndDecreaseQuantityOfProducts($data['products']);
+        if ($shopProducts instanceof JsonResponse) {
+            return $shopProducts;
         }
+
+        $shopProductItems = $this->createShopProductItemFromProductsArr($data['products']);
 
         $orderPersonalDataInfo = new OrderPersonalDataInfo(
             $personalData['firstName'],
@@ -91,7 +104,7 @@ final class OrderService
             $orderPersonalDataInfo,
             $orderAddress,
             $methodPayment,
-            $products,
+            $shopProductItems,
             $personalData['additionalInformation'] ?? null
         );
 
@@ -101,7 +114,16 @@ final class OrderService
         $this->sendMailToUser($order, $clientUser->getEmail());
         $this->sendMailToAdmin($order);
 
-        return new JsonResponse(['error' => false, 'uuid' => $order->getUuid()], 201);
+        $returnArr = [
+            'error' => false,
+            'uuid' => $order->getUuid()
+        ];
+
+        if ($order->getMethodPayment() === Order::METHOD_PAYMENT_TYPE_PAYPAL) {
+            $returnArr['payPalUrl'] = $this->generatePayPalAbsoluteUrl($order);
+        }
+
+        return new JsonResponse($returnArr, 201);
     }
 
     /**
@@ -233,8 +255,9 @@ final class OrderService
      */
     public function replaceVariableAndSendMail(Order $order, EmailTemplate $emailTemplate, string $emailTo): void
     {
-        $emailSubject = Order::replaceVariablesForEmail($order, $emailTemplate->getSubject());
-        $emailContent = Order::replaceVariablesForEmail($order, $emailTemplate->getMessage());
+        $emailSubject = $this->replaceVariablesForEmail($order, $emailTemplate->getSubject());
+
+        $emailContent = $this->replaceVariablesForEmail($order, $emailTemplate->getMessage());
 
         $cartEmail = $this->templating->render('email/_order_cart.html.twig', [
             'order' => $order
@@ -243,5 +266,71 @@ final class OrderService
         $emailContent = str_replace('%cart%', $cartEmail, $emailContent);
 
         $this->messageBus->dispatch(new SendOrderMailMessage($emailSubject, $emailContent, $emailTo));
+    }
+
+    private function replaceVariablesForEmail(Order $order, string $text): string
+    {
+        $text = str_replace(
+            [
+                '%client_email%',
+                '%method_payment%',
+                '%order_uuid%',
+                '%pay_pal_url%'
+            ],
+            [
+                $order->getUser()->getEmail(),
+                $order->getMethodPaymentStr(),
+                $order->getUuid(),
+                $order->isMethodPayPal() ? $this->generatePayPalAbsoluteUrl($order) : '',
+            ],
+            $text
+        );
+
+        preg_match('~%pay_pal_block_start%([^{]*)%pay_pal_block_end%~i', $text, $textOnlyForPayPal);
+
+        if (isset($textOnlyForPayPal[0]) && !$order->isMethodPayPal()) {
+            $text = str_replace($textOnlyForPayPal[0], '', $text);
+        }
+
+        $text = str_replace(
+            [
+                '%pay_pal_block_start%',
+                '%pay_pal_block_end%',
+            ],
+            [
+                '',
+                '',
+            ],
+            $text
+        );
+
+        return $text;
+    }
+
+    private function createShopProductItemFromProductsArr(array $products): array
+    {
+        $em = $this->entityManager;
+
+        $items = [];
+
+        foreach ($products as $productData) {
+            $productUuid = $productData['uuid'];
+            $quantity = (int)$productData['quantity'];
+
+            $product = $em->getRepository('App:ShopProduct')->findOneBy([
+                'uuid' => $productUuid
+            ]);
+            if ($product) {
+                $item = new ShopProductItem($product, $quantity);
+
+                $em->persist($item);
+
+                $items[] = $item;
+            }
+        }
+
+        $em->flush();
+
+        return $items;
     }
 }

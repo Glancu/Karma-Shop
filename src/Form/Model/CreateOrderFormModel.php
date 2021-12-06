@@ -12,7 +12,7 @@ class CreateOrderFormModel
     /**
      * @Assert\NotNull(message="Personal data cannot be null")
      */
-    public array $personalData;
+    public array $personalData = [];
 
     /**
      * @Assert\NotNull(message="Method payment cannot be null")
@@ -30,7 +30,7 @@ class CreateOrderFormModel
     /**
      * @Assert\NotNull(message="Not found products to create order")
      */
-    public array $products;
+    public array $products = [];
 
     /**
      * @Assert\IsTrue(message="Accept terms before create order")

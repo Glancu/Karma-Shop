@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Entity\Order;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -22,11 +23,10 @@ class OrderRepository extends ServiceEntityRepository
     public function findByClientEmail(string $clientId): array
     {
         $queryBuilder = $this->createQueryBuilder('o')
-            ->leftJoin('o.user', 'user')
-            ->leftJoin('o.products', 'product')
-            ->where('user.email = :userEmail')
-            ->setParameter('userEmail', $clientId)
-            ->orderBy('o.id', 'DESC');
+                             ->leftJoin('o.user', 'user')
+                             ->where('user.email = :userEmail')
+                             ->setParameter('userEmail', $clientId)
+                             ->orderBy('o.id', 'DESC');
 
         $query = $queryBuilder->getQuery();
 
@@ -34,5 +34,24 @@ class OrderRepository extends ServiceEntityRepository
 
         return $query
             ->getResult();
+    }
+
+    /**
+     * @param string $uuid
+     *
+     * @return Order|null
+     *
+     * @throws NonUniqueResultException
+     */
+    public function findByUuid(string $uuid): ?Order
+    {
+        $queryBuilder = $this->createQueryBuilder('o')
+                             ->where('o.uuid = :uuid')
+                             ->setParameter('uuid', $uuid)
+                             ->setMaxResults(1);
+
+        return $queryBuilder
+            ->getQuery()
+            ->getOneOrNullResult();
     }
 }

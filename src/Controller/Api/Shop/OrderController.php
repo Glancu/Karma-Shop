@@ -3,11 +3,15 @@ declare(strict_types=1);
 
 namespace App\Controller\Api\Shop;
 
+use App\Component\OrderStatus;
 use App\Entity\Order;
+use App\Entity\ShopProductItem;
 use App\Form\Type\CreateOrderType;
+use App\Serializer\ShopSerializeDataResponse;
+use App\Service\ImageService;
+use App\Service\MoneyService;
 use App\Service\OrderService;
 use App\Service\RequestService;
-use App\Serializer\SerializeDataResponse;
 use Doctrine\ORM\EntityManagerInterface;
 use JsonException;
 use Nelmio\ApiDocBundle\Annotation\Security;
@@ -16,6 +20,8 @@ use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
@@ -31,21 +37,27 @@ class OrderController
 {
     private FormFactoryInterface $form;
     private EntityManagerInterface $entityManager;
-    private SerializeDataResponse $serializeDataResponse;
+    private ShopSerializeDataResponse $shopSerializeDataResponse;
+    private RouterInterface $router;
 
     /**
      * OrderController constructor.
      *
      * @param FormFactoryInterface $formFactory
+     * @param EntityManagerInterface $entityManager
+     * @param ShopSerializeDataResponse $shopSerializeDataResponse
+     * @param RouterInterface $router
      */
     public function __construct(
         FormFactoryInterface $formFactory,
         EntityManagerInterface $entityManager,
-        SerializeDataResponse $serializeDataResponse
+        ShopSerializeDataResponse $shopSerializeDataResponse,
+        RouterInterface $router
     ) {
         $this->form = $formFactory;
         $this->entityManager = $entityManager;
-        $this->serializeDataResponse = $serializeDataResponse;
+        $this->shopSerializeDataResponse = $shopSerializeDataResponse;
+        $this->router = $router;
     }
 
     /**
@@ -187,20 +199,24 @@ class OrderController
      *     description="List of orders",
      *     @OA\JsonContent(
      *        type="string",
-     *        example={{ "uuid": "ae58a6b1-9356-4f63-9ce5-79437bfdb289", "priceGross": null, "createdAt": "2021-09-08 08:12:44", "status": "New", "methodPayment": "Online", "orderNumber": "MM1IaB9ViGdBJuP", "products": { { "name": "product 2", "slug": "product-2", "quantity": 196, "description": "<p>description of product 2</p>", "shopBrand": { "title": "Gionee", "slug": "gionee", "enable": true, "uuid": "9bbc3dce-c3ed-4ffb-be3e-2257764fdec7" }, "shopCategory": { "title": "Meat and Fish", "slug": "meat-and-fish", "enable": true, "uuid": "c0cb68af-bea3-43fe-b8eb-6a8a1c40268c" }, "shopProductSpecifications": {}, "reviews": {}, "shopColors": {}, "comments": {}, "enable": true, "uuid": "f3de45cf-6efd-49ec-826d-43632512596a", "priceNet": "0.71", "priceGross": "0.75", "images": { { "name": "image.jpg", "url": "https://website.com/image.jpg" } } } } }}
+     *        example={{ "uuid": "ae58a6b1-9356-4f63-9ce5-79437bfdb289", "priceGross": null, "createdAt": "2021-09-08 08:12:44", "status": "New", "methodPayment": "Online", "products": { { "name": "product 2", "slug": "product-2", "quantity": 196, "description": "<p>description of product 2</p>", "shopBrand": { "title": "Gionee", "slug": "gionee", "enable": true, "uuid": "9bbc3dce-c3ed-4ffb-be3e-2257764fdec7" }, "shopCategory": { "title": "Meat and Fish", "slug": "meat-and-fish", "enable": true, "uuid": "c0cb68af-bea3-43fe-b8eb-6a8a1c40268c" }, "shopProductSpecifications": {}, "reviews": {}, "shopColors": {}, "comments": {}, "enable": true, "uuid": "f3de45cf-6efd-49ec-826d-43632512596a", "priceNet": "0.71", "priceGross": "0.75", "images": { { "name": "image.jpg", "url": "https://website.com/image.jpg" } } } } }}
      *     )
      * )
      *
      * @Security(name="Bearer")
      *
      * @param UserInterface $user
+     * @param ImageService $imageService
+     * @param MoneyService $moneyService
      *
      * @return JsonResponse
      */
-    public function getOrdersProductsByUserToken(UserInterface $user): JsonResponse
-    {
+    public function getOrdersProductsByUserToken(
+        UserInterface $user,
+        ImageService $imageService,
+        MoneyService $moneyService
+    ): JsonResponse {
         $em = $this->entityManager;
-        $serializer = $this->serializeDataResponse;
         $clientEmail = $user->getEmail();
 
         $orders = $em->getRepository('App:Order')->findByClientEmail($clientEmail);
@@ -213,19 +229,40 @@ class OrderController
         foreach ($orders as $order) {
             $products = [];
 
-            foreach ($order->getProducts() as $product) {
-                $products[] = $serializer->getSingleShopProductData($product);
+            /**
+             * @var ShopProductItem $productItem
+             */
+            foreach ($order->getShopProductItems() as $productItem) {
+                $product = $productItem->getProduct();
+
+                $priceGross = $moneyService->convertIntToFloat($productItem->getPriceGross());
+
+                $products[] = [
+                    'uuid' => $product->getUuid(),
+                    'name' => $product->getName(),
+                    'quantity' => $productItem->getQuantity(),
+                    'priceGross' => number_format((float)$priceGross, 2, '.', ''),
+                    'total' => number_format(($priceGross * $productItem->getQuantity()), 2, '.', ''),
+                    'image' => $imageService->getImageNameAndUrl($product->getImages()->first())
+                ];
             }
 
-            $data[] = [
+            $arr = [
                 'uuid' => $order->getUuid(),
                 'priceGross' => $order->getPriceGross(),
                 'createdAt' => $order->getCreatedAt()->format('Y-m-d H:i:s'),
                 'status' => $order->getStatusStr(),
                 'methodPayment' => $order->getMethodPaymentStr(),
-                'orderNumber' => $order->getOrderNumber(),
                 'products' => $products
             ];
+
+            if ($order->getMethodPayment() === Order::METHOD_PAYMENT_TYPE_PAYPAL && $order->getStatus() !== OrderStatus::STATUS_PAID) {
+                $arr['payPalUrl'] = $this->router->generate('api_app_payment_pay_pal_create', [
+                    'orderUuid' => $order->getUuid()
+                ], UrlGeneratorInterface::ABSOLUTE_URL);
+            }
+
+            $data[] = $arr;
         }
 
         return new JsonResponse($data);
