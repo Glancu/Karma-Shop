@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Service;
 
 use App\Entity\EmailHistory;
+use App\Entity\Order;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use Swift_Mailer;
@@ -61,6 +62,43 @@ final class MailerService
     public function getAdminEmail(): string
     {
         return $this->sender;
+    }
+
+    public function replaceVariablesOrderForEmail(Order $order, string $text, array $options = []): string
+    {
+        $text = str_replace(
+            [
+                '%client_email%',
+                '%method_payment%',
+                '%order_uuid%',
+                '%pay_pal_url%'
+            ],
+            [
+                $order->getUser()->getEmail(),
+                $order->getMethodPaymentStr(),
+                $order->getUuid(),
+                $order->isMethodPayPal() && isset($options['payPalUrl']) ? $options['payPalUrl'] : '',
+            ],
+            $text
+        );
+
+        preg_match('~%pay_pal_block_start%([^{]*)%pay_pal_block_end%~i', $text, $textOnlyForPayPal);
+
+        if (isset($textOnlyForPayPal[0]) && !$order->isMethodPayPal()) {
+            $text = str_replace($textOnlyForPayPal[0], '', $text);
+        }
+
+        return str_replace(
+            [
+                '%pay_pal_block_start%',
+                '%pay_pal_block_end%',
+            ],
+            [
+                '',
+                '',
+            ],
+            $text
+        );
     }
 
     /**

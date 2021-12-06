@@ -9,9 +9,9 @@ import axios from 'axios';
 import ValidateEmail from '../../Components/ValidateEmail';
 import CONFIG from '../../config';
 import $ from 'jquery';
+import SetPageTitle from '../../Components/SetPageTitle';
 
 import imgProductCard from '../../../public/assets/img/product/card.jpg';
-import SetPageTitle from '../../Components/SetPageTitle';
 
 class Checkout extends Component {
     constructor(props) {
@@ -55,7 +55,8 @@ class Checkout extends Component {
                 },
                 errorMessage: ''
             },
-            successRedirect: false
+            successRedirect: false,
+            payPalUrl: null
         };
 
         this.submitForm = this.submitForm.bind(this);
@@ -255,15 +256,6 @@ class Checkout extends Component {
 
                 const userStorageLoginToken = CONFIG.user.storage_login_token;
 
-                const data = {
-                    personalData: form.inputs,
-                    methodPayment: form.methodPayment,
-                    isCustomCorrespondence: form.customCorrespondence,
-                    products: products,
-                    dataProcessingAgreement: form.dataProcessingAgreement,
-                    userToken: localStorage.getItem(userStorageLoginToken)
-                };
-
                 const errorMessageStr = 'Something went wrong. Try again.';
 
                 const responseDataMessage = document.getElementById('response-data-message');
@@ -274,10 +266,10 @@ class Checkout extends Component {
                     }
 
                     axios.post("/api/shop/create-order", {
-                        'personalData': JSON.stringify(form.inputs),
+                        'personalData': form.inputs,
                         'methodPayment': form.methodPayment,
                         'isCustomCorrespondence': form.customCorrespondence,
-                        'products': JSON.stringify(products),
+                        'products': products,
                         'dataProcessingAgreement': form.dataProcessingAgreement,
                         'userToken': token ?? null
                     }).then(result => {
@@ -285,6 +277,10 @@ class Checkout extends Component {
                             if(result.data && result.data.uuid) {
                                 responseDataMessage.classList.add('success-message');
                                 responseDataMessage.innerText = 'Success';
+
+                                if(result.data.payPalUrl) {
+                                    _this.state.payPalUrl = result.data.payPalUrl;
+                                }
 
                                 setTimeout(function() {
                                     _this.setState({successRedirect: true});
@@ -302,6 +298,11 @@ class Checkout extends Component {
                         }
                     }).catch((err) => {
                         console.error(err)
+
+                        if(err.response.data && err.response.data.error && err.response.data.message) {
+                            responseDataMessage.classList.add('error-message');
+                            responseDataMessage.innerText = err.response.data.message;
+                        }
                     });
                 }
             }
@@ -388,7 +389,7 @@ class Checkout extends Component {
     }
 
     render() {
-        const {isUserLoggedIn, userLoginForm, successRedirect} = this.state;
+        const {isUserLoggedIn, userLoginForm, successRedirect, payPalUrl} = this.state;
 
         const shoppingCartProducts = ShoppingCart.getProducts();
         const localStorageShop = window.localStorage.getItem(ShoppingCart.localStorageShopKeyName);
@@ -400,7 +401,7 @@ class Checkout extends Component {
         }
 
         if(successRedirect) {
-            return <Redirect to="/shop/confirmation" />
+            return <Redirect to={{pathname: '/shop/confirmation', state: {payPalUrl: payPalUrl}}}/>
         }
 
         return (

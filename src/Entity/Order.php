@@ -7,7 +7,6 @@ use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\PriceTrait;
 use App\Entity\Traits\UuidTrait;
 use App\Repository\OrderRepository;
-use App\Service\GeneratorStringService;
 use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
@@ -15,6 +14,7 @@ use Doctrine\ORM\PersistentCollection;
 use Exception;
 
 /**
+ * @ORM\Cache(usage="NONSTRICT_READ_WRITE")
  * @ORM\Entity(repositoryClass=OrderRepository::class)
  * @ORM\Table(name="orders")
  */
@@ -39,13 +39,6 @@ class Order
      * @ORM\Column(name="updated_at", type="datetime", nullable=true)
      */
     private ?DateTime $updatedAt = null;
-
-    /**
-     * @var ArrayCollection|PersistentCollection
-     *
-     * @ORM\ManyToMany(targetEntity="App\Entity\ShopProduct")
-     */
-    private $products;
 
     /**
      * @var ClientUser
@@ -82,23 +75,28 @@ class Order
     /**
      * @var int
      *
-     * @ORM\Column(name="status_payment", type="smallint")
-     */
-    private int $statusPayment;
-
-    /**
-     * @var string
-     *
-     * @ORM\Column(type="string", length=15)
-     */
-    private string $orderNumber;
-
-    /**
-     * @var int
-     *
      * @ORM\Column(name="status", type="smallint")
      */
     private int $status;
+
+    /**
+     * @var Transaction|null
+     *
+     * @ORM\OneToOne(targetEntity="App\Entity\Transaction", inversedBy="order")
+     * @ORM\JoinColumn(name="transaction_id", referencedColumnName="id")
+     */
+    private ?Transaction $transaction;
+
+    /**
+     * @var ArrayCollection|PersistentCollection
+     *
+     * @ORM\ManyToMany(targetEntity="App\Entity\ShopProductItem")
+     * @ORM\JoinTable(name="orders_shop_product_items",
+     *      joinColumns={@ORM\JoinColumn(name="order_id", referencedColumnName="id")},
+     *      inverseJoinColumns={@ORM\JoinColumn(name="shop_product_item_id", referencedColumnName="id")}
+     *      )
+     */
+    private $shopProductItems;
 
     /**
      * Order constructor.
@@ -107,7 +105,7 @@ class Order
      * @param OrderPersonalDataInfo $orderPersonalDataInfo
      * @param OrderAddress $orderAddress
      * @param int $methodPayment
-     * @param $products
+     * @param $productsItems
      * @param string|null $additionalInformation
      *
      * @throws Exception
@@ -117,20 +115,23 @@ class Order
         OrderPersonalDataInfo $orderPersonalDataInfo,
         OrderAddress $orderAddress,
         int $methodPayment,
-        $products,
+        $productsItems,
         ?string $additionalInformation = null
     ) {
         $this->__UuidTraitConstructor();
-        $this->statusPayment = self::STATUS_PAYMENT_NEW;
         $this->orderPersonalDataInfo = $orderPersonalDataInfo;
         $this->orderAddress = $orderAddress;
         $this->user = $clientUser;
         $this->methodPayment = $methodPayment;
-        $this->addShopProductsArr($products);
+        $this->addShopProductsItemsArr($productsItems);
         $this->additionalInformation = $additionalInformation;
-        $this->orderNumber = GeneratorStringService::generateString(15);
         $this->generateTotalPrices();
         $this->status = OrderStatus::STATUS_NEW;
+    }
+
+    public function __toString(): string
+    {
+        return $this->uuid;
     }
 
     public function getId(): ?int
@@ -155,22 +156,6 @@ class Order
     }
 
     /**
-     * @return int
-     */
-    public function getStatusPayment(): int
-    {
-        return $this->statusPayment;
-    }
-
-    /**
-     * @param int $statusPayment
-     */
-    public function setStatusPayment(int $statusPayment): void
-    {
-        $this->statusPayment = $statusPayment;
-    }
-
-    /**
      * @return DateTime|null
      */
     public function getUpdatedAt(): ?DateTime
@@ -184,30 +169,6 @@ class Order
     public function setUpdatedAt(DateTime $updatedAt): void
     {
         $this->updatedAt = $updatedAt;
-    }
-
-    /**
-     * @return ArrayCollection|PersistentCollection
-     */
-    public function getProducts()
-    {
-        return $this->products;
-    }
-
-    /**
-     * @param ShopProduct $shopProduct
-     */
-    public function addShopProduct(ShopProduct $shopProduct): void
-    {
-        $this->products[] = $shopProduct;
-    }
-
-    /**
-     * @param ShopProduct $shopProduct
-     */
-    public function removeShopProduct(ShopProduct $shopProduct): void
-    {
-        $this->products->removeElement($shopProduct);
     }
 
     /**
@@ -275,14 +236,6 @@ class Order
     }
 
     /**
-     * @return string
-     */
-    public function getOrderNumber(): string
-    {
-        return $this->orderNumber;
-    }
-
-    /**
      * @return int
      */
     public function getStatus(): int
@@ -296,6 +249,46 @@ class Order
     public function setStatus(int $status): void
     {
         $this->status = $status;
+    }
+
+    /**
+     * @return Transaction|null
+     */
+    public function getTransaction(): ?Transaction
+    {
+        return $this->transaction;
+    }
+
+    /**
+     * @param Transaction|null $transaction
+     */
+    public function setTransaction(?Transaction $transaction): void
+    {
+        $this->transaction = $transaction;
+    }
+
+    /**
+     * @return ArrayCollection|PersistentCollection
+     */
+    public function getShopProductItems()
+    {
+        return $this->shopProductItems;
+    }
+
+    /**
+     * @param ShopProductItem $shopProductItem
+     */
+    public function addShopProductItem(ShopProductItem $shopProductItem): void
+    {
+        $this->shopProductItems[] = $shopProductItem;
+    }
+
+    /**
+     * @param ShopProductItem $shopProductItem
+     */
+    public function removeShopProductItem(ShopProductItem $shopProductItem): void
+    {
+        $this->shopProductItems->removeElement($shopProductItem);
     }
 
     /**
@@ -323,71 +316,47 @@ class Order
         return array_search(trim($methodPayment), self::getMethodPaymentsArr());
     }
 
-    public const STATUS_PAYMENT_NEW = 1;
-    public const STATUS_PAYMENT_PAID = 2;
-
-    public function getStatusPaymentsArr(): array
-    {
-        return [
-            self::STATUS_PAYMENT_NEW => 'New',
-            self::STATUS_PAYMENT_PAID => 'Paid'
-        ];
-    }
-
-    public function getStatusPaymentStr(): ?string
-    {
-        return $this->statusPayment ? $this->getStatusPaymentsArr()[$this->statusPayment] : null;
-    }
-
-    private function addShopProductsArr($products): void
+    private function addShopProductsItemsArr($productsItems): void
     {
         /**
-         * @var ShopProduct $product
+         * @var ShopProductItem $productsItem
          */
-        foreach ($products as $product) {
-            $this->addShopProduct($product);
+        foreach ($productsItems as $productsItem) {
+            $this->addShopProductItem($productsItem);
         }
     }
 
-    private function generateTotalPrices(): void {
+    private function generateTotalPrices(): void
+    {
         $priceNet = 0;
         $priceGross = 0;
 
         /**
-         * @var ShopProduct $product
+         * @var ShopProductItem $productItem
          */
-        foreach($this->getProducts() as $product) {
-            $priceNet += $product->getPriceNet();
-            $priceGross += $product->getPriceGross();
+        foreach ($this->getShopProductItems() as $productItem) {
+            $product = $productItem->getProduct();
+            if ($product) {
+                $priceNet += $product->getPriceNet() * $productItem->getQuantity();
+                $priceGross += $product->getPriceGross() * $productItem->getQuantity();
+            }
         }
 
         $this->setPriceNet($priceNet);
         $this->setPriceGross($priceGross);
     }
 
-    public static function replaceVariablesForEmail(Order $order, string $text): string
-    {
-        return str_replace(
-            [
-                '%order_number%',
-                '%client_email%',
-                '%method_payment%'
-            ],
-            [
-                $order->getOrderNumber(),
-                $order->getUser()->getEmail(),
-                $order->getMethodPaymentStr()
-            ],
-            $text
-        );
-    }
-
     public function getStatusStr(): ?string
     {
-        if($this->status === null || $this->status === 0) {
+        if ($this->status === null || $this->status === 0) {
             return null;
         }
 
         return OrderStatus::getStatusStr($this->status);
+    }
+
+    public function isMethodPayPal(): bool
+    {
+        return $this->getMethodPayment() === Order::METHOD_PAYMENT_TYPE_PAYPAL;
     }
 }

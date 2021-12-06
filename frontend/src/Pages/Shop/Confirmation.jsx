@@ -4,6 +4,7 @@ import { Link, Redirect } from 'react-router-dom';
 import ShoppingCart from '../../Components/Shop/ShoppingCart';
 import CONFIG from '../../config';
 import SetPageTitle from '../../Components/SetPageTitle';
+import { generatePath } from 'react-router';
 
 class Confirmation extends Component {
     componentDidMount() {
@@ -15,6 +16,7 @@ class Confirmation extends Component {
     render() {
         const currencySymbol = CONFIG.shop.currencySymbol;
         const shoppingCartProducts = ShoppingCart.getProducts();
+        const {payPalUrl} = this.props.location.state;
 
         const localStorageShop = window.localStorage.getItem(ShoppingCart.localStorageShopKeyName);
         if(!localStorageShop || JSON.parse(localStorageShop).products.length === 0 ||
@@ -64,6 +66,9 @@ class Confirmation extends Component {
                 )
                 : renderBillingAddress();
         };
+
+        const paymentNotifyUrl = window.location.origin + generatePath('/payment/pay-pal/notify');
+        const payPalFullUrl = payPalUrl + '?notifyUrl=' + paymentNotifyUrl;
 
         return (
             <BaseTemplate>
@@ -148,6 +153,16 @@ class Confirmation extends Component {
                                 </table>
                             </div>
                         </div>
+                        {payPalUrl &&
+                        <div className="shop-payment-pay_pal">
+                            <p><b>Payment</b></p>
+                            <p>You can pay for this order now, <a href={payPalFullUrl}><b>click here</b></a>.</p>
+                            <p>You can also click by PayPal logo</p>
+                            <p><a href={payPalFullUrl}><img
+                                src="https://www.paypalobjects.com/webstatic/mktg/logo/bdg_payments_by_pp_2line.png"
+                                alt="pay-pal"/></a></p>
+                        </div>
+                        }
                     </div>
                 </section>
             </BaseTemplate>

@@ -1,9 +1,15 @@
 {
+    "beelab/paypal-bundle": {
+        "version": "v1.5.0"
+    },
     "behat/transliterator": {
         "version": "v1.3.0"
     },
     "brick/math": {
         "version": "0.9.3"
+    },
+    "clue/stream-filter": {
+        "version": "v1.5.0"
     },
     "cocur/slugify": {
         "version": "v4.0.0"
@@ -132,6 +138,12 @@
     "gesdinet/jwt-refresh-token-bundle": {
         "version": "v0.12.0"
     },
+    "guzzlehttp/guzzle": {
+        "version": "6.5.5"
+    },
+    "guzzlehttp/promises": {
+        "version": "1.5.1"
+    },
     "guzzlehttp/psr7": {
         "version": "1.7.0"
     },
@@ -192,6 +204,9 @@
             "config/packages/lexik_jwt_authentication.yaml"
         ]
     },
+    "moneyphp/money": {
+        "version": "v3.3.1"
+    },
     "monolog/monolog": {
         "version": "2.1.0"
     },
@@ -220,6 +235,12 @@
     "ocramius/proxy-manager": {
         "version": "2.8.0"
     },
+    "omnipay/common": {
+        "version": "v3.1.2"
+    },
+    "omnipay/paypal": {
+        "version": "v3.0.2"
+    },
     "phar-io/manifest": {
         "version": "2.0.3"
     },
@@ -228,6 +249,24 @@
     },
     "php": {
         "version": "7.4"
+    },
+    "php-http/discovery": {
+        "version": "1.14.1"
+    },
+    "php-http/guzzle6-adapter": {
+        "version": "v2.0.2"
+    },
+    "php-http/httplug": {
+        "version": "2.2.0"
+    },
+    "php-http/message": {
+        "version": "1.12.0"
+    },
+    "php-http/message-factory": {
+        "version": "v1.0.2"
+    },
+    "php-http/promise": {
+        "version": "1.1.0"
     },
     "phpdocumentor/reflection-common": {
         "version": "2.2.0"

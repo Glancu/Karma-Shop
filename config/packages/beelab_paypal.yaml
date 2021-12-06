@@ -1,0 +1,8 @@
+beelab_paypal:
+    username: "%env(PAYPAL_USERNAME)%"
+    password: "%env(PAYPAL_PASSWORD)%"
+    signature: "%env(PAYPAL_SIGNATURE)%"
+    return_route: api_app_payment_pay_pal_completed
+    cancel_route: api_app_payment_pay_pal_canceled
+    test_mode: "%kernel.debug%"
+    currency: "%env(CURRENCY_NAME)%"

@@ -6,20 +6,20 @@ namespace App\Serializer;
 use App\Entity\Comment;
 use App\Entity\ProductReview;
 use App\Entity\SonataMediaMedia;
+use App\Service\ImageService;
 use Sonata\MediaBundle\Provider\ImageProvider;
-use Symfony\Component\HttpFoundation\RequestStack;
 
 class BaseNormalizer
 {
     private ImageProvider $imageProvider;
-    private RequestStack $request;
+    private ImageService $imageService;
 
     public function __construct(
         ImageProvider $imageProvider,
-        RequestStack $request
+        ImageService $imageService
     ) {
         $this->imageProvider = $imageProvider;
-        $this->request = $request;
+        $this->imageService = $imageService;
     }
 
     public function getUrlImages($images, $format = 'big'): array
@@ -30,19 +30,7 @@ class BaseNormalizer
          * @var SonataMediaMedia $image
          */
         foreach ($images as $image) {
-            $request = $this->request->getCurrentRequest();
-            $provider = $this->imageProvider;
-            $format = $provider->getFormatName($image, $format);
-            $imageUrl = $provider->generatePublicUrl($image, $format);
-
-            $baseUrl = $request ? ($request->getSchemeAndHttpHost() . $request->getBaseUrl()) : '';
-
-            $fullImageUrl = $baseUrl . $imageUrl;
-
-            $imagesArr[] = [
-                'name' => $image->getName(),
-                'url' => $fullImageUrl
-            ];
+            $imagesArr[] = $this->imageService->getImageNameAndUrl($image, $format);
         }
 
         return $imagesArr;

@@ -22,25 +22,25 @@
 
                     {% set productTDStyles = "color: #4C4C4C; font-family: 'Arial'; font-size: 13px; line-height: 18px; margin: 0; padding: 5px; vertical-align: middle;" %}
 
-                    {% for product in order.products %}
+                    {% for productItem in order.shopProductItems %}
                         <tr>
                             <td
                                     style="{{ productTDStyles }} border-right: 1px solid #cccccc; border-bottom: 1px solid #cccccc; border-left: 1px solid #cccccc; text-align: center;">
                                 {{ loop.index }}</td>
                             <td
                                     style="{{ productTDStyles }} border-right: 1px solid #cccccc; border-bottom: 1px solid #cccccc; border-left: 0 solid #cccccc; text-align: left;">
-                                {{ product.name }}
+                                {{ productItem.product.name }}
                             </td>
 
                             <td
                                     style="{{ productTDStyles }} border-right: 1px solid #cccccc; border-bottom: 1px solid #cccccc; border-left: 0 solid #cccccc; text-align: left;">
-                                {{ product.quantity }}</td>
+                                {{ productItem.quantity }}</td>
                             <td
                                     style="{{ productTDStyles }} border-right: 1px solid #dcdcd6; border-bottom: 1px solid #dcdcd6; border-left: 0 solid #dcdcd6; text-align: right;">
-                                {{ currency_symbol }} {{ product.priceNet|convert_money_to_float }}
+                                {{ currency_symbol }} {{ productItem.priceNet|convert_money_to_float }}
                             </td>
                             <td style="{{ productTDStyles }} border-right: 1px solid #dcdcd6; border-bottom: 1px solid #dcdcd6; border-left: 0 solid #dcdcd6; text-align: right;">
-                                {{ currency_symbol }} {{ product.priceGross|convert_money_to_float }}
+                                {{ currency_symbol }} {{ productItem.priceGross|convert_money_to_float }}
                             </td>
                         </tr>
                     {% endfor %}

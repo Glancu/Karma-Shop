@@ -2,11 +2,14 @@
 
 namespace App\Admin;
 
+use App\Component\OrderStatus;
+use App\Entity\Order;
 use Sonata\AdminBundle\Admin\AbstractAdmin;
 use Sonata\AdminBundle\Datagrid\ListMapper;
 use Sonata\AdminBundle\Form\FormMapper;
 use Sonata\AdminBundle\Route\RouteCollection;
 use Sonata\AdminBundle\Show\ShowMapper;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 
 final class OrderAdmin extends AbstractAdmin
 {
@@ -18,41 +21,50 @@ final class OrderAdmin extends AbstractAdmin
 
     protected function configureFormFields(FormMapper $formMapper): void
     {
-        $formMapper->add('products', null, ['label' => 'Products'])
-                   ->add('status', null, ['label' => 'Status'])
-                   ->add('methodPay', null, ['label' => 'Method pay'])
+        $formMapper->add('status', ChoiceType::class, [
+            'label' => 'Status',
+            'choices' => array_flip(OrderStatus::getStatusesArr())
+        ])
+                   ->add('methodPayment', ChoiceType::class, [
+                       'label' => 'Method pay',
+                       'choices' => array_flip(Order::getMethodPaymentsArr())
+                   ])
                    ->add('additionalInformation', null, ['label' => 'Additional information']);
     }
 
     protected function configureListFields(ListMapper $listMapper): void
     {
         $listMapper->add('id', null, ['label' => 'ID'])
-                   ->add('user', null, ['label' => 'User'])
-                   ->add('priceNet', null, ['label' => 'Price net'])
-                   ->add('priceGross', null, ['label' => 'Price gross'])
-                   ->add('createdAt', null, ['label' => 'Created at'])
-                   ->add('statusStr', null, ['label' => 'Status'])
-                   ->add('_action', null, [
-                       'actions' => [
-                           'show' => [],
-                           'edit' => [],
-                           'delete' => [],
-                           'updateStatus' => [
-                               'template' => 'admin/order/CRUD/list__action_update_status.html.twig',
-                           ],
-                       ]
-                   ]);
+            ->add('user', null, ['label' => 'User'])
+            ->add('priceNet', null, ['label' => 'Price net'])
+            ->add('priceGross', null, ['label' => 'Price gross'])
+            ->add('createdAt', null, ['label' => 'Created at'])
+            ->add('statusStr', null, ['label' => 'Status'])
+            ->add('_action', null, [
+                'actions' => [
+                    'show' => [],
+                    'edit' => [],
+                    'delete' => [],
+                    'updateStatus' => [
+                        'template' => 'admin/order/CRUD/list__action_update_status.html.twig',
+                    ],
+                ]
+            ]);
     }
 
     protected function configureShowFields(ShowMapper $showMapper): void
     {
         $showMapper->add('id', null, ['label' => 'ID'])
                    ->add('uuid', null, ['label' => 'UUID'])
-                   ->add('name', null, ['label' => 'Name'])
                    ->add('priceNet', null, ['label' => 'Price net'])
                    ->add('priceGross', null, ['label' => 'Price gross'])
-                   ->add('statusStr', null, ['label' => 'Status']);
-
+                   ->add('statusStr', null, ['label' => 'Status'])
+                   ->add('transaction', null, ['label' => "PayPal", 'route' => ['name' => 'show']])
+                   ->add('cart', null, [
+                       'label' => 'Cart',
+                       'mapped' => false,
+                       'template' => 'admin/order/_show_cart.html.twig'
+                   ]);
     }
 
     protected function configureRoutes(RouteCollection $collection): void

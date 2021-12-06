@@ -32,9 +32,12 @@ final class EmailTemplateAdmin extends AbstractAdmin
                        'help' => '
                             Available variables to use in message: <br>
                             <b>%cart%</b> - add cart with products and total price <br>
-                            <b>%order_number%</b> - order number <br>
-                            <b>%client_email%</b> - client email <br>
-                            <b>%method_payment%</b> - method payment
+                            <b>%client_email%</b> - client email (Available also in subject) <br>
+                            <b>%method_payment%</b> - method payment (Available also in subject) <br>
+                            <b>%pay_pal_block_start%</b> - Block start for information when payment method is PayPal <br>
+                            <b>%pay_pal_block_end%</b> - Block end for information when payment method is PayPal <br>
+                            <b>%pay_pal_url%</b> - Link to PayPal payment (Put between %pay_pal_block_start% and %pay_pal_block_end%) <b>(you nedd to add ?notifyUrl=http://yourwebsite.com/payment/pay-pal/notify , but change <small>http://yourwebsite.com</small> to your website url)</b><br>
+                            <b>%order_uuid%</b> - Order number (Available also in subject)
                        '
                    ]);
 
@@ -46,7 +49,8 @@ final class EmailTemplateAdmin extends AbstractAdmin
     {
         $listMapper->add('id', null, ['label' => 'ID'])
                    ->add('name', null, ['label' => 'Name'])
-                   ->add('type', null, ['label' => 'Type'])
+                   ->add('subject', null, ['label' => 'Subject'])
+                   ->add('typeStr', null, ['label' => 'Type'])
                    ->add('_action', null, [
                        'actions' => [
                            'show' => [],

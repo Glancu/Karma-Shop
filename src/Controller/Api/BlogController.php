@@ -9,9 +9,9 @@ use App\Entity\BlogTag;
 use App\Repository\BlogCategoryRepository;
 use App\Repository\BlogPostRepository;
 use App\Serializer\BlogSerializeDataResponse;
+use App\Serializer\SerializeDataResponse;
 use App\Service\ImageService;
 use App\Service\RedisCacheService;
-use App\Serializer\SerializeDataResponse;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
 use Exception;
@@ -188,7 +188,6 @@ class BlogController
      *
      * @Security()
      *
-     * @param Request $request
      * @param ImageService $imageService
      * @param string $slug
      *
@@ -199,7 +198,7 @@ class BlogController
      * @throws NonUniqueResultException
      * @throws Exception
      */
-    public function getSinglePost(Request $request, ImageService $imageService, string $slug): JsonResponse
+    public function getSinglePost(ImageService $imageService, string $slug): JsonResponse
     {
         $post = $this->blogPostRepository->findOneBy([
             'slug' => $slug
@@ -223,7 +222,7 @@ class BlogController
                     'uuid' => $previousPost->getUuid(),
                     'title' => $previousPost->getTitle(),
                     'slug' => $previousPost->getSlug(),
-                    'imageUrl' => $imageService->getImageNameAndUrl($request, $previousPost->getImage())['url']
+                    'imageUrl' => $imageService->getImageNameAndUrl($previousPost->getImage())['url']
                 ];
             }
         }
@@ -235,7 +234,7 @@ class BlogController
                     'uuid' => $nextPost->getUuid(),
                     'title' => $nextPost->getTitle(),
                     'slug' => $nextPost->getSlug(),
-                    'imageUrl' => $imageService->getImageNameAndUrl($request, $nextPost->getImage())['url']
+                    'imageUrl' => $imageService->getImageNameAndUrl($nextPost->getImage())['url']
                 ];
             }
         }

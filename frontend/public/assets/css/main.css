@@ -4918,24 +4918,39 @@ label {
   .rate:not(:checked) > label:before {
     content: '★ '; }
   .rate > input:checked ~ label {
-    color: #ffc700; }
-  .rate:not(:checked) > label:hover, .rate:not(:checked) > label:hover ~ label {
-    color: #deb217; }
-  .rate > input:checked + label:hover,
-  .rate > input:checked + label:hover ~ label,
-  .rate > input:checked ~ label:hover,
-  .rate > input:checked ~ label:hover ~ label,
-  .rate > label:hover ~ input:checked ~ label {
-    color: #c59b08; }
+      color: #ffc700;
+  }
+
+.rate:not(:checked) > label:hover, .rate:not(:checked) > label:hover ~ label {
+    color: #deb217;
+}
+
+.rate > input:checked + label:hover,
+.rate > input:checked + label:hover ~ label,
+.rate > input:checked ~ label:hover,
+.rate > input:checked ~ label:hover ~ label,
+.rate > label:hover ~ input:checked ~ label {
+    color: #c59b08;
+}
+
+.shop-payment-pay_pal {
+    display: block;
+    width: max-content;
+    margin-left: auto;
+}
 
 /* Latest Blog Area css
 ============================================================================================ */
 .l_blog_item .l_blog_text .date {
-  margin-top: 24px;
-  margin-bottom: 15px; }
-  .l_blog_item .l_blog_text .date a {
+    margin-top: 24px;
+    margin-bottom: 15px;
+}
+
+.l_blog_item .l_blog_text .date a {
     color: #777777;
-    font-size: 12px; }
+    font-size: 12px;
+}
+
 .l_blog_item .l_blog_text h4 {
   font-size: 18px;
   color: #222222;

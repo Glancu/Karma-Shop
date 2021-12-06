@@ -1,13 +1,21 @@
 app.swagger_ui:
-  path: /api/doc
-  methods: "GET"
-  defaults: { _controller: nelmio_api_doc.controller.swagger_ui }
+    path: /api/doc
+    methods: "GET"
+    defaults: { _controller: nelmio_api_doc.controller.swagger_ui }
+
+app_admin_login:
+    path: /admin/login
+    controller: App\Controller\AdminSecurityController::login
+
+app_admin_logout:
+    path: /admin/logout
+    controller: App\Controller\AdminSecurityController::logout
 
 homepage:
-  path: /{reactRouting}
-  controller: App\Controller\IndexController::index
-  defaults:
-    reactRouting: .+
-  requirements:
-    reactRouting: .+
-  methods: "GET"
+    path: /{reactRouting}
+    controller: App\Controller\IndexController::index
+    defaults:
+        reactRouting: .+
+    requirements:
+        reactRouting: .+
+    methods: "GET"
