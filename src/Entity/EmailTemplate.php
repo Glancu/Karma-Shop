@@ -146,10 +146,11 @@ class EmailTemplate
     public const TYPE_NEW_ORDER_TO_ADMIN = 1;
     public const TYPE_NEW_ORDER_TO_USER = 2;
     public const TYPE_NEW_CONTACT_TO_ADMIN = 3;
-    public const TYPE_ORDER_NOT_PAID_USER = 4;
-    public const TYPE_ORDER_PAID_USER = 5;
-    public const TYPE_ORDER_SENT_PRODUCTS_USER = 6;
-    public const TYPE_ORDER_IN_PROGRESS_USER = 7;
+    public const TYPE_ORDER_NOT_PAID_TO_USER = 4;
+    public const TYPE_ORDER_PAID_TO_USER = 5;
+    public const TYPE_ORDER_SENT_PRODUCTS_TO_USER = 6;
+    public const TYPE_ORDER_IN_PROGRESS_TO_USER = 7;
+    public const TYPE_ORDER_PAID_TO_ADMIN = 8;
 
     public static function getTypesArr(): array
     {
@@ -157,10 +158,11 @@ class EmailTemplate
             self::TYPE_NEW_ORDER_TO_ADMIN => 'Send mail to admin when user order an order',
             self::TYPE_NEW_ORDER_TO_USER => 'Send mail to user when user order an order',
             self::TYPE_NEW_CONTACT_TO_ADMIN => 'Send mail to admin when user contact from contact form',
-            self::TYPE_ORDER_NOT_PAID_USER => 'Send mail to user when order was not paid',
-            self::TYPE_ORDER_PAID_USER => 'Send mail to user when order was paid',
-            self::TYPE_ORDER_SENT_PRODUCTS_USER => 'Send mail to user when order products was sent',
-            self::TYPE_ORDER_IN_PROGRESS_USER => 'Send mail to user when order status is in progress',
+            self::TYPE_ORDER_NOT_PAID_TO_USER => 'Send mail to user when order was not paid',
+            self::TYPE_ORDER_PAID_TO_USER => 'Send mail to user when order was paid',
+            self::TYPE_ORDER_PAID_TO_ADMIN => 'Send mail to admin when order was paid',
+            self::TYPE_ORDER_SENT_PRODUCTS_TO_USER => 'Send mail to user when order products was sent',
+            self::TYPE_ORDER_IN_PROGRESS_TO_USER => 'Send mail to user when order status is in progress',
         ];
     }
 

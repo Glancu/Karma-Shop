@@ -49,6 +49,7 @@ final class EmailTemplateAdmin extends AbstractAdmin
     {
         $listMapper->add('id', null, ['label' => 'ID'])
                    ->add('name', null, ['label' => 'Name'])
+                   ->add('subject', null, ['label' => 'Subject'])
                    ->add('typeStr', null, ['label' => 'Type'])
                    ->add('_action', null, [
                        'actions' => [

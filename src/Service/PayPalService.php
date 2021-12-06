@@ -4,8 +4,10 @@ declare(strict_types=1);
 namespace App\Service;
 
 use App\Component\OrderStatus;
+use App\Entity\EmailTemplate;
 use App\Entity\Order;
 use App\Entity\Transaction;
+use App\Message\SendOrderMailMessage;
 use Beelab\PaypalBundle\Paypal\Service;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
@@ -13,16 +15,25 @@ use Omnipay\Common\Message\ResponseInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpKernel\Exception\HttpException;
+use Symfony\Component\Messenger\MessageBusInterface;
 
 class PayPalService
 {
     private EntityManagerInterface $entityManager;
     private Service $service;
+    private MailerService $mailerService;
+    private MessageBusInterface $messageBus;
 
-    public function __construct(EntityManagerInterface $entityManager, Service $service)
-    {
+    public function __construct(
+        EntityManagerInterface $entityManager,
+        Service $service,
+        MailerService $mailerService,
+        MessageBusInterface $messageBus
+    ) {
         $this->entityManager = $entityManager;
         $this->service = $service;
+        $this->mailerService = $mailerService;
+        $this->messageBus = $messageBus;
     }
 
     /**
@@ -89,7 +100,6 @@ class PayPalService
 
         $service->setTransaction($transaction)->complete();
 
-
         /**
          * @var Order $order
          */
@@ -97,6 +107,9 @@ class PayPalService
         if ($order && $transaction->isOk()) {
             $order->setStatus(OrderStatus::STATUS_PAID);
             $em->persist($order);
+
+            $this->sendMailPaidOrder($order, EmailTemplate::TYPE_ORDER_PAID_TO_USER);
+            $this->sendMailPaidOrder($order, EmailTemplate::TYPE_ORDER_PAID_TO_ADMIN);
         }
 
         $em->flush();
@@ -164,5 +177,26 @@ class PayPalService
             'shipping_address' => $shippingAddress,
             'payee' => ['email' => 'a' . $order->getUser()->getEmail()]
         ];
+    }
+
+    private function sendMailPaidOrder(Order $order, int $emailTemplateType): void
+    {
+        /**
+         * @var EmailTemplate $emailTemplate
+         */
+        $emailTemplate = $this->entityManager->getRepository('App:EmailTemplate')->findByType($emailTemplateType);
+        if ($emailTemplate) {
+            $emailSubject = $this->mailerService->replaceVariablesOrderForEmail($order, $emailTemplate->getSubject());
+
+            $emailContent = $this->mailerService->replaceVariablesOrderForEmail(
+                $order,
+                $emailTemplate->getMessage()
+            );
+
+            $emailContent = str_replace('%cart%', '', $emailContent);
+
+            $this->messageBus->dispatch(new SendOrderMailMessage($emailSubject, $emailContent,
+                $this->mailerService->getAdminEmail()));
+        }
     }
 }

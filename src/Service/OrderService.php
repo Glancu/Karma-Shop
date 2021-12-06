@@ -255,9 +255,13 @@ final class OrderService
      */
     public function replaceVariableAndSendMail(Order $order, EmailTemplate $emailTemplate, string $emailTo): void
     {
-        $emailSubject = $this->replaceVariablesForEmail($order, $emailTemplate->getSubject());
+        $emailSubject = $this->mailerService->replaceVariablesOrderForEmail($order, $emailTemplate->getSubject());
 
-        $emailContent = $this->replaceVariablesForEmail($order, $emailTemplate->getMessage());
+        $emailContent = $this->mailerService->replaceVariablesOrderForEmail(
+            $order,
+            $emailTemplate->getMessage(),
+            ['payPalUrl' => $this->generatePayPalAbsoluteUrl($order)]
+        );
 
         $cartEmail = $this->templating->render('email/_order_cart.html.twig', [
             'order' => $order
@@ -266,45 +270,6 @@ final class OrderService
         $emailContent = str_replace('%cart%', $cartEmail, $emailContent);
 
         $this->messageBus->dispatch(new SendOrderMailMessage($emailSubject, $emailContent, $emailTo));
-    }
-
-    private function replaceVariablesForEmail(Order $order, string $text): string
-    {
-        $text = str_replace(
-            [
-                '%client_email%',
-                '%method_payment%',
-                '%order_uuid%',
-                '%pay_pal_url%'
-            ],
-            [
-                $order->getUser()->getEmail(),
-                $order->getMethodPaymentStr(),
-                $order->getUuid(),
-                $order->isMethodPayPal() ? $this->generatePayPalAbsoluteUrl($order) : '',
-            ],
-            $text
-        );
-
-        preg_match('~%pay_pal_block_start%([^{]*)%pay_pal_block_end%~i', $text, $textOnlyForPayPal);
-
-        if (isset($textOnlyForPayPal[0]) && !$order->isMethodPayPal()) {
-            $text = str_replace($textOnlyForPayPal[0], '', $text);
-        }
-
-        $text = str_replace(
-            [
-                '%pay_pal_block_start%',
-                '%pay_pal_block_end%',
-            ],
-            [
-                '',
-                '',
-            ],
-            $text
-        );
-
-        return $text;
     }
 
     private function createShopProductItemFromProductsArr(array $products): array

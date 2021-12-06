@@ -30,8 +30,9 @@ class EmailTemplateRepository extends ServiceEntityRepository
     public function findByType(int $type): ?EmailTemplate
     {
         $queryBuilder = $this->createQueryBuilder('e')
-            ->where('e.type = :type')
-            ->setParameter('type', $type);
+                             ->where('e.type = :type')
+                             ->setParameter('type', $type)
+                             ->setMaxResults(1);
 
         $query = $queryBuilder->getQuery();
 
