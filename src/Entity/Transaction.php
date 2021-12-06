@@ -20,6 +20,11 @@ class Transaction extends BaseTransaction
      */
     private $order;
 
+    public function __toString(): string
+    {
+        return $this->id . ' - ' . $this->getStatusLabel();
+    }
+
     public function getDescription(): ?string
     {
         // here you can return a generic description, if you don't want to list items
