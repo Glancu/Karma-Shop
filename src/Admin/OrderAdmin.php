@@ -48,10 +48,14 @@ final class OrderAdmin extends AbstractAdmin
     {
         $showMapper->add('id', null, ['label' => 'ID'])
                    ->add('uuid', null, ['label' => 'UUID'])
-                   ->add('name', null, ['label' => 'Name'])
                    ->add('priceNet', null, ['label' => 'Price net'])
                    ->add('priceGross', null, ['label' => 'Price gross'])
-                   ->add('statusStr', null, ['label' => 'Status']);
+                   ->add('statusStr', null, ['label' => 'Status'])
+                   ->add('cart', null, [
+                       'label' => 'Cart',
+                       'mapped' => false,
+                       'template' => 'admin/order/_show_cart.html.twig'
+                   ]);
 
     }
 

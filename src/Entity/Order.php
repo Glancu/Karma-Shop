@@ -129,6 +129,11 @@ class Order
         $this->status = OrderStatus::STATUS_NEW;
     }
 
+    public function __toString(): string
+    {
+        return $this->uuid;
+    }
+
     public function getId(): ?int
     {
         return $this->id;
