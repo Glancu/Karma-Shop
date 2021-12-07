@@ -51,8 +51,12 @@ services:
 
     app.user_service:
         class: App\Service\UserService
-        arguments: ['@lexik_jwt_authentication.encoder', '@security.password_encoder', '@doctrine.orm.entity_manager']
+        arguments: [ '@lexik_jwt_authentication.encoder', '@security.password_encoder', '@doctrine.orm.entity_manager' ]
 
     App\Service\OrderService:
         class: App\Service\OrderService
-        arguments: ['@app.user_service', '@doctrine.orm.entity_manager', '@app.mailer_service', '@twig']
+        arguments: [ '@app.user_service', '@doctrine.orm.entity_manager', '@app.mailer_service', '@twig' ]
+
+    App\Service\RedisCacheService:
+        class: App\Service\RedisCacheService
+        arguments: [ '@doctrine.orm.entity_manager', '@annotations.cache_adapter', '%env(REDIS_URL)%' ]

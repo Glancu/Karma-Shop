@@ -91,11 +91,9 @@ $ docker-compose up -d
 ```
 
 ## Redis
-If you want to clear redis cache and you are using docker:
+If you want to clear redis cache:
 ```bash
-$ docker exec -it karma-shop-redis-v2 sh
-$ redis-cli
-$ flushall
+$ php bin/console app:redis:flushall
 ```
 
 ### API Docs
