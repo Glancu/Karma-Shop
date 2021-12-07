@@ -44,7 +44,7 @@ class Order
     /**
      * @var ClientUser
      *
-     * @ORM\ManyToOne(targetEntity="App\Entity\ClientUser", inversedBy="orders")
+     * @ORM\ManyToOne(targetEntity="App\Entity\ClientUser")
      * @ORM\JoinColumn(name="client_id", referencedColumnName="id")
      */
     private ClientUser $user;

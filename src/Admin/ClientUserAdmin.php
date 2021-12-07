@@ -20,39 +20,17 @@ final class ClientUserAdmin extends AbstractAdmin
         '_sort_by' => 'id'  // name of the ordered field
     ];
 
-    protected function configureFormFields(FormMapper $formMapper): void
-    {
-        $formMapper->add('firstName', null, ['label' => 'First name'])
-                   ->add('lastName', null, ['label' => 'Last name'])
-                   ->add('email', EmailType::class, ['label' => 'E-mail'])
-                   ->add('password', RepeatedType::class, [
-                       'type' => PasswordType::class,
-                       'first_options' => ['label' => 'Password'],
-                       'second_options' => ['label' => 'Password confirmation']
-                   ])
-                   ->add('phoneNumber', null, ['label' => 'Phone number'])
-                   ->add('postalCode', null, ['label' => 'Postal code'])
-                   ->add('city', null, ['label' => 'City'])
-                   ->add('country', null, ['label' => 'Country'])
-                   ->add('street', null, ['label' => 'Street']);
-    }
-
     protected function configureDatagridFilters(DatagridMapper $datagridMapper): void
     {
-        $datagridMapper->add('email', null, ['label' => 'E-mail'])
-                       ->add('street', null, ['label' => 'Street']);
+        $datagridMapper->add('email', null, ['label' => 'E-mail']);
     }
 
     protected function configureListFields(ListMapper $listMapper): void
     {
         $listMapper->add('id', null, ['label' => 'ID'])
-                   ->add('firstName', null, ['label' => 'First name'])
-                   ->add('lastName', null, ['label' => 'Last name'])
                    ->add('email', null, ['label' => 'E-mail'])
                    ->add('_action', null, [
                        'actions' => [
-                           'show' => [],
-                           'edit' => [],
                            'delete' => [],
                        ]
                    ]);
@@ -61,20 +39,13 @@ final class ClientUserAdmin extends AbstractAdmin
     protected function configureShowFields(ShowMapper $showMapper): void
     {
         $showMapper->add('id', null, ['label' => 'ID'])
-                   ->add('uuid', null, ['label' => 'UUID'])
-                   ->add('firstName', null, ['label' => 'First name'])
-                   ->add('lastName', null, ['label' => 'Last name'])
-                   ->add('email', null, ['label' => 'E-mail'])
-                   ->add('phoneNumber', null, ['label' => 'Phone number'])
-                   ->add('postalCode', null, ['label' => 'Postal code'])
-                   ->add('city', null, ['label' => 'City'])
-                   ->add('country', null, ['label' => 'Country'])
-                   ->add('street', null, ['label' => 'Street']);
+                   ->add('email', null, ['label' => 'E-mail']);
     }
 
     protected function configureRoutes(RouteCollection $collectionMapper): void
     {
         $collectionMapper
-            ->remove('create');
+            ->remove('create')
+            ->remove('edit');
     }
 }

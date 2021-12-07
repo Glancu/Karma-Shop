@@ -2,13 +2,11 @@
 
 namespace App\Entity;
 
-use App\Repository\ClientUserRepository;
 use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\UuidTrait;
+use App\Repository\ClientUserRepository;
 use DateTime;
-use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
-use Doctrine\ORM\PersistentCollection;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -57,14 +55,7 @@ class ClientUser implements UserInterface
     public string $password = '';
 
     /**
-     * @var ArrayCollection|PersistentCollection
-     *
-     * @ORM\OneToMany(targetEntity="App\Entity\Order", mappedBy="user")
-     */
-    private $orders;
-
-    /**
-     * @var DateTime
+     * @var DateTime|null
      *
      * @ORM\Column(name="password_changed_at", type="datetime", nullable=true)
      */
@@ -74,7 +65,6 @@ class ClientUser implements UserInterface
         $this->__UuidTraitConstructor();
         $this->email = $email;
         $this->password = $encodedPassword;
-        $this->orders = new ArrayCollection();
     }
 
     public function __toString(): string
@@ -117,30 +107,6 @@ class ClientUser implements UserInterface
     public function setPassword(string $password): void
     {
         $this->password = $password;
-    }
-
-    /**
-     * @param Order $order
-     */
-    public function addOrder(Order $order): void
-    {
-        $this->orders[] = $order;
-    }
-
-    /**
-     * @param Order $order
-     */
-    public function removeOrder(Order $order): void
-    {
-        $this->orders->removeElement($order);
-    }
-
-    /**
-     * @param null|ArrayCollection $orders
-     */
-    public function setOrders(?ArrayCollection $orders): void
-    {
-        $this->orders = $orders;
     }
 
     public function getPasswordChangedAt(): ?DateTime
