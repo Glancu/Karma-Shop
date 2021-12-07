@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Serializer;
 
 use App\Entity\BlogPost;
+use App\Normalizer\BlogNormalizer;
 use Symfony\Component\Serializer\Exception\ExceptionInterface;
 use Symfony\Component\Serializer\SerializerInterface;
 

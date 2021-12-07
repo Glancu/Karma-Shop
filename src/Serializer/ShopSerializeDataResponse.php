@@ -6,6 +6,7 @@ namespace App\Serializer;
 use App\Entity\ShopBrand;
 use App\Entity\ShopColor;
 use App\Entity\ShopProduct;
+use App\Normalizer\ShopNormalizer;
 use RuntimeException;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Exception\ExceptionInterface;

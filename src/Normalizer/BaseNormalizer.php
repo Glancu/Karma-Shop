@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace App\Serializer;
+namespace App\Normalizer;
 
 use App\Entity\Comment;
 use App\Entity\ProductReview;

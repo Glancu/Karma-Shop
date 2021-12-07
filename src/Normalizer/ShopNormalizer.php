@@ -1,6 +1,7 @@
 <?php
+declare(strict_types=1);
 
-namespace App\Serializer;
+namespace App\Normalizer;
 
 use App\Entity\ProductReview;
 use App\Entity\ShopProduct;
@@ -92,9 +93,7 @@ class ShopNormalizer extends BaseNormalizer
             $data['priceGross'] = MoneyService::convertIntToFloat($data['priceGross']);
         }
 
-        $data = $this->generateCommentsForSingleObject($topic, $data);
-
-        return $data;
+        return $this->generateCommentsForSingleObject($topic, $data);
     }
 
     /**

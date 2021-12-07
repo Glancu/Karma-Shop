@@ -6,7 +6,7 @@ namespace App\Controller\Api\Shop;
 use App\Entity\ShopProduct;
 use App\Repository\ShopProductRepository;
 use App\Serializer\SerializeDataResponse;
-use App\Serializer\ShopNormalizer;
+use App\Normalizer\ShopNormalizer;
 use App\Serializer\ShopSerializeDataResponse;
 use App\Service\MoneyService;
 use App\Service\RedisCacheService;
