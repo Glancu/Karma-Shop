@@ -48,6 +48,12 @@ $ php bin/console doctrine:fixtures:load
 
 # Run tests
 $ php ./vendor/bin/phpunit
+
+# Install assets
+$ php bin/console assets:install
+
+# Install CKEditor assets
+$ php bin/console ckeditor:install
 ```
 
 ## Symfony Messenger
