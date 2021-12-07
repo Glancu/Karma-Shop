@@ -28,21 +28,25 @@ class EmailTemplateFixtures extends Fixture
             'Send mail to user when user order an order',
             'Thanks for your order %order_uuid%!',
             '
-            <p>Hello %client_email%,</p>
-
-            <p>thanks for your order <strong>%order_uuid%!</strong></p>
-            
-            <p>Method payment: <strong>%method_payment%</strong></p>
-            
-            <p>%pay_pal_block_start%</p>
-            
-            <p>PayPalUrl: <a href="%pay_pal_url%?notifyUrl=http://local.karma.pl/payment/pay-pal/notify">%pay_pal_url%?notifyUrl=http://local.karma.pl/payment/pay-pal/notify</a></p>
-            
-            <p>%pay_pal_block_end%</p>
-            
-            <p>Cart:</p>
-            
-            <p>%cart%</p>
+                <p>Hello,</p>
+    
+                <p>thanks for your order <strong>%order_uuid%!</strong></p>
+                
+                <p>Method payment: <strong>%method_payment%</strong></p>
+                
+                <p>%pay_pal_block_start%</p>
+                
+                <p>PayPalUrl: <a href="%pay_pal_url%?notifyUrl=http://local.karma.pl/payment/pay-pal/notify">%pay_pal_url%?notifyUrl=http://local.karma.pl/payment/pay-pal/notify</a></p>
+                
+                <p>%pay_pal_block_end%</p>
+                
+                <p>%payment_online_start%<br />
+                Here put your data to payment online<br />
+                %payment_online_end%</p>
+                
+                <p>Cart:</p>
+                
+                <p>%cart%</p>
             ',
             EmailTemplate::TYPE_NEW_ORDER_TO_USER
         );

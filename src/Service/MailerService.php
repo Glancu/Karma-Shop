@@ -88,14 +88,24 @@ final class MailerService
             $text = str_replace($textOnlyForPayPal[0], '', $text);
         }
 
+        preg_match('~%payment_online_start%([^{]*)%payment_online_end%~i', $text, $textOnlyForOnlinePayment);
+
+        if (isset($textOnlyForOnlinePayment[0]) && $order->isMethodPayPal()) {
+            $text = str_replace($textOnlyForOnlinePayment[0], '', $text);
+        }
+
         return str_replace(
             [
                 '%pay_pal_block_start%',
                 '%pay_pal_block_end%',
+                '%payment_online_start%',
+                '%payment_online_end%'
             ],
             [
                 '',
                 '',
+                '',
+                ''
             ],
             $text
         );
