@@ -4,10 +4,12 @@ declare(strict_types=1);
 namespace App\Controller\Api;
 
 use App\Entity\ClientUser;
+use App\Entity\EmailTemplate;
 use App\Form\Type\ClientUserChangePasswordType;
 use App\Form\Type\CreateClientUserFormType;
-use App\Service\RequestService;
+use App\Message\SendMailMessage;
 use App\Serializer\SerializeDataResponse;
+use App\Service\RequestService;
 use App\Service\UserService;
 use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
@@ -20,10 +22,12 @@ use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Translation\Exception\NotFoundResourceException;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
@@ -276,7 +280,9 @@ class ClientUserController
         $form = $this->form;
 
         $requiredDataFromContent = [
-            'oldPassword', 'newPassword', 'newPasswordRepeat'
+            'oldPassword',
+            'newPassword',
+            'newPasswordRepeat'
         ];
 
         $data = $requestService->validRequestContentAndGetData($request->getContent(), $requiredDataFromContent);
@@ -600,5 +606,130 @@ class ClientUserController
         }
 
         return $refreshToken->refresh($request);
+    }
+
+    /**
+     * @Route("/forgot-password", name="user_forgot_password", methods={"POST"})
+     *
+     * @OA\RequestBody(
+     *     description="Set email to forget password",
+     *     required=true,
+     *     @OA\MediaType(
+     *         mediaType="application/json",
+     *         @OA\Schema(
+     *             type="object",
+     *             required={"email"},
+     *              @OA\Property(
+     *                 property="email",
+     *                 description="User e-mail",
+     *                 type="string",
+     *                 example="email@user.com"
+     *             )
+     *         )
+     *     )
+     * )
+     * @OA\Response(
+     *     response=200,
+     *     description="Password was changed",
+     *     @OA\JsonContent(
+     *        type="json",
+     *        example={"error": false, "message": "Success! Please check your mail and you get new password!"}
+     *     )
+     * )
+     * @OA\Response(
+     *     response=400,
+     *     description="Bad request",
+     *     @OA\JsonContent(
+     *        type="json",
+     *        example={"error": true, "message": "Email is not valid."}
+     *     )
+     * )
+     * @OA\Response(
+     *     response=404,
+     *     description="Not found",
+     *     @OA\JsonContent(
+     *        type="json",
+     *        example={"error": true, "message": "User was not found."}
+     *     )
+     * )
+     *
+     * @Security()
+     *
+     * @param Request $request
+     * @param RequestService $requestService
+     * @param UserPasswordEncoderInterface $userPasswordEncoder
+     * @param MessageBusInterface $messageBus
+     *
+     * @return JsonResponse
+     *
+     * @throws JsonException
+     * @throws Exception
+     */
+    public function forgotPassword(
+        Request $request,
+        RequestService $requestService,
+        UserPasswordEncoderInterface $userPasswordEncoder,
+        MessageBusInterface $messageBus
+    ): JsonResponse {
+        $em = $this->entityManager;
+
+        $requiredDataFromContent = [
+            'email'
+        ];
+
+        $data = $requestService->validRequestContentAndGetData($request->getContent(), $requiredDataFromContent);
+        if ($data instanceof JsonResponse) {
+            return $data;
+        }
+
+        if (!UserService::validateEmail($data['email'])) {
+            $errorsList = ['error' => true, 'message' => 'Email is not valid.'];
+
+            return new JsonResponse($errorsList, 400);
+        }
+
+        /**
+         * @var ClientUser $user
+         */
+        $user = $em->getRepository('App:ClientUser')->findByEmail($data['email']);
+        if (!$user) {
+            return new JsonResponse(['error' => true, 'message' => 'User was not found.'], 404);
+        }
+
+        $plainPassword = bin2hex(random_bytes(10));
+
+        $user->setPassword($userPasswordEncoder->encodePassword($user, $plainPassword));
+        $user->setPasswordChangedAt(null);
+
+        $em->persist($user);
+        $em->flush();
+
+        $emailTemplate = $em->getRepository('App:EmailTemplate')->findByType(EmailTemplate::TYPE_USER_FORGOT_PASSWORD);
+        if (!$emailTemplate) {
+            throw new NotFoundResourceException('Email template for forgot password not found.');
+        }
+
+        $bodyMessage = str_replace(
+            [
+                '%client_new_password%',
+                '%client_email%'
+            ],
+            [
+                $plainPassword,
+                $data['email']
+            ],
+            $emailTemplate->getMessage()
+        );
+
+        $messageBus->dispatch(new SendMailMessage(
+            $emailTemplate->getSubject(),
+            $bodyMessage,
+            $data['email']
+        ));
+
+        return new JsonResponse([
+            'error' => false,
+            'message' => 'Success! Please check your mail and you get new password!'
+        ]);
     }
 }

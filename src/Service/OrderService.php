@@ -10,7 +10,7 @@ use App\Entity\OrderAddress;
 use App\Entity\OrderPersonalDataInfo;
 use App\Entity\ShopProduct;
 use App\Entity\ShopProductItem;
-use App\Message\SendOrderMailMessage;
+use App\Message\SendMailMessage;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -269,7 +269,7 @@ final class OrderService
 
         $emailContent = str_replace('%cart%', $cartEmail, $emailContent);
 
-        $this->messageBus->dispatch(new SendOrderMailMessage($emailSubject, $emailContent, $emailTo));
+        $this->messageBus->dispatch(new SendMailMessage($emailSubject, $emailContent, $emailTo));
     }
 
     private function createShopProductItemFromProductsArr(array $products): array

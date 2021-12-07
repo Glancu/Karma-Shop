@@ -14,6 +14,7 @@ import Show from './Pages/Blog/Show';
 import Login from './Pages/User/Login';
 import Logout from './Pages/User/Logout';
 import Register from './Pages/User/Register';
+import ForgotPassword from './Pages/User/ForgotPassword';
 import ScrollToTop from './Components/ScrollToTop';
 import ShoppingCart from './Components/Shop/ShoppingCart';
 import ChangePassword from './Pages/User/ChangePassword';
@@ -52,10 +53,11 @@ const App = () => (
             <Route path="/login" component={Login}/>
             <Route path="/logout" component={Logout}/>
             <Route path="/register" component={Register}/>
-            <ClientPanelAppRoute path='/user/panel' component={ChangePassword} />
-            <ClientPanelAppRoute path='/user/orders' component={Orders} />
+            <Route path="/forgot-password" component={ForgotPassword}/>
+            <ClientPanelAppRoute path="/user/panel" component={ChangePassword}/>
+            <ClientPanelAppRoute path="/user/orders" component={Orders}/>
 
-            <Route component={NotFound} />
+            <Route component={NotFound}/>
         </Switch>
     </Router>
 );

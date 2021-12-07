@@ -2,7 +2,7 @@
 
 namespace App\Message;
 
-class SendOrderMailMessage
+class SendMailMessage
 {
     private string $emailSubject;
     private string $emailContent;

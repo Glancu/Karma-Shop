@@ -151,6 +151,7 @@ class EmailTemplate
     public const TYPE_ORDER_SENT_PRODUCTS_TO_USER = 6;
     public const TYPE_ORDER_IN_PROGRESS_TO_USER = 7;
     public const TYPE_ORDER_PAID_TO_ADMIN = 8;
+    public const TYPE_USER_FORGOT_PASSWORD = 9;
 
     public static function getTypesArr(): array
     {
@@ -163,6 +164,7 @@ class EmailTemplate
             self::TYPE_ORDER_PAID_TO_ADMIN => 'Send mail to admin when order was paid',
             self::TYPE_ORDER_SENT_PRODUCTS_TO_USER => 'Send mail to user when order products was sent',
             self::TYPE_ORDER_IN_PROGRESS_TO_USER => 'Send mail to user when order status is in progress',
+            self::TYPE_USER_FORGOT_PASSWORD => 'Send mail to user with new password'
         ];
     }
 

@@ -6,8 +6,7 @@ namespace App\Service;
 use App\Component\OrderStatus;
 use App\Entity\EmailTemplate;
 use App\Entity\Order;
-use App\Entity\PayPalTransaction;
-use App\Message\SendOrderMailMessage;
+use App\Message\SendMailMessage;
 use Beelab\PaypalBundle\Paypal\Service;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
@@ -195,7 +194,7 @@ class PayPalService
 
             $emailContent = str_replace('%cart%', '', $emailContent);
 
-            $this->messageBus->dispatch(new SendOrderMailMessage($emailSubject, $emailContent,
+            $this->messageBus->dispatch(new SendMailMessage($emailSubject, $emailContent,
                 $this->mailerService->getAdminEmail()));
         }
     }

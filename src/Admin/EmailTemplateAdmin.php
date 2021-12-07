@@ -37,7 +37,8 @@ final class EmailTemplateAdmin extends AbstractAdmin
                             <b>%pay_pal_block_start%</b> - Block start for information when payment method is PayPal <br>
                             <b>%pay_pal_block_end%</b> - Block end for information when payment method is PayPal <br>
                             <b>%pay_pal_url%</b> - Link to PayPal payment (Put between %pay_pal_block_start% and %pay_pal_block_end%) <b>(you nedd to add ?notifyUrl=http://yourwebsite.com/payment/pay-pal/notify , but change <small>http://yourwebsite.com</small> to your website url)</b><br>
-                            <b>%order_uuid%</b> - Order number (Available also in subject)
+                            <b>%order_uuid%</b> - Order number (Available also in subject) <br>
+                            <b>%client_new_password%</b> - Return new not hashed password for user (works only for forgot password) <br>
                        '
                    ]);
 

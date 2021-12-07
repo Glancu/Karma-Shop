@@ -137,5 +137,17 @@ class EmailTemplateFixtures extends Fixture
         $manager->persist($sendMailToAdminWhenOrderWasPaid);
 
         $manager->flush();
+
+        $sendMailToUserWithNewPassword = new EmailTemplate(
+            'Send mail to user with new password',
+            'Your new password!',
+            '
+                <p>Hello %client_email%,</p>
+
+                <p>your new password is: <strong>%client_new_password%</strong></p>
+            ',
+            EmailTemplate::TYPE_USER_FORGOT_PASSWORD
+        );
+        $manager->persist($sendMailToUserWithNewPassword);
     }
 }

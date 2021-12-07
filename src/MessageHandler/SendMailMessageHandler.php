@@ -2,12 +2,12 @@
 
 namespace App\MessageHandler;
 
-use App\Message\SendOrderMailMessage;
+use App\Message\SendMailMessage;
 use App\Service\MailerService;
 use Exception;
 use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
 
-class SendOrderMailMessageHandler implements MessageHandlerInterface
+class SendMailMessageHandler implements MessageHandlerInterface
 {
     private MailerService $mailerService;
 
@@ -19,7 +19,7 @@ class SendOrderMailMessageHandler implements MessageHandlerInterface
     /**
      * @throws Exception
      */
-    public function __invoke(SendOrderMailMessage $mail): void
+    public function __invoke(SendMailMessage $mail): void
     {
         $this->mailerService->sendMail(
             $mail->getEmailSubject(),

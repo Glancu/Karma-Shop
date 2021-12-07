@@ -46,7 +46,7 @@ final class UserService
     {
         $clientUser = new ClientUser($email, '');
 
-        $password = $password ?: random_bytes(10);
+        $password = $password ?: bin2hex(random_bytes(10));
 
         $encodedPassword = $this->userPasswordEncoderInterface->encodePassword($clientUser, $password);
         $clientUser->setPassword($encodedPassword);
