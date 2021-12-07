@@ -41,6 +41,7 @@ final class OrderAdmin extends AbstractAdmin
                    ->add('priceGross', null, ['label' => 'Price gross'])
                    ->add('createdAt', null, ['label' => 'Created at'])
                    ->add('statusStr', null, ['label' => 'Status'])
+                   ->add('methodPaymentStr', null, ['label' => 'Method payment'])
                    ->add('_action', null, [
                        'actions' => [
                            'show' => [],
@@ -60,7 +61,11 @@ final class OrderAdmin extends AbstractAdmin
                    ->add('priceNetFloat', null, ['label' => 'Price net'])
                    ->add('priceGrossFloat', null, ['label' => 'Price gross'])
                    ->add('statusStr', null, ['label' => 'Status'])
-                   ->add('transaction', null, ['label' => "PayPal", 'route' => ['name' => 'show']])
+                   ->add('methodPaymentStr', null, ['label' => 'Method payment'])
+                   ->add('transaction', null, [
+                       'label' => "PayPal transaction",
+                       'route' => ['name' => 'show']
+                   ])
                    ->add('cart', null, [
                        'label' => 'Cart',
                        'mapped' => false,

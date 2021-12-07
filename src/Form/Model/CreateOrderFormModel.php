@@ -51,7 +51,6 @@ class CreateOrderFormModel
             'phoneNumber',
             'email',
             'addressLineFirst',
-            'addressLineSecond',
             'city'
         ];
 

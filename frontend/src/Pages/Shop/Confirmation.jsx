@@ -44,7 +44,9 @@ class Confirmation extends Component {
             return (
                 <>
                     <li><a href="#"><span>Address first</span>: {inputs.addressLineFirst}</a></li>
+                    {inputs.addressLineSecond &&
                     <li><a href="#"><span>Address second</span>: {inputs.addressLineSecond}</a></li>
+                    }
                     <li><a href="#"><span>City</span>: {inputs.city}</a></li>
                     {inputs.postalCode &&
                     <li><a href="#"><span>Postcode </span>: {inputs.postalCode}</a></li>

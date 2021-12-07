@@ -505,17 +505,17 @@ class Checkout extends Component {
                                                    defaultValue={form && form.inputs && form.inputs.addressLineFirst}/>
                                             <span className="placeholder" data-placeholder="Address line 01"/>
                                         </div>
-                                        <div className="col-md-12 form-group p_star">
-                                            <input type="text" className="form-control" name="addressLineSecond"
-                                                   onChange={this.handleChange} required={true} minLength={3}
-                                                   defaultValue={form && form.inputs && form.inputs.addressLineSecond}/>
-                                            <span className="placeholder" data-placeholder="Address line 02"/>
-                                        </div>
-                                        <div className="col-md-12 form-group p_star">
-                                            <input type="text" className="form-control" name="city"
-                                                   onChange={this.handleChange} required={true} minLength={3}
-                                                   defaultValue={form && form.inputs && form.inputs.city}/>
-                                            <span className="placeholder" data-placeholder="Town/City"/>
+                                    <div className="col-md-12 form-group">
+                                        <input type="text" className="form-control" name="addressLineSecond"
+                                               onChange={this.handleChange} minLength={3}
+                                               defaultValue={form && form.inputs && form.inputs.addressLineSecond}
+                                               placeholder="Address line 02"/>
+                                    </div>
+                                    <div className="col-md-12 form-group p_star">
+                                        <input type="text" className="form-control" name="city"
+                                               onChange={this.handleChange} required={true} minLength={3}
+                                               defaultValue={form && form.inputs && form.inputs.city}/>
+                                        <span className="placeholder" data-placeholder="Town/City"/>
                                         </div>
                                         <div className="col-md-12 form-group">
                                             <input type="text" className="form-control" name="postalCode"

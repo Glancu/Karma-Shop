@@ -76,7 +76,7 @@ class OrderController
      *                 property="personalData",
      *                 description="Personal data",
      *                 type="object",
-     *                 example={"firstName": "firstname", "lastName": "lastname", "companyName": null, "phoneNumber": "phone", "email": "email@email.com", "addressLineFirst": "adres1", "addressLineSecond": "addres2", "city": "city", "postalCode": null, "additionalInformation": null, "firstNameCorrespondence": null, "lastNameCorrespondence": null, "companyNameCorrespondence": null, "addressLineFirstCorrespondence": null, "addressLineSecondCorrespondence": null, "cityCorrespondence": null, "postalCodeCorrespondence": null}
+     *                 example={"firstName": "firstname", "lastName": "lastname", "companyName": null, "phoneNumber": "phone", "email": "email@email.com", "addressLineFirst": "adres1", "addressLineSecond": null, "city": "city", "postalCode": null, "additionalInformation": null, "firstNameCorrespondence": null, "lastNameCorrespondence": null, "companyNameCorrespondence": null, "addressLineFirstCorrespondence": null, "addressLineSecondCorrespondence": null, "cityCorrespondence": null, "postalCodeCorrespondence": null}
      *             ),
      *             @OA\Property(
      *                 property="methodPayment",

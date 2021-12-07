@@ -88,8 +88,8 @@ final class OrderService
 
         $orderAddress = new OrderAddress(
             $personalData['addressLineFirst'],
-            $personalData['addressLineSecond'],
             $personalData['city'],
+            $personalData['addressLineSecond'] ?? null,
             $personalData['postalCode'] ?? null,
             $personalData['addressLineFirstCorrespondence'] ?? null,
             $personalData['addressLineSecondCorrespondence'] ?? null,

@@ -48,7 +48,6 @@ final class OrderServiceTest extends KernelTestCase
                 'lastName' => $faker->lastName,
                 'phoneNumber' => $faker->phoneNumber,
                 'addressLineFirst' => $faker->address,
-                'addressLineSecond' => $faker->secondaryAddress,
                 'city' => $faker->city
             ],
             'methodPayment' => current(Order::getMethodPaymentsArr()),

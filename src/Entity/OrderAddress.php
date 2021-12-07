@@ -24,13 +24,11 @@ class OrderAddress
     private string $streetFirst = '';
 
     /**
-     * @var string
+     * @var string|null
      *
-     * @Assert\NotBlank()
-     *
-     * @ORM\Column(name="street_second", type="string", length=255)
+     * @ORM\Column(name="street_second", type="string", length=255, nullable=true)
      */
-    private string $streetSecond = '';
+    private ?string $streetSecond = '';
 
     /**
      * @var string
@@ -78,8 +76,8 @@ class OrderAddress
 
     public function __construct(
         string $streetFirst,
-        string $streetSecond,
         string $city,
+        ?string $streetSecond = null,
         ?string $postalCode = null,
         ?string $addressLineFirstCorrespondence = null,
         ?string $addressLineSecondCorrespondence = null,
@@ -87,8 +85,8 @@ class OrderAddress
         ?string $postalCodeCorrespondence = null
     ) {
         $this->streetFirst = $streetFirst;
-        $this->streetSecond = $streetSecond;
         $this->city = $city;
+        $this->streetSecond = $streetSecond;
         $this->postalCode = $postalCode;
         $this->addressLineFirstCorrespondence = $addressLineFirstCorrespondence;
         $this->addressLineSecondCorrespondence = $addressLineSecondCorrespondence;
@@ -113,17 +111,17 @@ class OrderAddress
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getStreetSecond(): string
+    public function getStreetSecond(): ?string
     {
         return $this->streetSecond;
     }
 
     /**
-     * @param string $streetSecond
+     * @param string|null $streetSecond
      */
-    public function setStreetSecond(string $streetSecond): void
+    public function setStreetSecond(?string $streetSecond): void
     {
         $this->streetSecond = $streetSecond;
     }
