@@ -2,32 +2,32 @@
 
 namespace App\Repository;
 
-use App\Entity\Transaction;
+use App\Entity\PayPalTransaction;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * @method Transaction|null find($id, $lockMode = null, $lockVersion = null)
- * @method Transaction|null findOneBy(array $criteria, array $orderBy = null)
- * @method Transaction[]    findAll()
- * @method Transaction[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+ * @method PayPalTransaction|null find($id, $lockMode = null, $lockVersion = null)
+ * @method PayPalTransaction|null findOneBy(array $criteria, array $orderBy = null)
+ * @method PayPalTransaction[]    findAll()
+ * @method PayPalTransaction[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class TransactionRepository extends ServiceEntityRepository
+class PayPalTransactionRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
-        parent::__construct($registry, Transaction::class);
+        parent::__construct($registry, PayPalTransaction::class);
     }
 
     /**
      * @param string $token
      *
-     * @return Transaction|null
+     * @return PayPalTransaction|null
      *
      * @throws NonUniqueResultException
      */
-    public function findOneByToken(string $token): ?Transaction
+    public function findOneByToken(string $token): ?PayPalTransaction
     {
         $queryBuilder = $this->createQueryBuilder('t')
                              ->where('t.token = :token')

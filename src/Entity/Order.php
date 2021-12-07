@@ -7,6 +7,7 @@ use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\PriceTrait;
 use App\Entity\Traits\UuidTrait;
 use App\Repository\OrderRepository;
+use App\Service\MoneyService;
 use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
@@ -80,12 +81,12 @@ class Order
     private int $status;
 
     /**
-     * @var Transaction|null
+     * @var PayPalTransaction|null
      *
-     * @ORM\OneToOne(targetEntity="App\Entity\Transaction", inversedBy="order")
-     * @ORM\JoinColumn(name="transaction_id", referencedColumnName="id")
+     * @ORM\OneToOne(targetEntity="App\Entity\PayPalTransaction", inversedBy="order")
+     * @ORM\JoinColumn(name="pay_pal_transaction_id", referencedColumnName="id")
      */
-    private ?Transaction $transaction;
+    private ?PayPalTransaction $payPalTransaction;
 
     /**
      * @var ArrayCollection|PersistentCollection
@@ -252,19 +253,19 @@ class Order
     }
 
     /**
-     * @return Transaction|null
+     * @return PayPalTransaction|null
      */
-    public function getTransaction(): ?Transaction
+    public function getTransaction(): ?PayPalTransaction
     {
-        return $this->transaction;
+        return $this->payPalTransaction;
     }
 
     /**
-     * @param Transaction|null $transaction
+     * @param PayPalTransaction|null $payPalTransaction
      */
-    public function setTransaction(?Transaction $transaction): void
+    public function setTransaction(?PayPalTransaction $payPalTransaction): void
     {
-        $this->transaction = $transaction;
+        $this->payPalTransaction = $payPalTransaction;
     }
 
     /**
@@ -358,5 +359,15 @@ class Order
     public function isMethodPayPal(): bool
     {
         return $this->getMethodPayment() === Order::METHOD_PAYMENT_TYPE_PAYPAL;
+    }
+
+    public function getPriceNetFloat(): float
+    {
+        return MoneyService::convertIntToFloat($this->getPriceNet());
+    }
+
+    public function getPriceGrossFloat(): float
+    {
+        return MoneyService::convertIntToFloat($this->getPriceGross());
     }
 }

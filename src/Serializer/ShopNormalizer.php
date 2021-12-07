@@ -16,14 +16,12 @@ class ShopNormalizer extends BaseNormalizer
     private UrlGeneratorInterface $router;
     private ObjectNormalizer $normalizer;
     private ImageProvider $imageProvider;
-    private MoneyService $moneyService;
     private ImageService $imageService;
 
     public function __construct(
         UrlGeneratorInterface $router,
         ObjectNormalizer $normalizer,
         ImageProvider $imageProvider,
-        MoneyService $moneyService,
         ImageService $imageService
     ) {
         parent::__construct($imageProvider, $imageService);
@@ -31,7 +29,6 @@ class ShopNormalizer extends BaseNormalizer
         $this->router = $router;
         $this->normalizer = $normalizer;
         $this->imageProvider = $imageProvider;
-        $this->moneyService = $moneyService;
         $this->imageService = $imageService;
     }
 
@@ -46,8 +43,6 @@ class ShopNormalizer extends BaseNormalizer
      */
     public function normalizeShopProducts(ShopProduct $topic, $format = null, array $context = []): array
     {
-        $moneyService = $this->moneyService;
-
         $data = $this->normalizer->normalize($topic, $format, $context);
         if (isset($data['enable']) && $data['enable'] === false) {
             return [];
@@ -93,8 +88,8 @@ class ShopNormalizer extends BaseNormalizer
         $data['images'] = $this->getUrlImages($topic->getImages());
 
         if(isset($data['priceNet'], $data['priceGross'])) {
-            $data['priceNet'] = $moneyService->convertIntToFloat($data['priceNet']);
-            $data['priceGross'] = $moneyService->convertIntToFloat($data['priceGross']);
+            $data['priceNet'] = MoneyService::convertIntToFloat($data['priceNet']);
+            $data['priceGross'] = MoneyService::convertIntToFloat($data['priceGross']);
         }
 
         $data = $this->generateCommentsForSingleObject($topic, $data);

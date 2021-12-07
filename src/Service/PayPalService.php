@@ -6,7 +6,7 @@ namespace App\Service;
 use App\Component\OrderStatus;
 use App\Entity\EmailTemplate;
 use App\Entity\Order;
-use App\Entity\Transaction;
+use App\Entity\PayPalTransaction;
 use App\Message\SendOrderMailMessage;
 use Beelab\PaypalBundle\Paypal\Service;
 use Doctrine\ORM\EntityManagerInterface;
@@ -93,7 +93,7 @@ class PayPalService
         $em = $this->entityManager;
         $service = $this->service;
 
-        $transaction = $em->getRepository('App:Transaction')->findOneByToken($token);
+        $transaction = $em->getRepository('PayPalTransaction.php')->findOneByToken($token);
         if (null === $transaction) {
             return new JsonResponse(['error' => true, 'message' => 'Transaction was not found with this token.'], 404);
         }
@@ -138,7 +138,7 @@ class PayPalService
     {
         $em = $this->entityManager;
 
-        $transaction = $em->getRepository('App:Transaction')->findOneByToken($token);
+        $transaction = $em->getRepository('PayPalTransaction.php')->findOneByToken($token);
         if (null === $transaction) {
             return new JsonResponse(['error' => true, 'message' => 'Transaction was not found with this token.'], 404);
         }

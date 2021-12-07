@@ -4,9 +4,7 @@ declare(strict_types=1);
 namespace App\Tests\Service;
 
 use App\Service\MoneyService;
-use JsonException;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 final class MoneyServiceTest extends KernelTestCase
 {
@@ -18,12 +16,7 @@ final class MoneyServiceTest extends KernelTestCase
         // (1) boot the Symfony kernel
         self::bootKernel();
 
-        // (2) use self::$container to access the service container
-        $container = self::$container;
-
-        $moneyService = $container->get(MoneyService::class);
-
-        self::assertEquals(50.00, $moneyService->convertIntToFloat(5000));
+        self::assertEquals(50.00, MoneyService::convertIntToFloat(5000));
     }
 
     /**
@@ -34,11 +27,6 @@ final class MoneyServiceTest extends KernelTestCase
         // (1) boot the Symfony kernel
         self::bootKernel();
 
-        // (2) use self::$container to access the service container
-        $container = self::$container;
-
-        $moneyService = $container->get(MoneyService::class);
-
-        self::assertEquals(5000, $moneyService->convertFloatToInt(50));
+        self::assertEquals(5000, MoneyService::convertFloatToInt(50));
     }
 }

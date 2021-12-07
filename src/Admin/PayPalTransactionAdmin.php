@@ -9,7 +9,7 @@ use Sonata\AdminBundle\Datagrid\ListMapper;
 use Sonata\AdminBundle\Show\ShowMapper;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 
-final class TransactionAdmin extends AbstractAdmin
+final class PayPalTransactionAdmin extends AbstractAdmin
 {
     protected $datagridValues = [
         '_page' => 1,            // display the first page (default = 1)

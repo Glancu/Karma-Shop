@@ -21,43 +21,44 @@ final class OrderAdmin extends AbstractAdmin
 
     protected function configureFormFields(FormMapper $formMapper): void
     {
-        $formMapper->add('status', ChoiceType::class, [
-            'label' => 'Status',
-            'choices' => array_flip(OrderStatus::getStatusesArr())
-        ])
-                   ->add('methodPayment', ChoiceType::class, [
-                       'label' => 'Method pay',
-                       'choices' => array_flip(Order::getMethodPaymentsArr())
-                   ])
-                   ->add('additionalInformation', null, ['label' => 'Additional information']);
+        $formMapper
+            ->add('status', ChoiceType::class, [
+                'label' => 'Status',
+                'choices' => array_flip(OrderStatus::getStatusesArr())
+            ])
+            ->add('methodPayment', ChoiceType::class, [
+                'label' => 'Method pay',
+                'choices' => array_flip(Order::getMethodPaymentsArr())
+            ])
+            ->add('additionalInformation', null, ['label' => 'Additional information']);
     }
 
     protected function configureListFields(ListMapper $listMapper): void
     {
         $listMapper->add('id', null, ['label' => 'ID'])
-            ->add('user', null, ['label' => 'User'])
-            ->add('priceNet', null, ['label' => 'Price net'])
-            ->add('priceGross', null, ['label' => 'Price gross'])
-            ->add('createdAt', null, ['label' => 'Created at'])
-            ->add('statusStr', null, ['label' => 'Status'])
-            ->add('_action', null, [
-                'actions' => [
-                    'show' => [],
-                    'edit' => [],
-                    'delete' => [],
-                    'updateStatus' => [
-                        'template' => 'admin/order/CRUD/list__action_update_status.html.twig',
-                    ],
-                ]
-            ]);
+                   ->add('user', null, ['label' => 'User'])
+                   ->add('priceNet', null, ['label' => 'Price net'])
+                   ->add('priceGross', null, ['label' => 'Price gross'])
+                   ->add('createdAt', null, ['label' => 'Created at'])
+                   ->add('statusStr', null, ['label' => 'Status'])
+                   ->add('_action', null, [
+                       'actions' => [
+                           'show' => [],
+                           'edit' => [],
+                           'delete' => [],
+                           'updateStatus' => [
+                               'template' => 'admin/order/CRUD/list__action_update_status.html.twig',
+                           ],
+                       ]
+                   ]);
     }
 
     protected function configureShowFields(ShowMapper $showMapper): void
     {
         $showMapper->add('id', null, ['label' => 'ID'])
                    ->add('uuid', null, ['label' => 'UUID'])
-                   ->add('priceNet', null, ['label' => 'Price net'])
-                   ->add('priceGross', null, ['label' => 'Price gross'])
+                   ->add('priceNetFloat', null, ['label' => 'Price net'])
+                   ->add('priceGrossFloat', null, ['label' => 'Price gross'])
                    ->add('statusStr', null, ['label' => 'Status'])
                    ->add('transaction', null, ['label' => "PayPal", 'route' => ['name' => 'show']])
                    ->add('cart', null, [

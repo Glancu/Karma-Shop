@@ -7,12 +7,12 @@ class MoneyService
 {
     public const PRICE_DIVIDE_MULTIPLY = 100;
 
-    public function convertIntToFloat(int $price): string
+    public static function convertIntToFloat(int $price): string
     {
         return number_format($price / self::PRICE_DIVIDE_MULTIPLY, 2, '.', ',');
     }
 
-    public function convertFloatToInt($price): int
+    public static function convertFloatToInt($price): int
     {
         return (int)($price * self::PRICE_DIVIDE_MULTIPLY);
     }

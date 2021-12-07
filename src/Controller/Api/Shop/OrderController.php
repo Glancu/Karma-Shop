@@ -13,6 +13,7 @@ use App\Service\MoneyService;
 use App\Service\OrderService;
 use App\Service\RequestService;
 use Doctrine\ORM\EntityManagerInterface;
+use Exception;
 use JsonException;
 use Nelmio\ApiDocBundle\Annotation\Security;
 use OpenApi\Annotations as OA;
@@ -152,6 +153,7 @@ class OrderController
      * @return JsonResponse
      *
      * @throws JsonException
+     * @throws Exception
      */
     public function createOrder(
         Request $request,
@@ -207,14 +209,12 @@ class OrderController
      *
      * @param UserInterface $user
      * @param ImageService $imageService
-     * @param MoneyService $moneyService
      *
      * @return JsonResponse
      */
     public function getOrdersProductsByUserToken(
         UserInterface $user,
-        ImageService $imageService,
-        MoneyService $moneyService
+        ImageService $imageService
     ): JsonResponse {
         $em = $this->entityManager;
         $clientEmail = $user->getEmail();
@@ -235,7 +235,7 @@ class OrderController
             foreach ($order->getShopProductItems() as $productItem) {
                 $product = $productItem->getProduct();
 
-                $priceGross = $moneyService->convertIntToFloat($productItem->getPriceGross());
+                $priceGross = MoneyService::convertIntToFloat($productItem->getPriceGross());
 
                 $products[] = [
                     'uuid' => $product->getUuid(),

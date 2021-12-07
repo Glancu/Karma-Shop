@@ -8,13 +8,6 @@ use Twig\TwigFilter;
 
 class ConvertMoneyExtension extends AbstractExtension
 {
-    private MoneyService $moneyService;
-
-    public function __construct(MoneyService $moneyService) {
-
-        $this->moneyService = $moneyService;
-    }
-
     public function getFilters(): array
     {
         return [
@@ -24,6 +17,6 @@ class ConvertMoneyExtension extends AbstractExtension
 
     public function convertMoneyToFloat($money): float
     {
-        return $this->moneyService->convertIntToFloat($money);
+        return MoneyService::convertIntToFloat($money);
     }
 }

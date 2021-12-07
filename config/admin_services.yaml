@@ -108,7 +108,7 @@ services:
       - { name: sonata.admin, manager_type: orm, group: Email, label: Email history }
 
   admin.payment.pay_pal:
-    class: App\Admin\TransactionAdmin
-    arguments: [ ~, App\Entity\Transaction, ~ ]
+    class: App\Admin\PayPalTransactionAdmin
+    arguments: [ ~, App\Entity\PayPalTransaction, ~ ]
     tags:
       - { name: sonata.admin, manager_type: orm, group: Payment, label: PayPal }
