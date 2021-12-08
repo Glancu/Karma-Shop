@@ -15,6 +15,11 @@ jobs:
         ports:
           - 3306/tcp
         options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+      redis:
+        image: redis
+        ports:
+          - 6379/tcp
+        options: --health-cmd="redis-cli ping" --health-interval=10s --health-timeout=5s --health-retries=3
     strategy:
       fail-fast: false
       matrix:
@@ -27,7 +32,7 @@ jobs:
         with:
           php-version: ${{ matrix.php-versions }}
           tools: phpunit-bridge
-          extensions: mbstring, xml, ctype, iconv, intl, pdo_sqlite, mysql
+          extensions: mbstring, xml, ctype, iconv, intl, pdo_sqlite, mysql, redis
           coverage: xdebug #optional
       - name: Start mysql service
         run: sudo /etc/init.d/mysql start
@@ -44,6 +49,10 @@ jobs:
           # key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }}
           key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
           restore-keys: ${{ runner.os }}-composer-
+      - name: Install redis
+        run: sudo apt-get install -y redis-tools redis-server
+      - name: Verify that redis is up
+        run: redis-cli ping
       - name: Create .env file
         run: cp .env.dist .env
       - name: Change DATABASE_URL

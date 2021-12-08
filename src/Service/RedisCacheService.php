@@ -8,6 +8,7 @@ use App\Serializer\ShopSerializeDataResponse;
 use Doctrine\ORM\EntityManagerInterface;
 use Predis\CommunicationException;
 use Psr\Cache\InvalidArgumentException;
+use RedisException;
 use Symfony\Component\Cache\Adapter\AdapterInterface;
 use Symfony\Component\Cache\Adapter\RedisAdapter;
 
@@ -52,25 +53,29 @@ class RedisCacheService
         $parameters = null,
         $expiresAfter = 3600
     ) {
-        $cacheRedis = new RedisAdapter(
-            RedisAdapter::createConnection($this->redisUrl)
-        );
+        if($this->isConnected()) {
+            $cacheRedis = new RedisAdapter(
+                RedisAdapter::createConnection($this->redisUrl)
+            );
 
-        $itemsRedis = $cacheRedis->getItem($redisKeyName);
-        if (!$itemsRedis->isHit()) {
-            if (!$parameters) {
-                $value = $this->entityManager->getRepository($class)->{$repositoryFunctionName}();
-            } else {
-                $value = $this->entityManager->getRepository($class)->{$repositoryFunctionName}($parameters);
+            $itemsRedis = $cacheRedis->getItem($redisKeyName);
+            if (!$itemsRedis->isHit()) {
+                if (!$parameters) {
+                    $value = $this->entityManager->getRepository($class)->{$repositoryFunctionName}();
+                } else {
+                    $value = $this->entityManager->getRepository($class)->{$repositoryFunctionName}($parameters);
+                }
+
+                $itemsRedis->set($value);
+                $itemsRedis->expiresAfter($expiresAfter);
+
+                $cacheRedis->save($itemsRedis);
             }
 
-            $itemsRedis->set($value);
-            $itemsRedis->expiresAfter($expiresAfter);
-
-            $cacheRedis->save($itemsRedis);
+            return $itemsRedis->get();
         }
 
-        return $itemsRedis->get();
+        return null;
     }
 
     /**
@@ -98,62 +103,85 @@ class RedisCacheService
         $messageIfValueNotFound = 'Object was not found.',
         $expiresAfter = 3600
     ) {
-        $cacheRedis = new RedisAdapter(
-            RedisAdapter::createConnection($this->redisUrl)
-        );
+        if($this->isConnected()) {
+            $cacheRedis = new RedisAdapter(
+                $this->getClientConnection()
+            );
 
-        $itemsRedis = $cacheRedis->getItem($redisKeyName);
-        $cacheRedisSerializeItem = $cacheRedis->getItem($redisKeyName.'.serialize');
+            $itemsRedis = $cacheRedis->getItem($redisKeyName);
+            $cacheRedisSerializeItem = $cacheRedis->getItem($redisKeyName.'.serialize');
 
-        if (!$itemsRedis->isHit() || !$cacheRedisSerializeItem->isHit()) {
-            if (!$parameters) {
-                $value = $this->entityManager->getRepository($class)->{$repositoryFunctionName}();
-            } else {
-                $value = $this->entityManager->getRepository($class)->{$repositoryFunctionName}($parameters);
+            if (!$itemsRedis->isHit() || !$cacheRedisSerializeItem->isHit()) {
+                if (!$parameters) {
+                    $value = $this->entityManager->getRepository($class)->{$repositoryFunctionName}();
+                } else {
+                    $value = $this->entityManager->getRepository($class)->{$repositoryFunctionName}($parameters);
+                }
+
+                if(!$value) {
+                    return ['error' => true, 'message' => $messageIfValueNotFound];
+                }
+
+                if(!$parametersForSerialize) {
+                    $serializeData = $this->$serializeName->{$serializeFunctionName}($value);
+                } else {
+                    $serializeData = $this->$serializeName->{$serializeFunctionName}($value, ...$parametersForSerialize);
+                }
+
+                $cacheRedisSerializeItem->set($serializeData);
+                $cacheRedisSerializeItem->expiresAfter($expiresAfter);
+
+                $cacheRedis->save($cacheRedisSerializeItem);
+
+                $itemsRedis->set($value);
+                $itemsRedis->expiresAfter($expiresAfter);
+
+                $cacheRedis->save($itemsRedis);
             }
 
-            if(!$value) {
-                return ['error' => true, 'message' => $messageIfValueNotFound];
-            }
-
-            if(!$parametersForSerialize) {
-                $serializeData = $this->$serializeName->{$serializeFunctionName}($value);
-            } else {
-                $serializeData = $this->$serializeName->{$serializeFunctionName}($value, ...$parametersForSerialize);
-            }
-
-            $cacheRedisSerializeItem->set($serializeData);
-            $cacheRedisSerializeItem->expiresAfter($expiresAfter);
-
-            $cacheRedis->save($cacheRedisSerializeItem);
-
-            $itemsRedis->set($value);
-            $itemsRedis->expiresAfter($expiresAfter);
-
-            $cacheRedis->save($itemsRedis);
+            return $cacheRedisSerializeItem->get();
         }
 
-        return $cacheRedisSerializeItem->get();
+        return null;
     }
 
     public function flushAll(): void
     {
-        $client = RedisAdapter::createConnection(
+        if($this->isConnected()) {
+            $client = $this->getClientConnection();
+
+            $client->flushall();
+        }
+    }
+
+    private function isConnected(): bool
+    {
+        $client = $this->getClientConnection();
+
+        try {
+            return $client->ping() === 'PONG';
+        } catch (CommunicationException $e) {
+            return false;
+        } catch (RedisException $e) {
+            return false;
+        }
+
+        return true;
+    }
+
+    private function getClientConnection()
+    {
+        return RedisAdapter::createConnection(
             $this->redisUrl,
             [
                 'lazy' => false,
                 'persistent' => 0,
                 'persistent_id' => null,
                 'tcp_keepalive' => 0,
-                'timeout' => 30,
+                'timeout' => 3,
                 'read_timeout' => 0,
                 'retry_interval' => 0,
             ]
         );
-
-        try {
-            $client->flushall();
-        } catch (CommunicationException $e) {
-        }
     }
 }
