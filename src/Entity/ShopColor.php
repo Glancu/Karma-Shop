@@ -89,7 +89,7 @@ class ShopColor
         $this->name = $name;
     }
 
-    public function getSlug(): ?string
+    public function getSlug(): string
     {
         return $this->slug;
     }

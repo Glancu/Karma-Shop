@@ -15,7 +15,6 @@ use Symfony\Component\Serializer\Annotation\Groups;
 /**
  * @ORM\Cache(usage="NONSTRICT_READ_WRITE")
  * @ORM\Entity(repositoryClass=ShopBrandRepository::class)
- * @ORM\HasLifecycleCallbacks()
  */
 class ShopBrand
 {
@@ -51,7 +50,7 @@ class ShopBrand
      *
      * @ORM\Column(type="string", length=255, unique=true)
      */
-    private string $slug = '';
+    private string $slug;
 
     /**
      * @var ArrayCollection|PersistentCollection
