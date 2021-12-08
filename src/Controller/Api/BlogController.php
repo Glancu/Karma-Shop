@@ -147,7 +147,7 @@ class BlogController
             [$countPosts, $parameters]
         );
 
-        if ($countPosts === 0 && !$postsData) {
+        if ($countPosts === 0 || !$postsData) {
             $postsData = json_encode(['errorMessage' => 'Posts was not found.'], JSON_THROW_ON_ERROR);
         }
 

@@ -55,7 +55,7 @@ class RedisCacheService
     ) {
         if($this->isConnected()) {
             $cacheRedis = new RedisAdapter(
-                RedisAdapter::createConnection($this->redisUrl)
+                $this->getClientConnection()
             );
 
             $itemsRedis = $cacheRedis->getItem($redisKeyName);
@@ -159,14 +159,12 @@ class RedisCacheService
         $client = $this->getClientConnection();
 
         try {
-            return $client->ping() === 'PONG';
+            return $client->ping()->getPayload() === 'PONG';
         } catch (CommunicationException $e) {
             return false;
         } catch (RedisException $e) {
             return false;
         }
-
-        return true;
     }
 
     private function getClientConnection()

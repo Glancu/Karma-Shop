@@ -85,12 +85,18 @@ class SearchController
             ShopProduct::class,
             'findByNameLike',
             $query);
+        if(!is_array($shopProducts)) {
+            $shopProducts = [];
+        }
 
         $blogPosts = $this->redisCacheService->getAndSaveIfNotExist(
             'search.list.blogPosts.'.$query,
             BlogPost::class,
             'findByTitleLike',
             $query);
+        if(!is_array($blogPosts)) {
+            $blogPosts = [];
+        }
 
         $suggestions = [];
 

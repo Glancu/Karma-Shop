@@ -185,7 +185,7 @@ class ProductController
             [(int)$countProducts, $parameters]
         );
 
-        if ($countProducts === 0 && !$productData) {
+        if ($countProducts === 0 || !$productData) {
             $productData = json_encode(['errorMessage' => 'Products was not found.'], JSON_THROW_ON_ERROR);
         }
 
@@ -278,7 +278,7 @@ class ProductController
             'Products was not found.'
         );
 
-        if ($countProducts === 0 && !$productData) {
+        if ($countProducts === 0 || !$productData) {
             $productData = json_encode(['errorMessage' => 'Products was not found.'], JSON_THROW_ON_ERROR);
         }
 
