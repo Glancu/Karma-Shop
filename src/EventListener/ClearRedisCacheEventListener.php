@@ -41,6 +41,6 @@ class ClearRedisCacheEventListener implements EventSubscriberInterface
 
     private function clearRedisCache(): void
     {
-        $this->redisCacheService->flushAll();
+//        $this->redisCacheService->flushAll();
     }
 }
