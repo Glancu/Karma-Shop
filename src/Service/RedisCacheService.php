@@ -6,6 +6,7 @@ namespace App\Service;
 use App\Serializer\BlogSerializeDataResponse;
 use App\Serializer\ShopSerializeDataResponse;
 use Doctrine\ORM\EntityManagerInterface;
+use Predis\CommunicationException;
 use Psr\Cache\InvalidArgumentException;
 use Symfony\Component\Cache\Adapter\AdapterInterface;
 use Symfony\Component\Cache\Adapter\RedisAdapter;
@@ -150,6 +151,9 @@ class RedisCacheService
             ]
         );
 
-        $client->flushall();
+        try {
+            $client->flushall();
+        } catch (CommunicationException $e) {
+        }
     }
 }
