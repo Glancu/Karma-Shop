@@ -64,11 +64,9 @@ class ShopProductRepository extends ServiceEntityRepository
             ->orderBy('sp.id', 'DESC')
             ->setMaxResults(8);
 
-        $query = $queryBuilder->getQuery();
 
-        $query->setCacheable(true);
-
-        return $query
+        return $queryBuilder
+            ->getQuery()
             ->getResult();
     }
 
@@ -138,11 +136,8 @@ class ShopProductRepository extends ServiceEntityRepository
             ->setParameter('name', '%'.$name.'%')
             ->setMaxResults(4);
 
-        $query = $queryBuilder->getQuery();
-
-        $query->setCacheable(true);
-
-        return $query
+        return $queryBuilder
+            ->getQuery()
             ->getResult();
     }
 
@@ -165,6 +160,25 @@ class ShopProductRepository extends ServiceEntityRepository
         $query->setCacheable(true);
 
         return $query
+            ->getOneOrNullResult();
+    }
+
+    /**
+     * @param string $slug
+     *
+     * @return ShopProduct|null
+     *
+     * @throws NonUniqueResultException
+     */
+    public function findBySlug(string $slug): ?ShopProduct
+    {
+        $queryBuilder = $this->createQueryBuilder('sp')
+            ->where('sp.enable = 1')
+            ->andWhere('sp.slug = :slug')
+            ->setParameter('slug', $slug);
+
+        return $queryBuilder
+            ->getQuery()
             ->getOneOrNullResult();
     }
 }

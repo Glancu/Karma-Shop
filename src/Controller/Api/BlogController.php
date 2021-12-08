@@ -43,16 +43,6 @@ class BlogController
     private RedisCacheService $redisCacheService;
     private BlogSerializeDataResponse $blogSerializeDataResponse;
 
-    /**
-     * BlogController constructor.
-     *
-     * @param SerializeDataResponse $serializeDataResponse
-     * @param BlogPostRepository $blogPostRepository
-     * @param RouterInterface $router
-     * @param BlogCategoryRepository $blogCategoryRepository
-     * @param RedisCacheService $redisCacheService
-     * @param BlogSerializeDataResponse $blogSerializeDataResponse
-     */
     public function __construct(
         SerializeDataResponse $serializeDataResponse,
         BlogPostRepository $blogPostRepository,
@@ -119,7 +109,7 @@ class BlogController
      * @throws JsonException
      * @throws NoResultException
      * @throws NonUniqueResultException
-     * @throws ExceptionInterface
+     * @throws InvalidArgumentException
      */
     public function getBlogPostsList(Request $request): JsonResponse
     {
@@ -147,11 +137,17 @@ class BlogController
             $parameters['limit'] = $countPosts;
         }
 
-        $posts = $this->blogPostRepository->getPostsWithLimitAndOffsetAndCountItems($parameters);
+        $postsData = $this->redisCacheService->getAndSaveIfNotExistWithSerializeData(
+            'blog.getBlogPostsList',
+            BlogPost::class,
+            'getPostsWithLimitAndOffsetAndCountItems',
+            'blogSerializeDataResponse',
+            'getBlogPostsData',
+            $parameters,
+            [$countPosts, $parameters]
+        );
 
-        $postsData = $this->blogSerializeDataResponse->getBlogPostsData($posts, $countPosts, $parameters);
-
-        if ($countPosts === 0 && !$posts) {
+        if ($countPosts === 0 && !$postsData) {
             $postsData = json_encode(['errorMessage' => 'Posts was not found.'], JSON_THROW_ON_ERROR);
         }
 
@@ -197,13 +193,12 @@ class BlogController
      * @throws NoResultException
      * @throws NonUniqueResultException
      * @throws Exception
+     * @throws InvalidArgumentException
      */
     public function getSinglePost(ImageService $imageService, string $slug): JsonResponse
     {
-        $post = $this->blogPostRepository->findOneBy([
-            'slug' => $slug
-        ]);
-        if (!$post) {
+        $post = $this->redisCacheService->getAndSaveIfNotExist('blog.post.'.$slug, BlogPost::class, 'findBySlug', $slug);
+        if (!$post || !$post instanceof BlogPost) {
             return new JsonResponse(['error' => true, 'message' => 'Post was not found.'], 404);
         }
 
@@ -248,6 +243,8 @@ class BlogController
      * @param Request $request
      *
      * @return JsonResponse
+     *
+     * @throws InvalidArgumentException
      */
     public function searchByTitle(Request $request): JsonResponse
     {
@@ -262,7 +259,7 @@ class BlogController
 
         $query = htmlspecialchars($request->get('query'), ENT_QUOTES);
 
-        $items = $this->blogPostRepository->findByTitleLike($query);
+        $items = $this->redisCacheService->getAndSaveIfNotExist('blog.searchByTitle__'.$query, BlogPost::class, 'findByTitleLike', $query);
 
         $suggestions = [];
 
@@ -300,10 +297,11 @@ class BlogController
      * @return JsonResponse
      *
      * @throws ExceptionInterface
+     * @throws InvalidArgumentException
      */
     public function getPopularPosts(): JsonResponse
     {
-        $items = $this->blogPostRepository->getPopularPosts();
+        $items = $this->redisCacheService->getAndSaveIfNotExist('blog.getPopularPosts', BlogPost::class, 'getPopularPosts');
 
         $data = $this->blogSerializeDataResponse->getBlogPopularPosts($items);
 
@@ -324,16 +322,16 @@ class BlogController
      *
      * @Security()
      *
-     * @param BlogCategoryRepository $blogCategoryRepository
      * @param int $limit
      *
      * @return JsonResponse
      *
      * @throws ExceptionInterface
+     * @throws InvalidArgumentException
      */
-    public function getLatestCategories(BlogCategoryRepository $blogCategoryRepository, int $limit = 3): JsonResponse
+    public function getLatestCategories(int $limit = 3): JsonResponse
     {
-        $categories = $blogCategoryRepository->getItemsByLimit($limit);
+        $categories = $this->redisCacheService->getAndSaveIfNotExist('blog.getLatestCategories', BlogCategory::class, 'getItemsByLimit', $limit);
 
         $data = $this->blogSerializeDataResponse->getBlogCategoriesLatestData($categories);
 

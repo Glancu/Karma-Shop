@@ -3,10 +3,11 @@ declare(strict_types=1);
 
 namespace App\Controller\Api\Shop;
 
-use App\Repository\ShopCategoryRepository;
-use App\Serializer\ShopSerializeDataResponse;
+use App\Entity\ShopCategory;
+use App\Service\RedisCacheService;
 use Nelmio\ApiDocBundle\Annotation\Security;
 use OpenApi\Annotations as OA;
+use Psr\Cache\InvalidArgumentException;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -21,21 +22,12 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class CategoryController
 {
-    private ShopCategoryRepository $shopCategoryRepository;
-    private ShopSerializeDataResponse $shopSerializeDataResponse;
+    private RedisCacheService $redisCacheService;
 
-    /**
-     * CategoryController constructor.
-     *
-     * @param ShopCategoryRepository $shopCategoryRepository
-     * @param ShopSerializeDataResponse $shopSerializeDataResponse
-     */
     public function __construct(
-        ShopCategoryRepository $shopCategoryRepository,
-        ShopSerializeDataResponse $shopSerializeDataResponse
+        RedisCacheService $redisCacheService
     ) {
-        $this->shopCategoryRepository = $shopCategoryRepository;
-        $this->shopSerializeDataResponse = $shopSerializeDataResponse;
+        $this->redisCacheService = $redisCacheService;
     }
 
     /**
@@ -52,14 +44,19 @@ class CategoryController
      * @Security()
      *
      * @return JsonResponse
+     *
+     * @throws InvalidArgumentException
      */
     public function getShopCategoriesList(): JsonResponse
     {
-        $items = $this->shopCategoryRepository->findBy(
-            ['enable' => true],
-            ['id' => 'DESC']
+        $response = $this->redisCacheService->getAndSaveIfNotExistWithSerializeData(
+            'shop.category.findAllEnable',
+            ShopCategory::class,
+            'findAllEnable',
+            'shopSerializeDataResponse',
+            'getShopCategoriesList'
         );
 
-        return JsonResponse::fromJsonString($this->shopSerializeDataResponse->getShopCategoriesList($items));
+        return JsonResponse::fromJsonString($response);
     }
 }

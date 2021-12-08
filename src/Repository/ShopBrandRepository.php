@@ -18,4 +18,15 @@ class ShopBrandRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, ShopBrand::class);
     }
+
+    public function findAllEnable(): array
+    {
+        $queryBuilder = $this->createQueryBuilder('sb')
+            ->where('sb.enable = 1')
+            ->orderBy('sb.id', 'DESC');
+
+        return $queryBuilder
+            ->getQuery()
+            ->getResult();
+    }
 }

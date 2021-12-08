@@ -7,8 +7,10 @@ use App\Entity\BlogPost;
 use App\Entity\ShopProduct;
 use App\Repository\BlogPostRepository;
 use App\Repository\ShopProductRepository;
+use App\Service\RedisCacheService;
 use Nelmio\ApiDocBundle\Annotation\Security;
 use OpenApi\Annotations as OA;
+use Psr\Cache\InvalidArgumentException;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -27,11 +29,16 @@ class SearchController
 {
     private ShopProductRepository $shopProductRepository;
     private BlogPostRepository $blogPostRepository;
+    private RedisCacheService $redisCacheService;
 
-    public function __construct(ShopProductRepository $shopProductRepository, BlogPostRepository $blogPostRepository)
-    {
+    public function __construct(
+        ShopProductRepository $shopProductRepository,
+        BlogPostRepository $blogPostRepository,
+        RedisCacheService $redisCacheService
+    ) {
         $this->shopProductRepository = $shopProductRepository;
         $this->blogPostRepository = $blogPostRepository;
+        $this->redisCacheService = $redisCacheService;
     }
 
     /**
@@ -58,6 +65,7 @@ class SearchController
      * @param Request $request
      *
      * @return JsonResponse
+     * @throws InvalidArgumentException
      */
     public function list(Request $request): JsonResponse
     {
@@ -72,9 +80,17 @@ class SearchController
 
         $query = htmlspecialchars($request->get('query'), ENT_QUOTES);
 
-        $shopProducts = $this->shopProductRepository->findByNameLike($query);
+        $shopProducts = $this->redisCacheService->getAndSaveIfNotExist(
+            'search.list.shopProducts.'.$query,
+            ShopProduct::class,
+            'findByNameLike',
+            $query);
 
-        $blogPosts = $this->blogPostRepository->findByTitleLike($query);
+        $blogPosts = $this->redisCacheService->getAndSaveIfNotExist(
+            'search.list.blogPosts.'.$query,
+            BlogPost::class,
+            'findByTitleLike',
+            $query);
 
         $suggestions = [];
 

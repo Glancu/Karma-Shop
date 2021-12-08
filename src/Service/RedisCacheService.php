@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace App\Service;
 
+use App\Serializer\BlogSerializeDataResponse;
+use App\Serializer\ShopSerializeDataResponse;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Cache\InvalidArgumentException;
 use Symfony\Component\Cache\Adapter\AdapterInterface;
@@ -13,12 +15,22 @@ class RedisCacheService
     private EntityManagerInterface $entityManager;
     private AdapterInterface $adapter;
     private string $redisUrl;
+    private BlogSerializeDataResponse $blogSerializeDataResponse;
+    private ShopSerializeDataResponse $shopSerializeDataResponse;
 
-    public function __construct(EntityManagerInterface $entityManager, AdapterInterface $adapter, string $redisUrl)
+    public function __construct(
+        EntityManagerInterface $entityManager,
+        AdapterInterface $adapter,
+        string $redisUrl,
+        BlogSerializeDataResponse $blogSerializeDataResponse,
+        ShopSerializeDataResponse $shopSerializeDataResponse
+    )
     {
         $this->entityManager = $entityManager;
         $this->adapter = $adapter;
         $this->redisUrl = $redisUrl;
+        $this->blogSerializeDataResponse = $blogSerializeDataResponse;
+        $this->shopSerializeDataResponse = $shopSerializeDataResponse;
     }
 
     /**
@@ -39,7 +51,9 @@ class RedisCacheService
         $parameters = null,
         $expiresAfter = 3600
     ) {
-        $cacheRedis = $this->adapter;
+        $cacheRedis = new RedisAdapter(
+            RedisAdapter::createConnection($this->redisUrl)
+        );
 
         $itemsRedis = $cacheRedis->getItem($redisKeyName);
         if (!$itemsRedis->isHit()) {
@@ -56,6 +70,69 @@ class RedisCacheService
         }
 
         return $itemsRedis->get();
+    }
+
+    /**
+     * @param string $redisKeyName
+     * @param string $class
+     * @param $repositoryFunctionName
+     * @param string $serializeName
+     * @param string $serializeFunctionName
+     * @param null $parameters
+     * @param null $parametersForSerialize
+     * @param int $expiresAfter
+     *
+     * @return mixed
+     *
+     * @throws InvalidArgumentException
+     */
+    public function getAndSaveIfNotExistWithSerializeData(
+        string $redisKeyName,
+        string $class,
+        $repositoryFunctionName,
+        string $serializeName,
+        string $serializeFunctionName,
+        $parameters = null,
+        $parametersForSerialize = null,
+        $messageIfValueNotFound = 'Object was not found.',
+        $expiresAfter = 3600
+    ) {
+        $cacheRedis = new RedisAdapter(
+            RedisAdapter::createConnection($this->redisUrl)
+        );
+
+        $itemsRedis = $cacheRedis->getItem($redisKeyName);
+        $cacheRedisSerializeItem = $cacheRedis->getItem($redisKeyName.'.serialize');
+
+        if (!$itemsRedis->isHit() || !$cacheRedisSerializeItem->isHit()) {
+            if (!$parameters) {
+                $value = $this->entityManager->getRepository($class)->{$repositoryFunctionName}();
+            } else {
+                $value = $this->entityManager->getRepository($class)->{$repositoryFunctionName}($parameters);
+            }
+
+            if(!$value) {
+                return ['error' => true, 'message' => $messageIfValueNotFound];
+            }
+
+            if(!$parametersForSerialize) {
+                $serializeData = $this->$serializeName->{$serializeFunctionName}($value);
+            } else {
+                $serializeData = $this->$serializeName->{$serializeFunctionName}($value, ...$parametersForSerialize);
+            }
+
+            $cacheRedisSerializeItem->set($serializeData);
+            $cacheRedisSerializeItem->expiresAfter($expiresAfter);
+
+            $cacheRedis->save($cacheRedisSerializeItem);
+
+            $itemsRedis->set($value);
+            $itemsRedis->expiresAfter($expiresAfter);
+
+            $cacheRedis->save($itemsRedis);
+        }
+
+        return $cacheRedisSerializeItem->get();
     }
 
     public function flushAll(): void

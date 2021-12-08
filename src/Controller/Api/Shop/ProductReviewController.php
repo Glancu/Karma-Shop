@@ -6,6 +6,7 @@ namespace App\Controller\Api\Shop;
 use App\Entity\ProductReview;
 use App\Entity\ShopProduct;
 use App\Form\Type\CreateProductReviewFormType;
+use App\Service\RedisCacheService;
 use App\Service\RequestService;
 use App\Service\UserService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -16,6 +17,7 @@ use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use Psr\Cache\InvalidArgumentException;
 
 /**
  * Class ProductReviewController
@@ -30,16 +32,16 @@ class ProductReviewController
 {
     private FormFactoryInterface $form;
     private EntityManagerInterface $entityManager;
+    private RedisCacheService $redisCacheService;
 
-    /**
-     * OrderController constructor.
-     *
-     * @param FormFactoryInterface $formFactory
-     */
-    public function __construct(FormFactoryInterface $formFactory, EntityManagerInterface $entityManager)
-    {
+    public function __construct(
+        FormFactoryInterface $formFactory,
+        EntityManagerInterface $entityManager,
+        RedisCacheService $redisCacheService
+    ) {
         $this->form = $formFactory;
         $this->entityManager = $entityManager;
+        $this->redisCacheService = $redisCacheService;
     }
 
     /**
@@ -117,6 +119,7 @@ class ProductReviewController
      * @return JsonResponse
      *
      * @throws JsonException
+     * @throws InvalidArgumentException
      */
     public function createProductReview(Request $request, RequestService $requestService): JsonResponse
     {
@@ -124,11 +127,16 @@ class ProductReviewController
         $formService = $this->form;
 
         $requiredDataFromContent = [
-            'name', 'email', 'message', 'rating', 'productUuid', 'dataProcessingAgreement'
+            'name',
+            'email',
+            'message',
+            'rating',
+            'productUuid',
+            'dataProcessingAgreement'
         ];
 
         $data = $requestService->validRequestContentAndGetData($request->getContent(), $requiredDataFromContent);
-        if($data instanceof JsonResponse) {
+        if ($data instanceof JsonResponse) {
             return $data;
         }
 
@@ -143,11 +151,12 @@ class ProductReviewController
                 return new JsonResponse($errorsList, 400);
             }
 
-            /**
-             * @var ShopProduct $shopProduct
-             */
-            $shopProduct = $this->entityManager->getRepository('App:ShopProduct')
-                                               ->findActiveByUuid($data['productUuid']);
+            $shopProduct = $this->redisCacheService->getAndSaveIfNotExist(
+                'shop.product.'.$data['productUuid'],
+                ShopProduct::class,
+                'findActiveByUuid',
+                $data['productUuid']
+            );
             if (!$shopProduct) {
                 return new JsonResponse(['error' => true, 'message' => 'Product was not found.'], 404);
             }

@@ -9,6 +9,7 @@ use App\Form\Type\ClientUserChangePasswordType;
 use App\Form\Type\CreateClientUserFormType;
 use App\Message\SendMailMessage;
 use App\Serializer\SerializeDataResponse;
+use App\Service\RedisCacheService;
 use App\Service\RequestService;
 use App\Service\UserService;
 use DateTime;
@@ -17,6 +18,7 @@ use Exception;
 use JsonException;
 use Nelmio\ApiDocBundle\Annotation\Security;
 use OpenApi\Annotations as OA;
+use Psr\Cache\InvalidArgumentException;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -45,22 +47,18 @@ class ClientUserController
     private EntityManagerInterface $entityManager;
     private FormFactoryInterface $form;
     private RouterInterface $router;
+    private RedisCacheService $redisCacheService;
 
-    /**
-     * ClientUserController constructor.
-     *
-     * @param EntityManagerInterface $entityManager
-     * @param FormFactoryInterface $formFactory
-     * @param RouterInterface $router
-     */
     public function __construct(
         EntityManagerInterface $entityManager,
         FormFactoryInterface $formFactory,
-        RouterInterface $router
+        RouterInterface $router,
+        RedisCacheService $redisCacheService
     ) {
         $this->entityManager = $entityManager;
         $this->form = $formFactory;
         $this->router = $router;
+        $this->redisCacheService = $redisCacheService;
     }
 
     /**
@@ -118,6 +116,7 @@ class ClientUserController
      *
      * @throws JsonException
      * @throws Exception
+     * @throws InvalidArgumentException
      */
     public function createUserAction(
         Request $request,
@@ -156,7 +155,12 @@ class ClientUserController
             return new JsonResponse($errorsList, 400);
         }
 
-        $clientUserObj = $this->entityManager->getRepository('App:ClientUser')->findByEmail($data['email']);
+        $clientUserObj = $this->redisCacheService->getAndSaveIfNotExist(
+            'clientUser.'.str_replace('@', '',$data['email']),
+            ClientUser::class,
+            'findByEmail',
+            $data['email']
+        );
         if ($clientUserObj) {
             $errorsList = ['error' => true, 'message' => 'User already exist with this email.'];
 
@@ -267,6 +271,7 @@ class ClientUserController
      * @return JsonResponse
      *
      * @throws JsonException
+     * @throws InvalidArgumentException
      */
     public function changePasswordAction(
         Request $request,
@@ -298,7 +303,12 @@ class ClientUserController
         /**
          * @var ClientUser $clientUser
          */
-        $clientUser = $em->getRepository('App:ClientUser')->findByEmail($clientEmail);
+        $clientUser = $this->redisCacheService->getAndSaveIfNotExist(
+            'clientUser.'.str_replace('@', '', $clientEmail),
+            ClientUser::class,
+            'findByEmail',
+            $clientEmail
+        );
         if (!$clientUser) {
             return new JsonResponse(['error' => true, 'message' => 'User was not found.'], 400);
         }
@@ -377,17 +387,18 @@ class ClientUserController
      * @param UserInterface $userInterface
      *
      * @return JsonResponse
+     * @throws InvalidArgumentException
      */
     public function userDataAction(UserInterface $userInterface): JsonResponse
     {
-        $em = $this->entityManager;
+        $clientEmail = $userInterface->getEmail();
 
-        $userEmail = $userInterface->getEmail();
-
-        /**
-         * @var ClientUser $clientUser
-         */
-        $clientUser = $em->getRepository('App:ClientUser')->findByEmail($userEmail);
+        $clientUser = $this->redisCacheService->getAndSaveIfNotExist(
+            'clientUser.'.str_replace('@', '', $clientEmail),
+            ClientUser::class,
+            'findByEmail',
+            $clientEmail
+        );
         if (!$clientUser) {
             return new JsonResponse(['error' => true, 'message' => 'User was not found.'], 404);
         }
@@ -495,6 +506,7 @@ class ClientUserController
      * @return JsonResponse
      *
      * @throws JsonException
+     * @throws InvalidArgumentException
      */
     public function validateTokenAction(
         Request $request,
@@ -514,12 +526,12 @@ class ClientUserController
 
         $encoderData = $userService->decodeUserByJWTToken($data['token']);
         if ($encoderData) {
-            /**
-             * @var ClientUser $clientUser
-             */
-            $clientUser = $this->entityManager->getRepository('App:ClientUser')->findOneBy([
-                'email' => $encoderData['email']
-            ]);
+            $clientUser = $this->redisCacheService->getAndSaveIfNotExist(
+                'clientUser.'.str_replace('@', '', $encoderData['email']),
+                ClientUser::class,
+                'findByEmail',
+                $encoderData['email']
+            );
             if (!$clientUser) {
                 $return['message'] = 'User was not found';
 
@@ -664,6 +676,7 @@ class ClientUserController
      *
      * @throws JsonException
      * @throws Exception
+     * @throws InvalidArgumentException
      */
     public function forgotPassword(
         Request $request,
@@ -691,7 +704,12 @@ class ClientUserController
         /**
          * @var ClientUser $user
          */
-        $user = $em->getRepository('App:ClientUser')->findByEmail($data['email']);
+        $user = $this->redisCacheService->getAndSaveIfNotExist(
+            'clientUser.'.str_replace('@', '', $data['email']),
+            ClientUser::class,
+            'findByEmail',
+            $data['email']
+        );
         if (!$user) {
             return new JsonResponse(['error' => true, 'message' => 'User was not found.'], 404);
         }
@@ -704,7 +722,13 @@ class ClientUserController
         $em->persist($user);
         $em->flush();
 
-        $emailTemplate = $em->getRepository('App:EmailTemplate')->findByType(EmailTemplate::TYPE_USER_FORGOT_PASSWORD);
+        $emailTemplateType = EmailTemplate::TYPE_USER_FORGOT_PASSWORD;
+        $emailTemplate = $this->redisCacheService->getAndSaveIfNotExist(
+            'emailTemplate.'.$emailTemplateType,
+            EmailTemplate::class,
+            'findByType',
+            $emailTemplateType
+        );
         if (!$emailTemplate) {
             throw new NotFoundResourceException('Email template for forgot password not found.');
         }

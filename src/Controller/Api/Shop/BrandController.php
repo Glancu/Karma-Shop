@@ -3,10 +3,11 @@ declare(strict_types=1);
 
 namespace App\Controller\Api\Shop;
 
-use App\Repository\ShopBrandRepository;
-use App\Serializer\ShopSerializeDataResponse;
+use App\Entity\ShopBrand;
+use App\Service\RedisCacheService;
 use Nelmio\ApiDocBundle\Annotation\Security;
 use OpenApi\Annotations as OA;
+use Psr\Cache\InvalidArgumentException;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -21,21 +22,12 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class BrandController
 {
-    private ShopBrandRepository $shopBrandRepository;
-    private ShopSerializeDataResponse $shopSerializeDataResponse;
+    private RedisCacheService $redisCacheService;
 
-    /**
-     * BrandController constructor.
-     *
-     * @param ShopBrandRepository $shopBrandRepository
-     * @param ShopSerializeDataResponse $shopSerializeDataResponse
-     */
     public function __construct(
-        ShopBrandRepository $shopBrandRepository,
-        ShopSerializeDataResponse $shopSerializeDataResponse
+        RedisCacheService $redisCacheService
     ) {
-        $this->shopBrandRepository = $shopBrandRepository;
-        $this->shopSerializeDataResponse = $shopSerializeDataResponse;
+        $this->redisCacheService = $redisCacheService;
     }
 
     /**
@@ -52,14 +44,18 @@ class BrandController
      * @Security()
      *
      * @return JsonResponse
+     * @throws InvalidArgumentException
      */
     public function getShopBrandsList(): JsonResponse
     {
-        $items = $this->shopBrandRepository->findBy(
-            ['enable' => true],
-            ['id' => 'DESC']
+        $response = $this->redisCacheService->getAndSaveIfNotExistWithSerializeData(
+            'shop.brand.findAllEnable',
+            ShopBrand::class,
+            'findAllEnable',
+            'shopSerializeDataResponse',
+            'getShopBrandsList'
         );
 
-        return JsonResponse::fromJsonString($this->shopSerializeDataResponse->getShopBrandsList($items));
+        return JsonResponse::fromJsonString($response);
     }
 }

@@ -4,9 +4,9 @@ declare(strict_types=1);
 namespace App\Controller\Api\Shop;
 
 use App\Entity\ShopProduct;
+use App\Normalizer\ShopNormalizer;
 use App\Repository\ShopProductRepository;
 use App\Serializer\SerializeDataResponse;
-use App\Normalizer\ShopNormalizer;
 use App\Serializer\ShopSerializeDataResponse;
 use App\Service\MoneyService;
 use App\Service\RedisCacheService;
@@ -17,7 +17,6 @@ use Psr\Cache\InvalidArgumentException;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Serializer\Exception\ExceptionInterface;
 
 /**
  * Class ProductController
@@ -36,15 +35,6 @@ class ProductController
     private RedisCacheService $redisCacheService;
     private ShopSerializeDataResponse $shopSerializeDataResponse;
 
-    /**
-     * ProductController constructor.
-     *
-     * @param SerializeDataResponse $serializeDataResponse
-     * @param ShopProductRepository $shopProductRepository
-     * @param ShopNormalizer $shopSerializer
-     * @param RedisCacheService $redisCacheService
-     * @param ShopSerializeDataResponse $shopSerializeDataResponse
-     */
     public function __construct(
         SerializeDataResponse $serializeDataResponse,
         ShopProductRepository $shopProductRepository,
@@ -137,7 +127,6 @@ class ProductController
      *
      * @throws JsonException
      * @throws InvalidArgumentException
-     * @throws ExceptionInterface
      */
     public function getProductsList(Request $request, MoneyService $moneyService): JsonResponse
     {
@@ -186,12 +175,17 @@ class ProductController
             $parameters['limit'] = $countProducts;
         }
 
-        $products = $this->shopProductRepository->getProductsWithLimitAndOffsetAndCountItems($parameters);
+        $productData = $this->redisCacheService->getAndSaveIfNotExistWithSerializeData(
+            'shop.product.getProductsWithLimitAndOffsetAndCountItems',
+            ShopProduct::class,
+            'getProductsWithLimitAndOffsetAndCountItems',
+            'shopSerializeDataResponse',
+            'getShopProductsData',
+            $parameters,
+            [(int)$countProducts, $parameters]
+        );
 
-        $productData = $this->shopSerializeDataResponse->getShopProductsData($products, (int)$countProducts,
-            $parameters);
-
-        if ($countProducts === 0 && !$products) {
+        if ($countProducts === 0 && !$productData) {
             $productData = json_encode(['errorMessage' => 'Products was not found.'], JSON_THROW_ON_ERROR);
         }
 
@@ -232,18 +226,22 @@ class ProductController
      *
      * @return JsonResponse
      *
-     * @throws ExceptionInterface
+     * @throws InvalidArgumentException
      */
     public function getProductAction($slug): JsonResponse
     {
-        $product = $this->shopProductRepository->findOneBy([
-            'slug' => $slug
-        ]);
-        if (!$product) {
-            return new JsonResponse(['error' => true, 'message' => 'Product was not found.'], 404);
-        }
+        $response = $this->redisCacheService->getAndSaveIfNotExistWithSerializeData(
+            'shop.product.'.$slug,
+            ShopProduct::class,
+            'findBySlug',
+            'shopSerializeDataResponse',
+            'getSingleShopProductData',
+            $slug,
+            null,
+            'Product was not found.'
+        );
 
-        return new JsonResponse($this->shopSerializeDataResponse->getSingleShopProductData($product));
+        return new JsonResponse($response);
     }
 
     /**
@@ -263,19 +261,24 @@ class ProductController
      * @return JsonResponse
      *
      * @throws JsonException
-     * @throws ExceptionInterface
+     * @throws InvalidArgumentException
      */
     public function getLatestProducts(): JsonResponse
     {
-        $productRepository = $this->shopProductRepository;
-
         $countProducts = 8;
 
-        $products = $productRepository->getLatestProducts();
+        $productData = $this->redisCacheService->getAndSaveIfNotExistWithSerializeData(
+            'product.getLatestProducts',
+            ShopProduct::class,
+            'getLatestProducts',
+            'shopSerializeDataResponse',
+            'getShopProductsData',
+            null,
+            [$countProducts],
+            'Products was not found.'
+        );
 
-        $productData = $this->shopSerializeDataResponse->getShopProductsData($products, $countProducts);
-
-        if ($countProducts === 0 && !$products) {
+        if ($countProducts === 0 && !$productData) {
             $productData = json_encode(['errorMessage' => 'Products was not found.'], JSON_THROW_ON_ERROR);
         }
 

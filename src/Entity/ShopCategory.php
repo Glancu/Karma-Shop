@@ -122,17 +122,6 @@ class ShopCategory
 
     public function getCountProducts(): int
     {
-        $count = 0;
-
-        /**
-         * @var ShopProduct $product
-         */
-        foreach($this->products as $product) {
-            if($product->isEnable()) {
-                $count++;
-            }
-        }
-
-        return $count;
+        return $this->products->count();
     }
 }

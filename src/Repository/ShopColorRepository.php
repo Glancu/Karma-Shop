@@ -18,4 +18,15 @@ class ShopColorRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, ShopColor::class);
     }
+
+    public function findAllEnable(): array
+    {
+        $queryBuilder = $this->createQueryBuilder('sc')
+                             ->where('sc.enable = 1')
+                             ->orderBy('sc.id', 'DESC');
+
+        return $queryBuilder
+            ->getQuery()
+            ->getResult();
+    }
 }

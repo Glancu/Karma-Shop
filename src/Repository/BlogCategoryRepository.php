@@ -25,11 +25,8 @@ class BlogCategoryRepository extends ServiceEntityRepository
             ->orderBy('b.id', 'DESC')
             ->setMaxResults($limit);
 
-        $query = $queryBuilder->getQuery();
-
-        $query->setCacheable(true);
-
-        return $query
+        return $queryBuilder
+            ->getQuery()
             ->getResult();
     }
 

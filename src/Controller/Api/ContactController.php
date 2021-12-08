@@ -7,6 +7,7 @@ use App\Entity\Contact;
 use App\Entity\EmailTemplate;
 use App\Form\Type\ContactType;
 use App\Service\MailerService;
+use App\Service\RedisCacheService;
 use App\Service\RequestService;
 use App\Service\UserService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -14,6 +15,7 @@ use Exception;
 use JsonException;
 use Nelmio\ApiDocBundle\Annotation\Security;
 use OpenApi\Annotations as OA;
+use Psr\Cache\InvalidArgumentException;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -32,19 +34,17 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 class ContactController
 {
     private EntityManagerInterface $entityManager;
-
     private FormFactoryInterface $form;
+    private RedisCacheService $redisCacheService;
 
-    /**
-     * ContactController constructor.
-     *
-     * @param EntityManagerInterface $entityManager
-     * @param FormFactoryInterface $formFactory
-     */
-    public function __construct(EntityManagerInterface $entityManager, FormFactoryInterface $formFactory)
-    {
+    public function __construct(
+        EntityManagerInterface $entityManager,
+        FormFactoryInterface $formFactory,
+        RedisCacheService $redisCacheService
+    ) {
         $this->entityManager = $entityManager;
         $this->form = $formFactory;
+        $this->redisCacheService = $redisCacheService;
     }
 
     /**
@@ -118,6 +118,7 @@ class ContactController
      * @return JsonResponse
      * @throws JsonException
      * @throws Exception
+     * @throws InvalidArgumentException
      */
     public function createContact(
         Request $request,
@@ -129,11 +130,15 @@ class ContactController
         $form = $this->form;
 
         $requiredDataFromContent = [
-            'name', 'email', 'subject', 'message', 'dataProcessingAgreement'
+            'name',
+            'email',
+            'subject',
+            'message',
+            'dataProcessingAgreement'
         ];
 
         $data = $requestService->validRequestContentAndGetData($request->getContent(), $requiredDataFromContent);
-        if($data instanceof JsonResponse) {
+        if ($data instanceof JsonResponse) {
             return $data;
         }
 
@@ -161,11 +166,17 @@ class ContactController
                 $em->persist($contact);
                 $em->flush();
 
+
+                $emailTemplateType = EmailTemplate::TYPE_NEW_CONTACT_TO_ADMIN;
                 /**
                  * @var EmailTemplate $emailTemplate
                  */
-                $emailTemplate = $em->getRepository('App:EmailTemplate')
-                                    ->findByType(EmailTemplate::TYPE_NEW_CONTACT_TO_ADMIN);
+                $emailTemplate = $this->redisCacheService->getAndSaveIfNotExist(
+                    'emailTemplate.'.$emailTemplateType,
+                    EmailTemplate::class,
+                    'findByType',
+                    $emailTemplateType
+                );
                 if ($emailTemplate) {
                     $mailerService->sendMail(
                         $emailTemplate->getSubject(),

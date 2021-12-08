@@ -18,4 +18,16 @@ class NewsletterRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, Newsletter::class);
     }
+
+    public function findByEmail(string $email): ?Newsletter
+    {
+        $queryBuilder = $this->createQueryBuilder('n')
+            ->where('n.email = :email')
+            ->setParameter('email', $email)
+            ->setMaxResults(1);
+
+        return $queryBuilder
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
 }

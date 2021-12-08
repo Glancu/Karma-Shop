@@ -5,12 +5,14 @@ namespace App\Controller\Api;
 
 use App\Entity\Newsletter;
 use App\Form\Type\NewsletterType;
+use App\Service\RedisCacheService;
 use App\Service\RequestService;
 use App\Service\UserService;
 use Doctrine\ORM\EntityManagerInterface;
 use JsonException;
 use Nelmio\ApiDocBundle\Annotation\Security;
 use OpenApi\Annotations as OA;
+use Psr\Cache\InvalidArgumentException;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -29,19 +31,17 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 class NewsletterController
 {
     private EntityManagerInterface $entityManager;
-
     private FormFactoryInterface $form;
+    private RedisCacheService $redisCacheService;
 
-    /**
-     * NewsletterController constructor.
-     *
-     * @param EntityManagerInterface $entityManager
-     * @param FormFactoryInterface $formFactory
-     */
-    public function __construct(EntityManagerInterface $entityManager, FormFactoryInterface $formFactory)
-    {
+    public function __construct(
+        EntityManagerInterface $entityManager,
+        FormFactoryInterface $formFactory,
+        RedisCacheService $redisCacheService
+    ) {
         $this->entityManager = $entityManager;
         $this->form = $formFactory;
+        $this->redisCacheService = $redisCacheService;
     }
 
     /**
@@ -102,6 +102,7 @@ class NewsletterController
      * @return JsonResponse
      *
      * @throws JsonException
+     * @throws InvalidArgumentException
      */
     public function createNewsletter(
         Request $request,
@@ -112,11 +113,13 @@ class NewsletterController
         $form = $this->form;
 
         $requiredDataFromContent = [
-            'name', 'email', 'dataProcessingAgreement'
+            'name',
+            'email',
+            'dataProcessingAgreement'
         ];
 
         $data = $requestService->validRequestContentAndGetData($request->getContent(), $requiredDataFromContent);
-        if($data instanceof JsonResponse) {
+        if ($data instanceof JsonResponse) {
             return $data;
         }
 
@@ -138,9 +141,12 @@ class NewsletterController
 
         $errors = $validator->validate($newsletter);
         if ($errors->count() === 0) {
-            $newsletterObj = $em->getRepository('App:Newsletter')->findOneBy([
-                'email' => $data['email']
-            ]);
+            $newsletterObj = $this->redisCacheService->getAndSaveIfNotExist(
+                'newsletter.'.str_replace('@', '', $data['email']),
+                Newsletter::class,
+                'findByEmail',
+                $data['email']
+            );
             if ($newsletterObj) {
                 $errorsList = ['error' => true, 'message' => 'Email already exist.'];
 

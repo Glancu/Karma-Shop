@@ -11,12 +11,13 @@ use App\Serializer\ShopSerializeDataResponse;
 use App\Service\ImageService;
 use App\Service\MoneyService;
 use App\Service\OrderService;
+use App\Service\RedisCacheService;
 use App\Service\RequestService;
-use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use JsonException;
 use Nelmio\ApiDocBundle\Annotation\Security;
 use OpenApi\Annotations as OA;
+use Psr\Cache\InvalidArgumentException;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -37,26 +38,15 @@ use Symfony\Component\Security\Core\User\UserInterface;
 class OrderController
 {
     private FormFactoryInterface $form;
-    private EntityManagerInterface $entityManager;
     private ShopSerializeDataResponse $shopSerializeDataResponse;
     private RouterInterface $router;
 
-    /**
-     * OrderController constructor.
-     *
-     * @param FormFactoryInterface $formFactory
-     * @param EntityManagerInterface $entityManager
-     * @param ShopSerializeDataResponse $shopSerializeDataResponse
-     * @param RouterInterface $router
-     */
     public function __construct(
         FormFactoryInterface $formFactory,
-        EntityManagerInterface $entityManager,
         ShopSerializeDataResponse $shopSerializeDataResponse,
         RouterInterface $router
     ) {
         $this->form = $formFactory;
-        $this->entityManager = $entityManager;
         $this->shopSerializeDataResponse = $shopSerializeDataResponse;
         $this->router = $router;
     }
@@ -209,17 +199,20 @@ class OrderController
      *
      * @param UserInterface $user
      * @param ImageService $imageService
+     * @param RedisCacheService $redisCacheService
      *
      * @return JsonResponse
+     *
+     * @throws InvalidArgumentException
      */
     public function getOrdersProductsByUserToken(
         UserInterface $user,
-        ImageService $imageService
+        ImageService $imageService,
+        RedisCacheService $redisCacheService
     ): JsonResponse {
-        $em = $this->entityManager;
         $clientEmail = $user->getEmail();
 
-        $orders = $em->getRepository('App:Order')->findByClientEmail($clientEmail);
+        $orders = $redisCacheService->getAndSaveIfNotExist('order.getOrdersProductsByUserToken', Order::class, 'findByClientEmail', $clientEmail);
 
         $data = [];
 

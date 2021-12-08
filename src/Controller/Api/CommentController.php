@@ -7,12 +7,14 @@ use App\Entity\BlogPost;
 use App\Entity\Comment;
 use App\Entity\ShopProduct;
 use App\Form\Type\CreateCommentFormType;
+use App\Service\RedisCacheService;
 use App\Service\RequestService;
 use App\Service\UserService;
 use Doctrine\ORM\EntityManagerInterface;
 use JsonException;
 use Nelmio\ApiDocBundle\Annotation\Security;
 use OpenApi\Annotations as OA;
+use Psr\Cache\InvalidArgumentException;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -31,17 +33,16 @@ class CommentController
 {
     private EntityManagerInterface $entityManager;
     private FormFactoryInterface $form;
+    private RedisCacheService $redisCacheService;
 
-    /**
-     * CommentController constructor.
-     *
-     * @param EntityManagerInterface $entityManager
-     * @param FormFactoryInterface $formFactory
-     */
-    public function __construct(EntityManagerInterface $entityManager, FormFactoryInterface $formFactory)
-    {
+    public function __construct(
+        EntityManagerInterface $entityManager,
+        FormFactoryInterface $formFactory,
+        RedisCacheService $redisCacheService
+    ) {
         $this->entityManager = $entityManager;
         $this->form = $formFactory;
+        $this->redisCacheService = $redisCacheService;
     }
 
     /**
@@ -127,6 +128,7 @@ class CommentController
      * @return JsonResponse
      *
      * @throws JsonException
+     * @throws InvalidArgumentException
      */
     public function createComment(Request $request, RequestService $requestService): JsonResponse
     {
@@ -134,11 +136,14 @@ class CommentController
         $formService = $this->form;
 
         $requiredDataFromContent = [
-            'name', 'email', 'message', 'dataProcessingAgreement'
+            'name',
+            'email',
+            'message',
+            'dataProcessingAgreement'
         ];
 
         $data = $requestService->validRequestContentAndGetData($request->getContent(), $requiredDataFromContent);
-        if($data instanceof JsonResponse) {
+        if ($data instanceof JsonResponse) {
             return $data;
         }
 
@@ -157,12 +162,16 @@ class CommentController
 
             $em->persist($comment);
 
-            if(isset($data['productUuid'])) {
+            if (isset($data['productUuid'])) {
                 /**
                  * @var ShopProduct $shopProduct
                  */
-                $shopProduct = $this->entityManager->getRepository('App:ShopProduct')
-                                                   ->findActiveByUuid($data['productUuid']);
+                $shopProduct = $this->redisCacheService->getAndSaveIfNotExist(
+                    'comment.'.$data['productUuid'],
+                    ShopProduct::class,
+                    'findActiveByUuid',
+                    $data['productUuid']
+                );
                 if (!$shopProduct) {
                     return new JsonResponse(['error' => true, 'message' => 'Product was not found.'], 404);
                 }
@@ -172,13 +181,17 @@ class CommentController
                 $em->persist($shopProduct);
             }
 
-            if(isset($data['blogPostUuid'])) {
+            if (isset($data['blogPostUuid'])) {
                 /**
                  * @var BlogPost $blogPost
                  */
-                $blogPost = $this->entityManager->getRepository('App:BlogPost')
-                                                ->findActiveByUuid($data['blogPostUuid']);
-                if(!$blogPost) {
+                $blogPost = $this->redisCacheService->getAndSaveIfNotExist(
+                    'blog.'.$data['blogPostUuid'],
+                    BlogPost::class,
+                    'findActiveByUuid',
+                    $data['blogPostUuid']
+                );
+                if (!$blogPost) {
                     return new JsonResponse(['error' => true, 'message' => 'Post was not found.'], 404);
                 }
 
@@ -187,7 +200,7 @@ class CommentController
                 $em->persist($blogPost);
             }
 
-            if(!isset($data['productUuid']) && !isset($data['blogPostUuid'])) {
+            if (!isset($data['productUuid']) && !isset($data['blogPostUuid'])) {
                 return new JsonResponse(['error' => true, 'message' => 'Not found object to add comment'], 400);
             }
 

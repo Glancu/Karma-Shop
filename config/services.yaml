@@ -59,4 +59,11 @@ services:
 
     App\Service\RedisCacheService:
         class: App\Service\RedisCacheService
-        arguments: [ '@doctrine.orm.entity_manager', '@annotations.cache_adapter', '%env(REDIS_URL)%' ]
+        arguments: [ '@doctrine.orm.entity_manager', '@annotations.cache_adapter', '%env(REDIS_URL)%', '@App\Serializer\BlogSerializeDataResponse', '@App\Serializer\ShopSerializeDataResponse' ]
+
+    App\EventListener\ClearRedisCacheEventListener:
+        tags:
+            - # these are the options required to define the entity listener
+                name: 'doctrine.orm.entity_listener'
+                priority: 500
+
