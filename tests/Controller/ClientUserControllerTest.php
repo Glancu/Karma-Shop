@@ -98,10 +98,6 @@ final class ClientUserControllerTest extends WebTestCase
 
             self::assertTrue($bool);
         } catch (JsonException $exception) {
-            echo '<pre>';
-            var_dump($exception->getMessage());
-            echo '</pre>';
-            exit;
             self::assertTrue(false);
         }
     }
