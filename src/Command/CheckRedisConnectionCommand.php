@@ -44,6 +44,6 @@ class CheckRedisConnectionCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): void
     {
-        $output->writeln($this->redisCacheService->isConnected() ? 'Jest connection' : 'Nie ma connection');
+        $output->writeln($this->redisCacheService->isConnected() ? 'Not connected' : 'Connected!');
     }
 }
