@@ -55,6 +55,9 @@ class BrandController
             'shopSerializeDataResponse',
             'getShopBrandsList'
         );
+        if(null === $response) {
+            $response = '';
+        }
 
         return JsonResponse::fromJsonString($response);
     }

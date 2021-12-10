@@ -55,6 +55,9 @@ class ColorController
             'shopSerializeDataResponse',
             'getShopColorsList'
         );
+        if(null === $response) {
+            $response = '';
+        }
 
         return JsonResponse::fromJsonString($response);
     }

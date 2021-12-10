@@ -56,6 +56,9 @@ class CategoryController
             'shopSerializeDataResponse',
             'getShopCategoriesList'
         );
+        if(null === $response) {
+            $response = '';
+        }
 
         return JsonResponse::fromJsonString($response);
     }

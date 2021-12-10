@@ -302,6 +302,9 @@ class BlogController
     public function getPopularPosts(): JsonResponse
     {
         $items = $this->redisCacheService->getAndSaveIfNotExist('blog.getPopularPosts', BlogPost::class, 'getPopularPosts');
+        if(null === $items || !is_array($items)) {
+            $items = [];
+        }
 
         $data = $this->blogSerializeDataResponse->getBlogPopularPosts($items);
 
@@ -332,6 +335,9 @@ class BlogController
     public function getLatestCategories(int $limit = 3): JsonResponse
     {
         $categories = $this->redisCacheService->getAndSaveIfNotExist('blog.getLatestCategories', BlogCategory::class, 'getItemsByLimit', $limit);
+        if(null === $categories || !is_array($categories)) {
+            $categories = [];
+        }
 
         $data = $this->blogSerializeDataResponse->getBlogCategoriesLatestData($categories);
 
