@@ -15,11 +15,6 @@ jobs:
         ports:
           - 3306/tcp
         options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
-      redis:
-        image: redis
-        ports:
-          - 6379/tcp
-        options: --health-cmd="redis-cli ping" --health-interval=10s --health-timeout=5s --health-retries=3
     strategy:
       fail-fast: false
       matrix:
@@ -31,8 +26,8 @@ jobs:
         uses: shivammathur/setup-php@v2 #https://github.com/shivammathur/setup-php
         with:
           php-version: ${{ matrix.php-versions }}
-          tools: phpunit-bridge
-          extensions: mbstring, xml, ctype, iconv, intl, pdo_sqlite, mysql, redis
+          tools: phpunit-bridge, composer:v1
+          extensions: mbstring, xml, ctype, iconv, intl, pdo_sqlite, mysql, :redis
           coverage: xdebug #optional
       - name: Start mysql service
         run: sudo /etc/init.d/mysql start
@@ -49,10 +44,6 @@ jobs:
           # key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }}
           key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
           restore-keys: ${{ runner.os }}-composer-
-      - name: Install redis
-        run: sudo apt-get install -y redis-tools redis-server
-      - name: Verify that redis is up
-        run: redis-cli ping
       - name: Create .env file
         run: cp .env.dist .env
       - name: Change DATABASE_URL
@@ -69,6 +60,12 @@ jobs:
         run: yarn build
       - name: Install Composer dependencies
         run: composer install --no-progress
+      - name: Install redis
+        run: sudo apt-get install -y redis-tools redis-server
+      - name: Verify that redis is up
+        run: redis-cli -h 127.0.0.1 -p 6379 ping
+      - name: Chceck redis connection
+        run: php bin/console app:redis:check-connection
       - name: Create database
         run: php bin/console doctrine:database:create
       - name: Update schema
@@ -78,4 +75,5 @@ jobs:
       - name: Set chmod 777 var folder
         run: sudo chmod 777 -R ./var/
       - name: Run tests
-        run: ./vendor/bin/phpunit --coverage-text
+        run: ./bin/phpunit --coverage-text
+

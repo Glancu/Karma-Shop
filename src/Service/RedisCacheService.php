@@ -154,7 +154,7 @@ class RedisCacheService
         }
     }
 
-    private function isConnected(): bool
+    public function isConnected(): bool
     {
         $client = $this->getClientConnection();
 
