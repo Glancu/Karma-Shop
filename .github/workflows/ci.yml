@@ -76,5 +76,7 @@ jobs:
         run: php bin/console --env=dev doctrine:fixtures:load --append
       - name: Set chmod 777 var folder
         run: sudo chmod 777 -R ./var/
+      - name: Flush all redis
+        run: php bin/console app:redis:flushall
       - name: Run tests
         run: ./bin/phpunit --coverage-text
