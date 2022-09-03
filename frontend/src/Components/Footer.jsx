@@ -79,7 +79,7 @@ class Footer extends Component {
                             name: '',
                             email: '',
                             dataProcessingAgreement: false,
-                            noticeMessage: 'Your email was added to newsletter.'
+                            noticeMessage: 'Your email was added to the newsletter.'
                         });
                     } else if(data.error && data.message) {
                         this.setState({errorMessage: data.message, noticeMessage: ''});
@@ -151,8 +151,8 @@ class Footer extends Component {
                                             <label htmlFor="email_newsletter">Email <span className="red-star">*</span></label>
                                             <input className="form-control"
                                                    type="email"
-                                                   id="email_newsletter"
-                                                   name="email_newsletter"
+                                                   id="email"
+                                                   name="email"
                                                    placeholder="Enter Email"
                                                    required
                                                    onChange={this.handleChange}
