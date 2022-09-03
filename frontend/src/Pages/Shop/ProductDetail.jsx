@@ -120,7 +120,7 @@ class ProductDetail extends Component {
         if(product && quantityInputEl) {
             ShoppingCart.addProductToCart(product, parseInt(quantityInputEl.value));
 
-            toast.info('Product was add to cart!', {autoClose: 2000});
+            toast.info('Product was added to the cart!', {autoClose: 2000});
 
             quantityInputEl.value = 1;
         }

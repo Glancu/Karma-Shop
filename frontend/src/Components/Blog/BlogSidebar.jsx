@@ -145,7 +145,7 @@ class BlogSidebar extends Component {
 
                         newsletter.form = form;
 
-                        newsletter.noticeMessage = 'Your email was added to newsletter.';
+                        newsletter.noticeMessage = 'Your email was added to the newsletter.';
 
                         this.setState({newsletter});
                     } else if(data.error && data.message) {

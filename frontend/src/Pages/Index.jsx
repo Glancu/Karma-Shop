@@ -123,7 +123,7 @@ class Index extends Component {
         const data = ShoppingCart.addProductToCart(product);
 
         if(data.newProductInCart === true) {
-            toast.info('Product was add to cart!', {autoClose: 2000});
+            toast.info('Product was added to the cart!', {autoClose: 2000});
         } else if(data.newProductInCart === false && data.quantity <= 9) {
             toast.info('Product quantity was increased to ' + data.quantity + '!', {autoClose: 2000});
         } else {
