@@ -37,8 +37,8 @@ final class OrderAdmin extends AbstractAdmin
     {
         $listMapper->add('id', null, ['label' => 'ID'])
                    ->add('user', null, ['label' => 'User'])
-                   ->add('priceNet', null, ['label' => 'Price net'])
-                   ->add('priceGross', null, ['label' => 'Price gross'])
+                   ->add('priceNetFloat', null, ['label' => 'Price net'])
+                   ->add('priceGrossFloat', null, ['label' => 'Price gross'])
                    ->add('createdAt', null, ['label' => 'Created at'])
                    ->add('statusStr', null, ['label' => 'Status'])
                    ->add('methodPaymentStr', null, ['label' => 'Method payment'])
