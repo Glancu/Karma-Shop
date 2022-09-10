@@ -134,7 +134,7 @@ class ProductController
         $offset = $request->query->get('offset') ?: 0;
         $sortBy = $request->query->get('sortBy') ?: null;
         if ($sortBy === 'price') {
-            $sortBy = 'priceNet';
+            $sortBy = 'priceGross';
         }
         $color = $request->query->get('color');
         $brand = $request->query->get('brand');
@@ -159,6 +159,9 @@ class ProductController
             'priceTo' => $priceTo,
             'categorySlug' => $request->query->get('category')
         ];
+
+//        dump($parameters);
+//        exit;
 
         $countProducts = $this->shopProductRepository->getCountProductsByParameters($parameters);
         if ($countProducts < 5) {
