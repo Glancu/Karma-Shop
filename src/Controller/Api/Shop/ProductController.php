@@ -172,12 +172,11 @@ class ProductController
         }
 
         $productData = $this->shopProductRepository->getProductsWithLimitAndOffsetAndCountItems($parameters);
+        $productData = $this->shopSerializeDataResponse->getShopProductsData($productData, $countProducts);
 
         if ($countProducts === 0 || $productData === []) {
-            $productData = ['errorMessage' => 'Products was not found.'];
+            $productData = json_encode(['errorMessage' => 'Products was not found.']);
         }
-
-        $productData = $this->shopSerializeDataResponse->getShopProductsData($productData, $countProducts);
 
         return JsonResponse::fromJsonString($productData);
     }
