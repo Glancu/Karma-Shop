@@ -11,6 +11,7 @@ use Psr\Cache\InvalidArgumentException;
 use RedisException;
 use Symfony\Component\Cache\Adapter\AdapterInterface;
 use Symfony\Component\Cache\Adapter\RedisAdapter;
+use Symfony\Component\Cache\CacheItem;
 
 class RedisCacheService
 {
@@ -58,8 +59,9 @@ class RedisCacheService
                 $this->getClientConnection()
             );
 
+            /** @var CacheItem $itemsRedis */
             $itemsRedis = $cacheRedis->getItem($redisKeyName);
-            if (!$itemsRedis->isHit()) {
+            if (!$itemsRedis->isHit() || $itemsRedis->get() === null) {
                 if (!$parameters) {
                     $value = $this->entityManager->getRepository($class)->{$repositoryFunctionName}();
                 } else {
@@ -133,9 +135,15 @@ class RedisCacheService
 
                 $cacheRedis->save($cacheRedisSerializeItem);
 
-                $itemsRedis->set($value);
+//                $itemsRedis->set($value);
                 $itemsRedis->expiresAfter($expiresAfter);
 
+//                dump($itemsRedis);
+//                exit;
+
+//                dump($value);
+//                exit;
+//
                 $cacheRedis->save($itemsRedis);
             }
 
@@ -156,13 +164,11 @@ class RedisCacheService
 
     public function isConnected(): bool
     {
-        $client = $this->getClientConnection();
-
         try {
-            return $client->ping()->getPayload() === 'PONG';
-        } catch (CommunicationException $e) {
-            return false;
+            return $this->getClientConnection()->isConnected();
         } catch (RedisException $e) {
+            return false;
+        } catch (\Exception $e) {
             return false;
         }
     }

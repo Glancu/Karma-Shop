@@ -80,9 +80,12 @@ class BlogPostRepository extends ServiceEntityRepository
     public function findBySlug(string $slug): ?BlogPost
     {
         $queryBuilder = $this->createQueryBuilder('p')
+                             ->addSelect('p, category, author')
                              ->where('p.enable = 1')
                              ->andWhere('p.slug = :slug')
-                             ->setParameter('slug', $slug);
+                             ->setParameter('slug', $slug)
+                             ->leftJoin('p.category', 'category')
+                             ->leftJoin('p.author', 'author');
 
         return $queryBuilder
             ->getQuery()
@@ -124,8 +127,11 @@ class BlogPostRepository extends ServiceEntityRepository
     public function getPopularPosts($limit = 4): array
     {
         $queryBuilder = $this->createQueryBuilder('b')
-            ->orderBy('b.views' , 'DESC')
-            ->setMaxResults($limit);
+                             ->addSelect('b, category, author')
+                             ->orderBy('b.views', 'DESC')
+                             ->setMaxResults($limit)
+                             ->leftJoin('b.category', 'category')
+                             ->leftJoin('b.author', 'author');
 
 
         return $queryBuilder
@@ -143,9 +149,9 @@ class BlogPostRepository extends ServiceEntityRepository
     public function findActiveByUuid(string $uuid): ?BlogPost
     {
         $queryBuilder = $this->createQueryBuilder('bp')
-            ->where('bp.enable = 1')
-            ->andWhere('bp.uuid = :uuid')
-            ->setParameter('uuid', $uuid);
+                             ->where('bp.enable = 1')
+                             ->andWhere('bp.uuid = :uuid')
+                             ->setParameter('uuid', $uuid);
 
         return $queryBuilder
             ->getQuery()
@@ -155,9 +161,9 @@ class BlogPostRepository extends ServiceEntityRepository
     public function findByTitleLike(string $title): array
     {
         $queryBuilder = $this->createQueryBuilder('b')
-            ->where('b.enable = 1')
-            ->andWhere('b.title LIKE :title')
-            ->setParameter('title', "%${title}%");
+                             ->where('b.enable = 1')
+                             ->andWhere('b.title LIKE :title')
+                             ->setParameter('title', "%${title}%");
 
         return $queryBuilder
             ->getQuery()

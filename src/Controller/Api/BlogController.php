@@ -197,7 +197,12 @@ class BlogController
      */
     public function getSinglePost(ImageService $imageService, string $slug): JsonResponse
     {
-        $post = $this->redisCacheService->getAndSaveIfNotExist('blog.post.'.$slug, BlogPost::class, 'findBySlug', $slug);
+        $post = $this->redisCacheService->getAndSaveIfNotExist(
+            'blog.post.'.$slug,
+            BlogPost::class,
+            'findBySlug',
+            $slug
+        );
         if (!$post || !$post instanceof BlogPost) {
             return new JsonResponse(['error' => true, 'message' => 'Post was not found.'], 404);
         }
@@ -301,7 +306,11 @@ class BlogController
      */
     public function getPopularPosts(): JsonResponse
     {
-        $items = $this->redisCacheService->getAndSaveIfNotExist('blog.getPopularPosts', BlogPost::class, 'getPopularPosts');
+        $items = $this->redisCacheService->getAndSaveIfNotExist(
+            'blog.getPopularPosts',
+            BlogPost::class,
+            'getPopularPosts'
+        );
         if(null === $items || !is_array($items)) {
             $items = [];
         }
