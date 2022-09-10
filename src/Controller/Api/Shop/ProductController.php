@@ -130,8 +130,6 @@ class ProductController
      */
     public function getProductsList(Request $request, MoneyService $moneyService): JsonResponse
     {
-        $redisCacheService = $this->redisCacheService;
-
         $limit = $request->query->get('limit') ?: 12;
         $offset = $request->query->get('offset') ?: 0;
         $sortBy = $request->query->get('sortBy') ?: null;
@@ -162,12 +160,7 @@ class ProductController
             'categorySlug' => $request->query->get('category')
         ];
 
-        $countProducts = $redisCacheService->getAndSaveIfNotExist(
-            'product_getProductsList__countItems',
-            ShopProduct::class,
-            'getCountProductsByParameters',
-            $parameters
-        );
+        $countProducts = $this->shopProductRepository->getCountProductsByParameters($parameters);
         if ($countProducts < 5) {
             $parameters['limit'] = 10;
             $parameters['offset'] = 0;
@@ -175,19 +168,13 @@ class ProductController
             $parameters['limit'] = $countProducts;
         }
 
-        $productData = $this->redisCacheService->getAndSaveIfNotExistWithSerializeData(
-            'shop.product.getProductsWithLimitAndOffsetAndCountItems',
-            ShopProduct::class,
-            'getProductsWithLimitAndOffsetAndCountItems',
-            'shopSerializeDataResponse',
-            'getShopProductsData',
-            $parameters,
-            [(int)$countProducts, $parameters]
-        );
+        $productData = $this->shopProductRepository->getProductsWithLimitAndOffsetAndCountItems($parameters);
 
-        if ($countProducts === 0 || !$productData) {
-            $productData = json_encode(['errorMessage' => 'Products was not found.'], JSON_THROW_ON_ERROR);
+        if ($countProducts === 0 || $productData === []) {
+            $productData = ['errorMessage' => 'Products was not found.'];
         }
+
+        $productData = $this->shopSerializeDataResponse->getShopProductsData($productData, $countProducts);
 
         return JsonResponse::fromJsonString($productData);
     }
