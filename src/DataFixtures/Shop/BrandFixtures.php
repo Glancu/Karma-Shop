@@ -12,12 +12,12 @@ class BrandFixtures extends Fixture
     {
         return [
             'Gionee',
-            'Asus',
-            'Apple',
-            'Acer',
-            'HP',
-            'Dell',
-            'MSI'
+            'Nike',
+            'Adidas',
+            'Puma',
+            'Calvin Klein',
+            'New Balance',
+            'Tommy Hilfiger'
         ];
     }
 
